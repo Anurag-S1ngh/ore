@@ -1,0 +1,3 @@
+{
+  "extends": "@ore/config/tsconfig.base.json"
+}
