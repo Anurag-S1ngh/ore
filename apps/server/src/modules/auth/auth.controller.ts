@@ -7,7 +7,6 @@ import { generateJWT } from "@/util/token";
 
 const isProd = ENV.NODE_ENV === "production";
 
-// shared by set + clear so the browser always matches them on delete
 const authCookieOptions: {
   httpOnly: boolean;
   secure: boolean;
@@ -46,9 +45,9 @@ export const authController = {
     if (!validatedData.success) {
       return res.status(400).json(validatedData.error.issues[0]?.message);
     }
-    const { email, username, otp } = validatedData.data;
+    const { email, otp } = validatedData.data;
     try {
-      const user = await authService.verifyOTP(email, username, otp);
+      const user = await authService.verifyOTP(email, otp);
       const jwtToken = await generateJWT(user.id);
       res.cookie("auth_cookie", jwtToken, {
         ...authCookieOptions,

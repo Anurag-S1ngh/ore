@@ -6,29 +6,44 @@ import { sendEmail } from "@ore/email";
 import { del, get, set } from "@ore/redis-client";
 import { eq } from "drizzle-orm";
 
+type OTPPayload = {
+  otp: string;
+  username: string;
+};
+
+const isUniqueViolation = (err: unknown) => {
+  const code =
+    (err as { code?: string })?.code ??
+    (err as { cause?: { code?: string } })?.cause?.code;
+  return code === "23505";
+};
+
 export const authService = {
   async sendOTP(email: string, username: string) {
-    let userExists;
-    [userExists] = await db
-      .select()
-      .from(users)
-      .where(eq(users.username, username))
-      .limit(1);
-    if (userExists && userExists.email !== email) {
-      throw new AppError("user with this username already exists", 400);
-    }
-    [userExists] = await db
+    const [byEmail] = await db
       .select()
       .from(users)
       .where(eq(users.email, email))
       .limit(1);
-    if (userExists && userExists.username !== username) {
-      throw new AppError("user with this email already exists", 400);
+
+    if (byEmail) {
+      if (byEmail.username !== username) {
+        throw new AppError("username does not match this email", 400);
+      }
+    } else {
+      const [byUsername] = await db
+        .select()
+        .from(users)
+        .where(eq(users.username, username))
+        .limit(1);
+      if (byUsername) {
+        throw new AppError("user with this username already exists", 400);
+      }
     }
 
     const otp = generateOTP();
     const key = `otp:${email}`;
-    await set(key, otp, 300);
+    await set(key, JSON.stringify({ otp, username }), 300);
     const err = await sendEmail(
       email,
       "Verify your email",
@@ -39,39 +54,49 @@ export const authService = {
       throw new AppError("Error while sending email", 500);
     }
   },
-  async verifyOTP(email: string, username: string, userInputOTP: string) {
+  async verifyOTP(email: string, userInputOTP: string) {
     const key = `otp:${email}`;
-    const otp = await get(key);
-    if (!otp) {
+    const raw = await get(key);
+    if (!raw) {
       throw new AppError("otp not found", 400);
     }
-    if (otp !== userInputOTP) {
+
+    let payload: OTPPayload;
+    try {
+      payload = JSON.parse(raw) as OTPPayload;
+    } catch {
+      throw new AppError("otp not found", 400);
+    }
+
+    if (payload.otp !== userInputOTP) {
       throw new AppError("otp is incorrect", 400);
     }
-    let userExists;
-    [userExists] = await db
-      .select()
-      .from(users)
-      .where(eq(users.username, username))
-      .limit(1);
-    if (userExists) {
-      throw new AppError("user with this username already exists", 400);
-    }
-    [userExists] = await db
+
+    const [existing] = await db
       .select()
       .from(users)
       .where(eq(users.email, email))
       .limit(1);
-    if (userExists) {
-      throw new AppError("user with this email already exists", 400);
+    if (existing) {
+      await del(key);
+      return existing;
     }
-    const [user] = await db
-      .insert(users)
-      .values({
-        email,
-        username,
-      })
-      .returning();
+
+    let user;
+    try {
+      [user] = await db
+        .insert(users)
+        .values({
+          email,
+          username: payload.username,
+        })
+        .returning();
+    } catch (err) {
+      if (isUniqueViolation(err)) {
+        throw new AppError("user with this username already exists", 400);
+      }
+      throw err;
+    }
     if (!user) {
       throw new AppError("Error while creating user", 500);
     }
