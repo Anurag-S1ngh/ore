@@ -1,0 +1,17 @@
+{
+  "name": "@ore/redis-client",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./*": "./*.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^7"
+  },
+  "dependencies": {
+    "ioredis": "^6.0.0"
+  }
+}

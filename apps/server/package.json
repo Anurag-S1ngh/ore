@@ -12,16 +12,25 @@
   },
   "dependencies": {
     "@ore/db": "workspace:*",
+    "@ore/email": "workspace:*",
+    "@ore/redis-client": "workspace:*",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
+    "drizzle-orm": "^1.0.0-rc.4",
     "express": "^5.2.1",
+    "jose": "^6.2.12",
+    "pg": "^8.23.0",
     "varlock": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@ore/config": "workspace:*",
     "@types/bun": "catalog:",
+    "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/pg": "^8.23.1",
+    "drizzle-kit": "^1.0.0-rc.4",
     "tsdown": "^0.23.0",
     "typescript": "catalog:"
   }
