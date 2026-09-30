@@ -14,6 +14,7 @@
     "@ore/db": "workspace:*",
     "@ore/email": "workspace:*",
     "@ore/redis-client": "workspace:*",
+    "argon2": "^0.45.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "drizzle-orm": "^1.0.0-rc.4",
