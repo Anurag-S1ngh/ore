@@ -1,10 +1,79 @@
 import { db } from "@/services";
-import argon2 from "argon2";
-import { apiKeys, customers, events, metrics } from "@ore/db/schema/index";
-import { and, eq, gt, isNull, or } from "drizzle-orm";
 import { AppError } from "@/types/error";
+import { apiKeys, customers, events, metrics } from "@ore/db/schema/index";
+import argon2 from "argon2";
+import { and, eq, gt, isNull, or } from "drizzle-orm";
+import {
+  decodeEventCursor,
+  encodeEventCursor,
+  type EventListFilters,
+} from "./events.validation";
 
 export const eventsService = {
+  async list(projectId: string, filters: EventListFilters) {
+    const { metricId, customerId, from, to, limit, cursor } = filters;
+    const decoded = cursor ? decodeEventCursor(cursor) : null;
+    const cursorTimestamp = decoded ? new Date(decoded.timestamp) : null;
+
+    const rows = await db.query.events.findMany({
+      where: {
+        projectId,
+        ...(metricId ? { metricId } : {}),
+        ...(customerId ? { customerId } : {}),
+        ...(from || to
+          ? {
+              timestamp: {
+                ...(from ? { gte: new Date(from) } : {}),
+                ...(to ? { lte: new Date(to) } : {}),
+              },
+            }
+          : {}),
+        ...(decoded && cursorTimestamp
+          ? {
+              OR: [
+                { timestamp: { lt: cursorTimestamp } },
+                {
+                  AND: [
+                    { timestamp: { eq: cursorTimestamp } },
+                    { id: { lt: decoded.id } },
+                  ],
+                },
+              ],
+            }
+          : {}),
+      },
+      with: {
+        customer: true,
+        metric: true,
+      },
+      orderBy: (row, { desc }) => [desc(row.timestamp), desc(row.id)],
+      limit: limit + 1,
+    });
+
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+    const last = page[page.length - 1];
+    const nextCursor =
+      hasMore && last
+        ? encodeEventCursor({ timestamp: last.timestamp, id: last.id })
+        : null;
+
+    return { events: page, nextCursor };
+  },
+  async get(projectId: string, eventId: string) {
+    const event = await db.query.events.findFirst({
+      where: { projectId: projectId, id: eventId },
+      with: {
+        customer: true,
+        metric: true,
+      },
+    });
+    if (!event) {
+      throw new AppError("event not found", 404);
+    }
+
+    return event;
+  },
   async create(
     metricName: string,
     apiKey: string,
