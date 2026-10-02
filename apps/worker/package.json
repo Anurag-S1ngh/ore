@@ -1,0 +1,30 @@
+{
+  "name": "worker",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsdown",
+    "check-types": "tsc --noEmit",
+    "compile": "bun build --compile --no-compile-autoload-dotenv --minify --sourcemap --bytecode ./src/index.ts --outfile server",
+    "dev": "bun run --hot src/index.ts",
+    "start": "bun run dist/index.mjs",
+    "env:generate": "varlock codegen"
+  },
+  "dependencies": {
+    "@ore/db": "workspace:*",
+    "@ore/redis-client": "workspace:*",
+    "bullmq": "^6.3.11",
+    "drizzle-orm": "^1.0.0-rc.4",
+    "pg": "^8.23.1",
+    "varlock": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/pg": "^8.23.1",
+    "drizzle-kit": "^1.0.0-rc.4",
+    "tsdown": "^0.23.0"
+  },
+  "peerDependencies": {
+    "typescript": "catalog:"
+  }
+}
