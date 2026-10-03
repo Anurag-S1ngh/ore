@@ -5,11 +5,27 @@ import { projectOwnedByUser } from "@/middleware/project";
 
 export const customersRouter = Router();
 
-customersRouter.use(userAuthMiddleware);
-
-customersRouter.use(projectOwnedByUser);
-
-customersRouter.get("/:projectId/", customersController.list);
-customersRouter.post("/:projectId/", customersController.create);
-customersRouter.put("/:projectId/:customerId", customersController.update);
-customersRouter.delete("/:projectId/:customerId", customersController.delete);
+customersRouter.get(
+  "/:projectId/",
+  userAuthMiddleware,
+  projectOwnedByUser,
+  customersController.list,
+);
+customersRouter.post(
+  "/:projectId/",
+  userAuthMiddleware,
+  projectOwnedByUser,
+  customersController.create,
+);
+customersRouter.put(
+  "/:projectId/:customerId",
+  userAuthMiddleware,
+  projectOwnedByUser,
+  customersController.update,
+);
+customersRouter.delete(
+  "/:projectId/:customerId",
+  userAuthMiddleware,
+  projectOwnedByUser,
+  customersController.delete,
+);

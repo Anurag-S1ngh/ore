@@ -36,6 +36,6 @@ export const addUsageAggregateJob = async (eventId: string) => {
   await usageAggregateQueue.add(
     USAGE_AGGREGATE_JOB,
     { eventId },
-    { jobId: `usage:${eventId}` },
+    { jobId: `usage-${eventId}` },
   );
 };

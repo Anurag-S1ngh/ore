@@ -1,9 +1,9 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "87319bc2-0133-45f5-995c-7292054786ff",
+  "id": "4bd890b5-16fd-4df8-bfc5-4c5cf2259d85",
   "prevIds": [
-    "df01e055-ff04-4ad9-b4d1-89aebd6b3980"
+    "00000000-0000-0000-0000-000000000000"
   ],
   "ddl": [
     {
@@ -159,6 +159,12 @@
     {
       "isRlsEnabled": false,
       "name": "usage_aggregates",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "usage_processed_events",
       "entityType": "tables",
       "schema": "public"
     },
@@ -1713,6 +1719,45 @@
       "name": "id",
       "entityType": "columns",
       "schema": "public",
+      "table": "usage_processed_events"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "event_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "usage_processed_events"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "processed_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "usage_processed_events"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
       "table": "users"
     },
     {
@@ -2605,6 +2650,23 @@
       "table": "usage_aggregates"
     },
     {
+      "nameExplicit": false,
+      "columns": [
+        "event_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "events",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "usage_processed_events_event_id_events_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "usage_processed_events"
+    },
+    {
       "columns": [
         "id"
       ],
@@ -2732,6 +2794,16 @@
       "name": "usage_aggregates_pkey",
       "schema": "public",
       "table": "usage_aggregates",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "usage_processed_events_pkey",
+      "schema": "public",
+      "table": "usage_processed_events",
       "entityType": "pks"
     },
     {
@@ -2875,6 +2947,17 @@
       "name": "projects_slug_key",
       "schema": "public",
       "table": "projects",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "event_id"
+      ],
+      "nullsNotDistinct": false,
+      "name": "usage_processed_events_event_id_key",
+      "schema": "public",
+      "table": "usage_processed_events",
       "entityType": "uniques"
     },
     {

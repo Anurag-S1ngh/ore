@@ -172,9 +172,14 @@ CREATE TABLE "usage_aggregates" (
 	CONSTRAINT "usage_aggregates_project_id_customer_id_metric_id_granularity_period_start_unique" UNIQUE("project_id","customer_id","metric_id","granularity","period_start")
 );
 --> statement-breakpoint
+CREATE TABLE "usage_processed_events" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+	"event_id" uuid NOT NULL UNIQUE,
+	"processed_at" timestamp with time zone NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "users" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-	"name" text NOT NULL,
 	"username" text NOT NULL UNIQUE,
 	"email" text NOT NULL UNIQUE,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
@@ -221,4 +226,5 @@ ALTER TABLE "subscriptions" ADD CONSTRAINT "subscriptions_plan_id_plans_id_fkey"
 ALTER TABLE "subscriptions" ADD CONSTRAINT "subscriptions_customer_id_customers_id_fkey" FOREIGN KEY ("customer_id") REFERENCES "customers"("id");--> statement-breakpoint
 ALTER TABLE "usage_aggregates" ADD CONSTRAINT "usage_aggregates_project_id_projects_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id");--> statement-breakpoint
 ALTER TABLE "usage_aggregates" ADD CONSTRAINT "usage_aggregates_metric_id_metrics_id_fkey" FOREIGN KEY ("metric_id") REFERENCES "metrics"("id");--> statement-breakpoint
-ALTER TABLE "usage_aggregates" ADD CONSTRAINT "usage_aggregates_customer_id_customers_id_fkey" FOREIGN KEY ("customer_id") REFERENCES "customers"("id");
+ALTER TABLE "usage_aggregates" ADD CONSTRAINT "usage_aggregates_customer_id_customers_id_fkey" FOREIGN KEY ("customer_id") REFERENCES "customers"("id");--> statement-breakpoint
+ALTER TABLE "usage_processed_events" ADD CONSTRAINT "usage_processed_events_event_id_events_id_fkey" FOREIGN KEY ("event_id") REFERENCES "events"("id");

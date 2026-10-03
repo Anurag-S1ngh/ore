@@ -5,10 +5,21 @@ import { metricsController } from "./metrics.controller";
 
 export const metricsRouter = Router();
 
-metricsRouter.use(userAuthMiddleware);
-
-metricsRouter.use(projectOwnedByUser);
-
-metricsRouter.get("/:projectId/", metricsController.list);
-metricsRouter.post("/:projectId/", metricsController.create);
-metricsRouter.delete("/:projectId/:metricId", metricsController.delete);
+metricsRouter.get(
+  "/:projectId/",
+  userAuthMiddleware,
+  projectOwnedByUser,
+  metricsController.list,
+);
+metricsRouter.post(
+  "/:projectId/",
+  userAuthMiddleware,
+  projectOwnedByUser,
+  metricsController.create,
+);
+metricsRouter.delete(
+  "/:projectId/:metricId",
+  userAuthMiddleware,
+  projectOwnedByUser,
+  metricsController.delete,
+);

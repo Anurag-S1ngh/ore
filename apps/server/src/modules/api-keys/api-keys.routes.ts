@@ -5,10 +5,21 @@ import { userAuthMiddleware } from "@/middleware/auth";
 
 export const apiKeysRouter = Router();
 
-apiKeysRouter.use(userAuthMiddleware);
-
-apiKeysRouter.use(projectOwnedByUser);
-
-apiKeysRouter.get("/:projectId", apiKeysController.list);
-apiKeysRouter.post("/:projectId", apiKeysController.create);
-apiKeysRouter.delete("/:projectId/:keyId", apiKeysController.revoke);
+apiKeysRouter.get(
+  "/:projectId",
+  userAuthMiddleware,
+  projectOwnedByUser,
+  apiKeysController.list,
+);
+apiKeysRouter.post(
+  "/:projectId",
+  userAuthMiddleware,
+  projectOwnedByUser,
+  apiKeysController.create,
+);
+apiKeysRouter.delete(
+  "/:projectId/:keyId",
+  userAuthMiddleware,
+  projectOwnedByUser,
+  apiKeysController.revoke,
+);

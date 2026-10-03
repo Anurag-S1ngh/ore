@@ -49,7 +49,7 @@ export const authService = {
       "Verify your email",
       `<strong>OTP is ${otp}</strong>`,
     );
-    if (!err) {
+    if (err) {
       await del(key);
       throw new AppError("Error while sending email", 500);
     }
