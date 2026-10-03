@@ -403,3 +403,12 @@ export const invoiceItems = pgTable(
   },
   (t) => [index("invoice_items_invoice_idx").on(t.invoiceId)],
 );
+
+export const usageProcessedEvent = pgTable("usage_processed_events", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  eventId: uuid("event_id")
+    .references(() => events.id)
+    .notNull()
+    .unique(),
+  processedAt: timestamp("processed_at", { withTimezone: true }).notNull(),
+});

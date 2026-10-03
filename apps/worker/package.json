@@ -11,6 +11,7 @@
     "env:generate": "varlock codegen"
   },
   "dependencies": {
+    "@ore/queue": "workspace:*",
     "@ore/db": "workspace:*",
     "@ore/redis-client": "workspace:*",
     "bullmq": "^6.3.11",

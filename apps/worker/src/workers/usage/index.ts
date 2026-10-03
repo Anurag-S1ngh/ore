@@ -1,9 +1,9 @@
 import { processUsage } from "@/processors/usage";
-import { redis } from "@ore/redis-client";
+import { redis, USAGE_AGGREGATE_QUEUE } from "@ore/queue";
 import { Worker } from "bullmq";
 
 export const usageWorker = new Worker(
-  "usage_aggregate_queue",
+  USAGE_AGGREGATE_QUEUE,
   async (job) => {
     return processUsage(job);
   },

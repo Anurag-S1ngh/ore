@@ -1,12 +1,12 @@
 import { AppError } from "@/types/error";
 import type { Request, Response } from "express";
+import { projectIdParamSchema } from "../project/project.validation";
 import { eventsService } from "./events.service";
 import {
   eventListQuerySchema,
   eventParamSchema,
   eventsValidationSchema,
 } from "./events.validation";
-import { projectIdParamSchema } from "../project/project.validation";
 
 export const eventsController = {
   async list(req: Request, res: Response) {

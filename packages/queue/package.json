@@ -1,9 +1,12 @@
 {
-  "name": "@ore/redis-client",
+  "name": "@ore/queue",
   "type": "module",
   "exports": {
-    ".": "./index.ts",
-    "./*": "./*.ts"
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -12,6 +15,7 @@
     "typescript": "catalog:"
   },
   "dependencies": {
+    "bullmq": "^6.3.11",
     "ioredis": "^6.0.0"
   }
 }

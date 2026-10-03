@@ -1,6 +1,7 @@
 import { db } from "@/services";
 import { AppError } from "@/types/error";
 import { apiKeys, customers, events, metrics } from "@ore/db/schema/index";
+import { addUsageAggregateJob } from "@ore/queue";
 import argon2 from "argon2";
 import { and, eq, gt, isNull, or } from "drizzle-orm";
 import {
@@ -96,7 +97,7 @@ export const eventsService = {
     let projectId;
     let apiKeyId;
     for (const row of rows) {
-      if (await argon2.verify(apiKey, row.keyHash)) {
+      if (await argon2.verify(row.keyHash, apiKey)) {
         apiKeyId = row.id;
         projectId = row.projectId;
         break;
@@ -168,6 +169,8 @@ export const eventsService = {
 
       return { event: existing, duplicate: true };
     });
+
+    await addUsageAggregateJob(result.event.id);
 
     return result;
   },

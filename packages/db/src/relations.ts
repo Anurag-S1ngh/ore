@@ -83,6 +83,10 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.events.customerId,
       to: r.customers.id,
     }),
+    usageProcessedEvent: r.one.usageProcessedEvent({
+      from: r.events.id,
+      to: r.usageProcessedEvent.eventId,
+    }),
   },
   usageAggregates: {
     project: r.one.projects({
@@ -96,6 +100,12 @@ export const relations = defineRelations(schema, (r) => ({
     customer: r.one.customers({
       from: r.usageAggregates.customerId,
       to: r.customers.id,
+    }),
+  },
+  usageProcessedEvent: {
+    event: r.one.events({
+      from: r.usageProcessedEvent.eventId,
+      to: r.events.id,
     }),
   },
   plans: {

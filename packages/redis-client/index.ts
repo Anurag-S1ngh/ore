@@ -1,6 +1,6 @@
 import Redis from "ioredis";
 
-const redis = new Redis(process.env.REDIS_URL!);
+export const redis = new Redis(process.env.REDIS_URL!);
 
 export const get = async (key: string) => {
   return redis.get(key);

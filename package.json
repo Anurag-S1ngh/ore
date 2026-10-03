@@ -33,8 +33,8 @@
     "db:studio": "turbo run db:studio -F @ore/db --",
     "db:generate": "turbo run db:generate -F @ore/db --",
     "db:migrate": "turbo run db:migrate -F @ore/db --",
-    "env:generate": "varlock codegen --path ./apps/web/ && varlock codegen --path ./apps/server/ && varlock codegen --path ./packages/db/",
-    "postinstall": "varlock codegen --path ./apps/web/ && varlock codegen --path ./apps/server/ && varlock codegen --path ./packages/db/"
+    "env:generate": "varlock codegen --path ./apps/web/ && varlock codegen --path ./apps/server/ && varlock codegen --path ./packages/db/ && varlock codegen --path ./apps/worker/",
+    "postinstall": "varlock codegen --path ./apps/web/ && varlock codegen --path ./apps/server/ && varlock codegen --path ./packages/db/ && varlock codegen --path ./apps/worker/"
   },
   "dependencies": {
     "zod": "catalog:"

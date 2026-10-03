@@ -44,7 +44,8 @@
     "VERCEL_ENV",
     "VERCEL_PROJECT_PRODUCTION_URL",
     "VERCEL_URL",
-    "_VARLOCK_ENV_KEY"
+    "_VARLOCK_ENV_KEY",
+    "REDIS_URL"
   ],
   "globalDependencies": [".env*", "apps/*/.env*", "packages/*/.env*"]
 }
