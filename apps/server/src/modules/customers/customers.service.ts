@@ -3,15 +3,19 @@ import { AppError } from "@/types/error";
 import { customers } from "@ore/db/schema/index";
 import { and, eq } from "drizzle-orm";
 
-const isUniqueViolation = (err: unknown) =>
-  typeof err === "object" &&
-  err !== null &&
-  "code" in err &&
-  (err as { code?: string }).code === "23505";
+const isUniqueViolation = (err: unknown) => {
+  const code =
+    (err as { code?: string })?.code ??
+    (err as { cause?: { code?: string } })?.cause?.code;
+  return code === "23505";
+};
 
 export const customersService = {
   async list(projectId: string) {
-    return db.select().from(customers).where(eq(customers.projectId, projectId));
+    return db
+      .select()
+      .from(customers)
+      .where(eq(customers.projectId, projectId));
   },
 
   async create(

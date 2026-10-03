@@ -11,7 +11,12 @@
   "peerDependencies": {
     "typescript": "^7"
   },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "env:generate": "varlock codegen"
+  },
   "dependencies": {
-    "resend": "^6.30.0"
+    "resend": "^6.30.0",
+    "varlock": "catalog:"
   }
 }

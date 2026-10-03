@@ -5,11 +5,12 @@ import { and, eq } from "drizzle-orm";
 
 type Aggregation = (typeof metricsAggregationEnum.enumValues)[number];
 
-const isUniqueViolation = (err: unknown) =>
-  typeof err === "object" &&
-  err !== null &&
-  "code" in err &&
-  (err as { code?: string }).code === "23505";
+const isUniqueViolation = (err: unknown) => {
+  const code =
+    (err as { code?: string })?.code ??
+    (err as { cause?: { code?: string } })?.cause?.code;
+  return code === "23505";
+};
 
 export const metricsService = {
   async list(projectId: string) {
