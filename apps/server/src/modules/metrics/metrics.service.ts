@@ -1,16 +1,10 @@
 import { db } from "@/services";
 import { AppError } from "@/types/error";
+import { isUniqueViolation } from "@/util/db-error";
 import { metrics, metricsAggregationEnum } from "@ore/db/schema/index";
 import { and, eq } from "drizzle-orm";
 
 type Aggregation = (typeof metricsAggregationEnum.enumValues)[number];
-
-const isUniqueViolation = (err: unknown) => {
-  const code =
-    (err as { code?: string })?.code ??
-    (err as { cause?: { code?: string } })?.cause?.code;
-  return code === "23505";
-};
 
 export const metricsService = {
   async list(projectId: string) {

@@ -1,14 +1,8 @@
 import { db } from "@/services";
 import { AppError } from "@/types/error";
+import { isUniqueViolation } from "@/util/db-error";
 import { customers } from "@ore/db/schema/index";
 import { and, eq } from "drizzle-orm";
-
-const isUniqueViolation = (err: unknown) => {
-  const code =
-    (err as { code?: string })?.code ??
-    (err as { cause?: { code?: string } })?.cause?.code;
-  return code === "23505";
-};
 
 export const customersService = {
   async list(projectId: string) {

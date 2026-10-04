@@ -1,5 +1,6 @@
 import { db } from "@/services";
 import { AppError } from "@/types/error";
+import { isUniqueViolation } from "@/util/db-error";
 import { generateOTP } from "@/util/generateOTP";
 import { users } from "@ore/db/schema/index";
 import { sendEmail } from "@ore/email";
@@ -9,13 +10,6 @@ import { eq } from "drizzle-orm";
 type OTPPayload = {
   otp: string;
   username: string;
-};
-
-const isUniqueViolation = (err: unknown) => {
-  const code =
-    (err as { code?: string })?.code ??
-    (err as { cause?: { code?: string } })?.cause?.code;
-  return code === "23505";
 };
 
 export const authService = {
