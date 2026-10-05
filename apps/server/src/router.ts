@@ -6,6 +6,7 @@ import { customersRouter } from "./modules/customers/customers.routes";
 import { metricsRouter } from "./modules/metrics/metrics.routes";
 import { eventsRouter } from "./modules/events/events.routes";
 import { plansRouter } from "./modules/plans/plans.routes";
+import { pricesRouter } from "./modules/prices/prices.routes";
 
 export const router = Router();
 
@@ -16,3 +17,4 @@ router.use("/customers", customersRouter);
 router.use("/metrics", metricsRouter);
 router.use("/events", eventsRouter);
 router.use("/plans", plansRouter);
+router.use("/prices", pricesRouter);

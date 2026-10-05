@@ -1,0 +1,1 @@
+ALTER TABLE "prices" ALTER COLUMN "metric_id" SET NOT NULL;

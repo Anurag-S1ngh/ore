@@ -240,7 +240,9 @@ export const prices = pgTable(
     planId: uuid("plan_id")
       .references(() => plans.id)
       .notNull(),
-    metricId: uuid("metric_id").references(() => metrics.id), // null = fixed fee
+    metricId: uuid("metric_id")
+      .references(() => metrics.id)
+      .notNull(),
     unitAmount: decimal("unit_amount", { precision: 20, scale: 6 }),
     currency: currencyEnum("currency").notNull(),
     modelType: priceModelTypeEnum("model_type").notNull(),
