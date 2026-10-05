@@ -2,6 +2,7 @@ import { db } from "@/services";
 import { AppError } from "@/types/error";
 import { isUniqueViolation } from "@/util/db-error";
 import {
+  cadenceEnum,
   customers,
   plans,
   prices,
@@ -14,6 +15,18 @@ import type {
   SubscriptionListFilters,
   UpdateSubscriptionInput,
 } from "./subscriptions.validation";
+
+type Cadence = (typeof cadenceEnum.enumValues)[number];
+
+const addCadence = (date: Date, cadence: Cadence) => {
+  const next = new Date(date);
+  if (cadence === "monthly") {
+    next.setUTCMonth(next.getUTCMonth() + 1);
+  } else {
+    next.setUTCFullYear(next.getUTCFullYear() + 1);
+  }
+  return next;
+};
 
 export const subscriptionsService = {
   async list(projectId: string, filters: SubscriptionListFilters) {
@@ -82,6 +95,7 @@ export const subscriptionsService = {
     }
 
     const startDate = input.startDate ? new Date(input.startDate) : new Date();
+    const periodEnd = addCadence(startDate, cadence);
 
     try {
       return await db.transaction(async (tx) => {
@@ -95,6 +109,8 @@ export const subscriptionsService = {
             externalSubscriptionId,
             cadence,
             startDate,
+            currentPeriodStart: startDate,
+            currentPeriodEnd: periodEnd,
           })
           .returning();
         if (!created) {
