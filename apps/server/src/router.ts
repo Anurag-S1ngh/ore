@@ -8,6 +8,7 @@ import { eventsRouter } from "./modules/events/events.routes";
 import { plansRouter } from "./modules/plans/plans.routes";
 import { pricesRouter } from "./modules/prices/prices.routes";
 import { subscriptionsRouter } from "./modules/subscriptions/subscriptions.routes";
+import { usageRouter } from "./modules/usage/usage.routes";
 
 export const router = Router();
 
@@ -20,3 +21,4 @@ router.use("/events", eventsRouter);
 router.use("/plans", plansRouter);
 router.use("/prices", pricesRouter);
 router.use("/subscriptions", subscriptionsRouter);
+router.use("/usage", usageRouter);
