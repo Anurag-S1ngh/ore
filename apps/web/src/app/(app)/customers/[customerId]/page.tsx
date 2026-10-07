@@ -12,7 +12,7 @@ import { ProjectRequired } from "@/components/project-required";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useProject } from "@/lib/project-context";
-import { useCustomers } from "@/lib/queries";
+import { useCustomers, useInvoices, useSubscriptions } from "@/lib/queries";
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -30,6 +30,17 @@ export default function CustomerDetailPage() {
   const { selectedProject } = useProject();
   const customers = useCustomers(selectedProject?.id);
   const customer = customers.data?.find((item) => item.id === params.customerId);
+  const subscriptions = useSubscriptions(selectedProject?.id, {
+    customerId: params.customerId,
+  });
+  const invoices = useInvoices(selectedProject?.id, {
+    customerId: params.customerId,
+  });
+
+  const activeSubscriptions = (subscriptions.data ?? []).filter(
+    (sub) => sub.status === "active",
+  );
+  const invoiceCount = invoices.data?.length ?? 0;
 
   return (
     <div className="flex min-h-full flex-col">
@@ -90,31 +101,64 @@ export default function CustomerDetailPage() {
                 <CardTitle>Billing activity</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col gap-2">
-                {[
-                  { icon: Gauge, label: "Usage", hint: "Metering API pending" },
-                  { icon: Repeat, label: "Subscriptions", hint: "No active subscription" },
-                  { icon: FileText, label: "Invoices", hint: "No invoices issued" },
-                ].map((row) => {
-                  const Icon = row.icon;
-                  return (
-                    <div key={row.label} className="flex items-center gap-3">
-                      <span className="flex size-7 items-center justify-center bg-muted text-muted-foreground">
-                        <Icon className="size-3.5" />
-                      </span>
-                      <div className="flex flex-col">
-                        <span className="text-xs font-medium">{row.label}</span>
-                        <span className="text-[11px] text-muted-foreground">{row.hint}</span>
-                      </div>
-                      <Badge variant="muted" className="ml-auto">
-                        soon
-                      </Badge>
-                    </div>
-                  );
-                })}
+                <Link href="/usage" className="flex items-center gap-3 hover:underline">
+                  <span className="flex size-7 items-center justify-center bg-muted text-muted-foreground">
+                    <Gauge className="size-3.5" />
+                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-medium">Usage</span>
+                    <span className="text-[11px] text-muted-foreground">
+                      Explore metered usage
+                    </span>
+                  </div>
+                </Link>
+                <Link
+                  href="/subscriptions"
+                  className="flex items-center gap-3 hover:underline"
+                >
+                  <span className="flex size-7 items-center justify-center bg-muted text-muted-foreground">
+                    <Repeat className="size-3.5" />
+                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-medium">Subscriptions</span>
+                    <span className="text-[11px] text-muted-foreground">
+                      {subscriptions.isLoading
+                        ? "Loading…"
+                        : activeSubscriptions.length > 0
+                          ? `${activeSubscriptions.length} active`
+                          : "No active subscription"}
+                    </span>
+                  </div>
+                  {activeSubscriptions.length > 0 ? (
+                    <Badge variant="success" className="ml-auto">
+                      {activeSubscriptions.length}
+                    </Badge>
+                  ) : null}
+                </Link>
+                <Link href="/invoices" className="flex items-center gap-3 hover:underline">
+                  <span className="flex size-7 items-center justify-center bg-muted text-muted-foreground">
+                    <FileText className="size-3.5" />
+                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-medium">Invoices</span>
+                    <span className="text-[11px] text-muted-foreground">
+                      {invoices.isLoading
+                        ? "Loading…"
+                        : invoiceCount > 0
+                          ? `${invoiceCount} issued`
+                          : "No invoices issued"}
+                    </span>
+                  </div>
+                  {invoiceCount > 0 ? (
+                    <Badge variant="muted" className="ml-auto">
+                      {invoiceCount}
+                    </Badge>
+                  ) : null}
+                </Link>
                 <Separator className="my-1" />
                 <p className="text-[11px] text-muted-foreground">
-                  Usage, subscription, and invoice data will appear here once the
-                  metering and billing APIs are wired up.
+                  Subscription and invoice data for this customer across the
+                  selected project.
                 </p>
               </CardContent>
             </Card>
