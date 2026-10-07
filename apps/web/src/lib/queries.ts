@@ -4,13 +4,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiFetch } from "@/lib/api";
 import { clearIdentity, setIdentity } from "@/lib/identity";
-import type { ApiKey, Cadence, CreatedApiKey, Currency, Customer, Invoice, InvoiceStatus, Plan, Project, Subscription, SubscriptionStatus } from "@/lib/types";
+import type { ApiKey, Cadence, CreatedApiKey, Currency, Customer, Invoice, InvoiceStatus, Metric, Plan, Price, Project, Subscription, SubscriptionStatus } from "@/lib/types";
 
 export const queryKeys = {
   projects: ["projects"] as const,
   customers: (projectId: string) => ["customers", projectId] as const,
   apiKeys: (projectId: string) => ["api-keys", projectId] as const,
   plans: (projectId: string) => ["plans", projectId] as const,
+  metrics: (projectId: string) => ["metrics", projectId] as const,
+  prices: (projectId: string, planId: string) =>
+    ["prices", projectId, planId] as const,
   invoices: (projectId: string, filters?: { customerId?: string; status?: InvoiceStatus }) =>
     ["invoices", projectId, filters?.customerId ?? "all", filters?.status ?? "all"] as const,
   invoice: (projectId: string, invoiceId: string) =>
@@ -223,6 +226,163 @@ export function usePlans(projectId: string | undefined) {
     enabled: Boolean(projectId),
     queryFn: () =>
       apiFetch<{ plans: Plan[] }>(`/plans/${projectId}`).then((r) => r.plans),
+  });
+}
+
+export function useCreatePlan(projectId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: {
+      name: string;
+      description?: string;
+      externalPlanId: string;
+      parentId?: string;
+    }) =>
+      apiFetch<{ plan: Plan }>(`/plans/${projectId}`, {
+        method: "POST",
+        body: input,
+      }).then((r) => r.plan),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: queryKeys.plans(projectId ?? "none") }),
+  });
+}
+
+export function useUpdatePlan(projectId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      planId,
+      ...input
+    }: {
+      planId: string;
+      name?: string;
+      description?: string | null;
+      externalPlanId?: string;
+      parentId?: string | null;
+    }) =>
+      apiFetch<{ plan: Plan }>(`/plans/${projectId}/${planId}`, {
+        method: "PATCH",
+        body: input,
+      }).then((r) => r.plan),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: queryKeys.plans(projectId ?? "none") }),
+  });
+}
+
+export function useDeletePlan(projectId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (planId: string) =>
+      apiFetch<{ plan: Plan }>(`/plans/${projectId}/${planId}`, {
+        method: "DELETE",
+      }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: queryKeys.plans(projectId ?? "none") }),
+  });
+}
+
+/* --------------------------------- prices -------------------------------- */
+
+export type PriceTierInput = {
+  firstUnit: number;
+  lastUnit?: number | null;
+  unitAmount: number;
+};
+
+export function usePrices(projectId: string | undefined, planId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.prices(projectId ?? "none", planId ?? "none"),
+    enabled: Boolean(projectId && planId),
+    queryFn: () =>
+      apiFetch<{ prices: Price[] }>(`/prices/${projectId}/plans/${planId}/all`).then(
+        (r) => r.prices,
+      ),
+  });
+}
+
+export function useCreatePrice(
+  projectId: string | undefined,
+  planId: string | undefined,
+) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: {
+      metricId: string;
+      modelType: "unit" | "tiered";
+      cadence: Cadence;
+      externalPriceId: string;
+      currency?: Currency;
+      unitAmount?: number | null;
+      tiers?: PriceTierInput[];
+    }) =>
+      apiFetch<{ price: Price }>(`/prices/${projectId}/plans/${planId}`, {
+        method: "POST",
+        body: input,
+      }).then((r) => r.price),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.prices(projectId ?? "none", planId ?? "none"),
+      }),
+  });
+}
+
+export function useUpdatePrice(
+  projectId: string | undefined,
+  planId: string | undefined,
+) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      priceId,
+      ...input
+    }: {
+      priceId: string;
+      metricId?: string;
+      modelType?: "unit" | "tiered";
+      cadence?: Cadence;
+      externalPriceId?: string;
+      currency?: Currency;
+      unitAmount?: number | null;
+      tiers?: PriceTierInput[] | null;
+    }) =>
+      apiFetch<{ price: Price }>(`/prices/${projectId}/plans/${planId}/${priceId}`, {
+        method: "PATCH",
+        body: input,
+      }).then((r) => r.price),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.prices(projectId ?? "none", planId ?? "none"),
+      }),
+  });
+}
+
+export function useDeletePrice(
+  projectId: string | undefined,
+  planId: string | undefined,
+) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (priceId: string) =>
+      apiFetch<{ price: Price }>(`/prices/${projectId}/${priceId}`, {
+        method: "DELETE",
+      }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.prices(projectId ?? "none", planId ?? "none"),
+      }),
+  });
+}
+
+/* -------------------------------- metrics -------------------------------- */
+
+export function useMetrics(projectId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.metrics(projectId ?? "none"),
+    enabled: Boolean(projectId),
+    queryFn: () =>
+      apiFetch<{ metrics: Metric[] }>(`/metrics/${projectId}/`).then(
+        (r) => r.metrics,
+      ),
   });
 }
 

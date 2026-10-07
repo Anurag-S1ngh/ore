@@ -48,6 +48,40 @@ export type Plan = {
   createdAt: string;
 };
 
+export type Metric = {
+  id: string;
+  projectId: string;
+  name: string;
+  description: string | null;
+  unit: string;
+  aggregation: "sum" | "max" | "count";
+  createdAt: string;
+};
+
+export type PriceTier = {
+  id: string;
+  priceId: string;
+  firstUnit: string;
+  lastUnit: string | null;
+  unitAmount: string;
+  createdAt: string;
+};
+
+export type Price = {
+  id: string;
+  projectId: string;
+  planId: string;
+  metricId: string;
+  unitAmount: string | null;
+  currency: Currency;
+  modelType: "unit" | "tiered";
+  cadence: Cadence;
+  externalPriceId: string;
+  createdAt: string;
+  priceTiers?: PriceTier[];
+  metric?: Metric | null;
+};
+
 export type SubscriptionPriceInterval = {
   id: string;
   subscriptionId: string;
