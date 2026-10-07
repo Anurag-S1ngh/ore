@@ -4,16 +4,30 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiFetch } from "@/lib/api";
 import { clearIdentity, setIdentity } from "@/lib/identity";
-import type { ApiKey, CreatedApiKey, Currency, Customer, Invoice, InvoiceStatus, Project } from "@/lib/types";
+import type { ApiKey, Cadence, CreatedApiKey, Currency, Customer, Invoice, InvoiceStatus, Plan, Project, Subscription, SubscriptionStatus } from "@/lib/types";
 
 export const queryKeys = {
   projects: ["projects"] as const,
   customers: (projectId: string) => ["customers", projectId] as const,
   apiKeys: (projectId: string) => ["api-keys", projectId] as const,
+  plans: (projectId: string) => ["plans", projectId] as const,
   invoices: (projectId: string, filters?: { customerId?: string; status?: InvoiceStatus }) =>
     ["invoices", projectId, filters?.customerId ?? "all", filters?.status ?? "all"] as const,
   invoice: (projectId: string, invoiceId: string) =>
     ["invoice", projectId, invoiceId] as const,
+  subscriptions: (
+    projectId: string,
+    filters?: { customerId?: string; planId?: string; status?: SubscriptionStatus },
+  ) =>
+    [
+      "subscriptions",
+      projectId,
+      filters?.customerId ?? "all",
+      filters?.planId ?? "all",
+      filters?.status ?? "all",
+    ] as const,
+  subscription: (projectId: string, subscriptionId: string) =>
+    ["subscription", projectId, subscriptionId] as const,
 };
 
 /* ---------------------------------- auth --------------------------------- */
@@ -198,6 +212,125 @@ export function useRevokeApiKey(projectId: string | undefined) {
       ),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys(projectId ?? "none") }),
+  });
+}
+
+/* --------------------------------- plans --------------------------------- */
+
+export function usePlans(projectId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.plans(projectId ?? "none"),
+    enabled: Boolean(projectId),
+    queryFn: () =>
+      apiFetch<{ plans: Plan[] }>(`/plans/${projectId}`).then((r) => r.plans),
+  });
+}
+
+/* ------------------------------ subscriptions ---------------------------- */
+
+export type SubscriptionFilters = {
+  customerId?: string;
+  planId?: string;
+  status?: SubscriptionStatus;
+};
+
+export function useSubscriptions(
+  projectId: string | undefined,
+  filters?: SubscriptionFilters,
+) {
+  const params = new URLSearchParams();
+  if (filters?.customerId) params.set("customerId", filters.customerId);
+  if (filters?.planId) params.set("planId", filters.planId);
+  if (filters?.status) params.set("status", filters.status);
+  const suffix = params.size > 0 ? `?${params.toString()}` : "";
+  return useQuery({
+    queryKey: queryKeys.subscriptions(projectId ?? "none", filters),
+    enabled: Boolean(projectId),
+    queryFn: () =>
+      apiFetch<{ subscriptions: Subscription[] }>(
+        `/subscriptions/${projectId}${suffix}`,
+      ).then((r) => r.subscriptions),
+  });
+}
+
+export function useSubscription(
+  projectId: string | undefined,
+  subscriptionId: string | undefined,
+) {
+  return useQuery({
+    queryKey: queryKeys.subscription(projectId ?? "none", subscriptionId ?? "none"),
+    enabled: Boolean(projectId && subscriptionId),
+    queryFn: () =>
+      apiFetch<{ subscription: Subscription }>(
+        `/subscriptions/${projectId}/${subscriptionId}`,
+      ).then((r) => r.subscription),
+  });
+}
+
+export function useCreateSubscription(projectId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: {
+      customerId: string;
+      planId: string;
+      externalSubscriptionId: string;
+      cadence: Cadence;
+      startDate?: string;
+    }) =>
+      apiFetch<{ subscription: Subscription }>(`/subscriptions/${projectId}`, {
+        method: "POST",
+        body: input,
+      }).then((r) => r.subscription),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ["subscriptions", projectId ?? "none"],
+      }),
+  });
+}
+
+export function useUpdateSubscription(projectId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      subscriptionId,
+      ...input
+    }: {
+      subscriptionId: string;
+      planId?: string;
+      cadence?: Cadence;
+      priceIds?: string[];
+    }) =>
+      apiFetch<{ subscription: Subscription }>(
+        `/subscriptions/${projectId}/${subscriptionId}`,
+        { method: "PATCH", body: input },
+      ).then((r) => r.subscription),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["subscriptions", projectId ?? "none"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.subscription(projectId ?? "none", variables.subscriptionId),
+      });
+    },
+  });
+}
+
+export function useCancelSubscription(projectId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (subscriptionId: string) =>
+      apiFetch<{ subscription: Subscription }>(
+        `/subscriptions/${projectId}/${subscriptionId}`,
+        { method: "DELETE" },
+      ),
+    onSuccess: (_data, subscriptionId) => {
+      queryClient.invalidateQueries({
+        queryKey: ["subscriptions", projectId ?? "none"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.subscription(projectId ?? "none", subscriptionId),
+      });
+    },
   });
 }
 

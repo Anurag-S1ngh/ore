@@ -34,6 +34,55 @@ export type CreatedApiKey = ApiKey & { key: string };
 
 export type InvoiceStatus = "draft" | "pending" | "paid";
 
+export type SubscriptionStatus = "active" | "upcoming" | "canceled";
+
+export type Cadence = "monthly" | "yearly";
+
+export type Plan = {
+  id: string;
+  projectId: string;
+  name: string;
+  description: string | null;
+  externalPlanId: string;
+  parentId: string | null;
+  createdAt: string;
+};
+
+export type SubscriptionPriceInterval = {
+  id: string;
+  subscriptionId: string;
+  priceId: string;
+  startDate: string;
+  endDate: string | null;
+  createdAt: string;
+  price?: {
+    id: string;
+    metricId: string;
+    modelType: "unit" | "tiered";
+    unitAmount: string | null;
+    currency: Currency;
+  } | null;
+};
+
+export type Subscription = {
+  id: string;
+  projectId: string;
+  planId: string;
+  customerId: string;
+  status: SubscriptionStatus;
+  externalSubscriptionId: string;
+  cadence: Cadence;
+  startDate: string;
+  endDate: string | null;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  createdAt: string;
+  canceledAt: string | null;
+  customer?: Customer | null;
+  plan?: Plan | null;
+  subscriptionPriceIntervals?: SubscriptionPriceInterval[];
+};
+
 export type Invoice = {
   id: string;
   projectId: string;
