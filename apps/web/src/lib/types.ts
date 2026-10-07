@@ -71,6 +71,19 @@ export type UsageBucket = {
   metric?: Metric | null;
 };
 
+export type UsageEvent = {
+  id: string;
+  metricId: string;
+  projectId: string;
+  customerId: string;
+  idempotencyKey: string;
+  quantity: string;
+  timestamp: string;
+  createdAt: string;
+  customer?: Customer | null;
+  metric?: Metric | null;
+};
+
 export type PriceTier = {
   id: string;
   priceId: string;

@@ -1,10 +1,10 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiFetch } from "@/lib/api";
 import { clearIdentity, setIdentity } from "@/lib/identity";
-import type { ApiKey, Cadence, CreatedApiKey, Currency, Customer, Invoice, InvoiceStatus, Metric, Plan, Price, Project, Subscription, SubscriptionStatus, UsageBucket, UsageGranularity } from "@/lib/types";
+import type { ApiKey, Cadence, CreatedApiKey, Currency, Customer, Invoice, InvoiceStatus, Metric, Plan, Price, Project, Subscription, SubscriptionStatus, UsageBucket, UsageEvent, UsageGranularity } from "@/lib/types";
 
 export const queryKeys = {
   projects: ["projects"] as const,
@@ -451,6 +451,62 @@ export function useUsage(projectId: string | undefined, filters: UsageFilters | 
     queryFn: () =>
       apiFetch<{ usage: UsageBucket[] }>(`/usage/${projectId}${suffix}`).then(
         (r) => r.usage,
+      ),
+  });
+}
+
+/* --------------------------------- events -------------------------------- */
+
+export type EventFilters = {
+  metricId?: string;
+  customerId?: string;
+  from?: string;
+  to?: string;
+  limit?: number;
+};
+
+export function useEvents(
+  projectId: string | undefined,
+  filters: EventFilters | undefined,
+) {
+  const baseParams = new URLSearchParams();
+  if (filters?.metricId) baseParams.set("metricId", filters.metricId);
+  if (filters?.customerId) baseParams.set("customerId", filters.customerId);
+  if (filters?.from) baseParams.set("from", filters.from);
+  if (filters?.to) baseParams.set("to", filters.to);
+  if (filters?.limit) baseParams.set("limit", String(filters.limit));
+  const base = baseParams.toString();
+  return useInfiniteQuery({
+    queryKey: [
+      "events",
+      projectId ?? "none",
+      filters?.metricId ?? "all",
+      filters?.customerId ?? "all",
+      filters?.from ?? "all",
+      filters?.to ?? "all",
+      filters?.limit ?? 20,
+    ] as const,
+    enabled: Boolean(projectId),
+    initialPageParam: null as string | null,
+    queryFn: ({ pageParam }) => {
+      const params = new URLSearchParams(base);
+      if (pageParam) params.set("cursor", pageParam);
+      const suffix = params.size > 0 ? `?${params.toString()}` : "";
+      return apiFetch<{ events: UsageEvent[]; nextCursor: string | null }>(
+        `/events/${projectId}${suffix}`,
+      );
+    },
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+  });
+}
+
+export function useEvent(projectId: string | undefined, eventId: string | undefined) {
+  return useQuery({
+    queryKey: ["event", projectId ?? "none", eventId ?? "none"] as const,
+    enabled: Boolean(projectId && eventId),
+    queryFn: () =>
+      apiFetch<{ event: UsageEvent }>(`/events/${projectId}/${eventId}`).then(
+        (r) => r.event,
       ),
   });
 }
