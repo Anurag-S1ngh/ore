@@ -10,7 +10,7 @@ import {
   subscriptions,
   usageAggregates,
 } from "@ore/db/schema/index";
-import { and, eq, gt, gte, isNull, lt, or, sql } from "drizzle-orm";
+import { and, eq, gt, isNull, lt, or, sql } from "drizzle-orm";
 import {
   effectiveRate,
   fromMicros,
@@ -171,7 +171,7 @@ export const invoicesService = {
             eq(usageAggregates.customerId, customer.id),
             eq(usageAggregates.metricId, price.metricId),
             eq(usageAggregates.granularity, "hour"),
-            gte(usageAggregates.periodStart, usageStart),
+            gt(usageAggregates.periodEnd, usageStart),
             lt(usageAggregates.periodStart, usageEnd),
           ),
         );
