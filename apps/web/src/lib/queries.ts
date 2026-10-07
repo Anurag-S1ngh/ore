@@ -4,12 +4,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiFetch } from "@/lib/api";
 import { clearIdentity, setIdentity } from "@/lib/identity";
-import type { ApiKey, CreatedApiKey, Currency, Customer, Project } from "@/lib/types";
+import type { ApiKey, CreatedApiKey, Currency, Customer, Invoice, InvoiceStatus, Project } from "@/lib/types";
 
 export const queryKeys = {
   projects: ["projects"] as const,
   customers: (projectId: string) => ["customers", projectId] as const,
   apiKeys: (projectId: string) => ["api-keys", projectId] as const,
+  invoices: (projectId: string, filters?: { customerId?: string; status?: InvoiceStatus }) =>
+    ["invoices", projectId, filters?.customerId ?? "all", filters?.status ?? "all"] as const,
+  invoice: (projectId: string, invoiceId: string) =>
+    ["invoice", projectId, invoiceId] as const,
 };
 
 /* ---------------------------------- auth --------------------------------- */
@@ -194,5 +198,82 @@ export function useRevokeApiKey(projectId: string | undefined) {
       ),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys(projectId ?? "none") }),
+  });
+}
+
+/* -------------------------------- invoices ------------------------------- */
+
+export type InvoiceFilters = { customerId?: string; status?: InvoiceStatus };
+
+export function useInvoices(projectId: string | undefined, filters?: InvoiceFilters) {
+  const params = new URLSearchParams();
+  if (filters?.customerId) params.set("customerId", filters.customerId);
+  if (filters?.status) params.set("status", filters.status);
+  const suffix = params.size > 0 ? `?${params.toString()}` : "";
+  return useQuery({
+    queryKey: queryKeys.invoices(projectId ?? "none", filters),
+    enabled: Boolean(projectId),
+    queryFn: () =>
+      apiFetch<{ invoices: Invoice[] }>(`/invoices/${projectId}${suffix}`).then(
+        (r) => r.invoices,
+      ),
+  });
+}
+
+export function useInvoice(projectId: string | undefined, invoiceId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.invoice(projectId ?? "none", invoiceId ?? "none"),
+    enabled: Boolean(projectId && invoiceId),
+    queryFn: () =>
+      apiFetch<{ invoice: Invoice }>(`/invoices/${projectId}/${invoiceId}`).then(
+        (r) => r.invoice,
+      ),
+  });
+}
+
+export function useCreateInvoice(projectId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: {
+      customerId: string;
+      periodStart: string;
+      periodEnd: string;
+      dueDate?: string;
+    }) =>
+      apiFetch<{ invoice: Invoice }>(`/invoices/${projectId}`, {
+        method: "POST",
+        body: input,
+      }).then((r) => r.invoice),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["invoices", projectId ?? "none"] }),
+  });
+}
+
+export function useUpdateInvoiceStatus(projectId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ invoiceId, status }: { invoiceId: string; status: InvoiceStatus }) =>
+      apiFetch<{ invoice: Invoice }>(`/invoices/${projectId}/${invoiceId}`, {
+        method: "PATCH",
+        body: { status },
+      }).then((r) => r.invoice),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["invoices", projectId ?? "none"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.invoice(projectId ?? "none", variables.invoiceId),
+      });
+    },
+  });
+}
+
+export function useDeleteInvoice(projectId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (invoiceId: string) =>
+      apiFetch<{ invoice: Invoice }>(`/invoices/${projectId}/${invoiceId}`, {
+        method: "DELETE",
+      }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["invoices", projectId ?? "none"] }),
   });
 }

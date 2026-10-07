@@ -32,6 +32,60 @@ export type ApiKey = {
 
 export type CreatedApiKey = ApiKey & { key: string };
 
+export type InvoiceStatus = "draft" | "pending" | "paid";
+
+export type Invoice = {
+  id: string;
+  projectId: string;
+  customerId: string;
+  status: InvoiceStatus;
+  invoiceNumber: string;
+  currency: Currency;
+  totalAmount: string;
+  periodStart: string | null;
+  periodEnd: string | null;
+  issuedAt: string;
+  paidAt: string | null;
+  dueDate: string;
+  createdAt: string;
+  customer?: Customer | null;
+  invoiceItems?: InvoiceItem[];
+};
+
+export type InvoiceItem = {
+  id: string;
+  invoiceId: string;
+  projectId: string;
+  customerId: string;
+  subscriptionId: string;
+  priceId: string | null;
+  metricId: string | null;
+  type: "fixed" | "usage";
+  totalQuantity: string;
+  unitAmount: string;
+  amount: string;
+  currency: Currency;
+  periodStart: string | null;
+  periodEnd: string | null;
+  createdAt: string;
+  price?: {
+    id: string;
+    metricId: string;
+    modelType: "unit" | "tiered";
+    unitAmount: string | null;
+    currency: Currency;
+  } | null;
+  metric?: {
+    id: string;
+    name: string;
+    unit: string;
+  } | null;
+  subscription?: {
+    id: string;
+    externalSubscriptionId: string;
+  } | null;
+};
+
 export type CurrencyOption = { value: Currency; label: string };
 
 export const CURRENCIES: CurrencyOption[] = [
