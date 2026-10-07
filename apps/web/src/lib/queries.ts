@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiFetch } from "@/lib/api";
 import { clearIdentity, setIdentity } from "@/lib/identity";
-import type { ApiKey, Cadence, CreatedApiKey, Currency, Customer, Invoice, InvoiceStatus, Metric, Plan, Price, Project, Subscription, SubscriptionStatus } from "@/lib/types";
+import type { ApiKey, Cadence, CreatedApiKey, Currency, Customer, Invoice, InvoiceStatus, Metric, Plan, Price, Project, Subscription, SubscriptionStatus, UsageBucket, UsageGranularity } from "@/lib/types";
 
 export const queryKeys = {
   projects: ["projects"] as const,
@@ -417,6 +417,41 @@ export function useDeleteMetric(projectId: string | undefined) {
       queryClient.invalidateQueries({
         queryKey: queryKeys.metrics(projectId ?? "none"),
       }),
+  });
+}
+
+/* --------------------------------- usage --------------------------------- */
+
+export type UsageFilters = {
+  period: string;
+  granularity?: UsageGranularity;
+  metricId?: string;
+  customerId?: string;
+};
+
+export function useUsage(projectId: string | undefined, filters: UsageFilters | undefined) {
+  const params = new URLSearchParams();
+  if (filters) {
+    params.set("period", filters.period);
+    if (filters.granularity) params.set("granularity", filters.granularity);
+    if (filters.metricId) params.set("metricId", filters.metricId);
+    if (filters.customerId) params.set("customerId", filters.customerId);
+  }
+  const suffix = params.size > 0 ? `?${params.toString()}` : "";
+  return useQuery({
+    queryKey: [
+      "usage",
+      projectId ?? "none",
+      filters?.period ?? "none",
+      filters?.granularity ?? "hour",
+      filters?.metricId ?? "all",
+      filters?.customerId ?? "all",
+    ] as const,
+    enabled: Boolean(projectId && filters?.period),
+    queryFn: () =>
+      apiFetch<{ usage: UsageBucket[] }>(`/usage/${projectId}${suffix}`).then(
+        (r) => r.usage,
+      ),
   });
 }
 

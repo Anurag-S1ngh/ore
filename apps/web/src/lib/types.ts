@@ -58,6 +58,19 @@ export type Metric = {
   createdAt: string;
 };
 
+export type UsageGranularity = "hour" | "day" | "week" | "month";
+
+export type UsageBucket = {
+  customerId: string;
+  metricId: string;
+  aggregation?: string;
+  periodStart: string;
+  periodEnd?: string | null;
+  value: string;
+  customer?: Customer | null;
+  metric?: Metric | null;
+};
+
 export type PriceTier = {
   id: string;
   priceId: string;
