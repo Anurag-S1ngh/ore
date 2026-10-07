@@ -386,6 +386,40 @@ export function useMetrics(projectId: string | undefined) {
   });
 }
 
+export function useCreateMetric(projectId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: {
+      name: string;
+      description?: string;
+      unit: string;
+      aggregation: "sum" | "max" | "count";
+    }) =>
+      apiFetch<{ metric: Metric }>(`/metrics/${projectId}/`, {
+        method: "POST",
+        body: input,
+      }).then((r) => r.metric),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.metrics(projectId ?? "none"),
+      }),
+  });
+}
+
+export function useDeleteMetric(projectId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (metricId: string) =>
+      apiFetch<{ metric: Metric }>(`/metrics/${projectId}/${metricId}`, {
+        method: "DELETE",
+      }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.metrics(projectId ?? "none"),
+      }),
+  });
+}
+
 /* ------------------------------ subscriptions ---------------------------- */
 
 export type SubscriptionFilters = {
