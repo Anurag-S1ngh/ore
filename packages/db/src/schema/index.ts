@@ -343,9 +343,6 @@ export const invoices = pgTable(
     projectId: uuid("project_id")
       .references(() => projects.id)
       .notNull(),
-    subscriptionId: uuid("subscription_id")
-      .references(() => subscriptions.id)
-      .notNull(),
     customerId: uuid("customer_id")
       .references(() => customers.id)
       .notNull(),
@@ -386,6 +383,9 @@ export const invoiceItems = pgTable(
     customerId: uuid("customer_id")
       .references(() => customers.id)
       .notNull(),
+    subscriptionId: uuid("subscription_id")
+      .references(() => subscriptions.id)
+      .notNull(),
     priceId: uuid("price_id").references(() => prices.id),
     metricId: uuid("metric_id").references(() => metrics.id),
     type: lineItemTypeEnum("type").notNull(),
@@ -403,7 +403,13 @@ export const invoiceItems = pgTable(
       .defaultNow()
       .notNull(),
   },
-  (t) => [index("invoice_items_invoice_idx").on(t.invoiceId)],
+  (t) => [
+    index("invoice_items_invoice_idx").on(t.invoiceId),
+    index("invoice_items_project_subscription_idx").on(
+      t.projectId,
+      t.subscriptionId,
+    ),
+  ],
 );
 
 export const usageProcessedEvent = pgTable("usage_processed_events", {

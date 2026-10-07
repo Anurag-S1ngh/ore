@@ -152,10 +152,6 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.subscriptions.id,
       to: r.subscriptionPriceIntervals.subscriptionId,
     }),
-    invoices: r.many.invoices({
-      from: r.subscriptions.id,
-      to: r.invoices.subscriptionId,
-    }),
   },
   subscriptionPriceIntervals: {
     subscription: r.one.subscriptions({
@@ -169,10 +165,6 @@ export const relations = defineRelations(schema, (r) => ({
   },
   invoices: {
     project: r.one.projects({ from: r.invoices.projectId, to: r.projects.id }),
-    subscription: r.one.subscriptions({
-      from: r.invoices.subscriptionId,
-      to: r.subscriptions.id,
-    }),
     customer: r.one.customers({
       from: r.invoices.customerId,
       to: r.customers.id,
@@ -186,6 +178,10 @@ export const relations = defineRelations(schema, (r) => ({
     invoice: r.one.invoices({
       from: r.invoiceItems.invoiceId,
       to: r.invoices.id,
+    }),
+    subscription: r.one.subscriptions({
+      from: r.invoiceItems.subscriptionId,
+      to: r.subscriptions.id,
     }),
     project: r.one.projects({
       from: r.invoiceItems.projectId,
