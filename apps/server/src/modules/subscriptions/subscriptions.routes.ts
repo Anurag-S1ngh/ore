@@ -1,22 +1,14 @@
 import { Router } from "express";
-import { subscriptionsController } from "./subscriptions.controller";
 import { userAuthMiddleware } from "@/middleware/auth";
 import { projectOwnedByUser } from "@/middleware/project";
+import { subscriptionsController } from "./subscriptions.controller";
 
 export const subscriptionsRouter = Router();
 
 subscriptionsRouter.use(userAuthMiddleware);
 
-subscriptionsRouter.get(
-  "/:projectId",
-  projectOwnedByUser,
-  subscriptionsController.list,
-);
-subscriptionsRouter.post(
-  "/:projectId",
-  projectOwnedByUser,
-  subscriptionsController.create,
-);
+subscriptionsRouter.get("/:projectId", projectOwnedByUser, subscriptionsController.list);
+subscriptionsRouter.post("/:projectId", projectOwnedByUser, subscriptionsController.create);
 subscriptionsRouter.get(
   "/:projectId/:subscriptionId",
   projectOwnedByUser,

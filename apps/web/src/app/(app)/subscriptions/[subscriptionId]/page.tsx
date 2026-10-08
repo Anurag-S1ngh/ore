@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PageBody, PageHeader } from "@/components/page-header";
 import { ProjectRequired } from "@/components/project-required";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -20,13 +21,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { getErrorMessage } from "@/lib/api";
 import { useProject } from "@/lib/project-context";
-import {
-  useCancelSubscription,
-  useSubscription,
-} from "@/lib/queries";
+import { useCancelSubscription, useSubscription } from "@/lib/queries";
 import type { SubscriptionStatus } from "@/lib/types";
 
 import { SubscriptionFormDialog } from "../subscription-form-dialog";
@@ -40,9 +37,7 @@ const STATUS_VARIANT: Record<SubscriptionStatus, "success" | "info" | "muted"> =
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-4 py-2">
-      <span className="text-[11px] tracking-widest text-muted-foreground uppercase">
-        {label}
-      </span>
+      <span className="text-[11px] tracking-widest text-muted-foreground uppercase">{label}</span>
       <span className="min-w-0 truncate text-right text-xs">{value}</span>
     </div>
   );
@@ -112,17 +107,13 @@ export default function SubscriptionDetailPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   Summary
-                  <Badge variant={STATUS_VARIANT[subscription.status]}>
-                    {subscription.status}
-                  </Badge>
+                  <Badge variant={STATUS_VARIANT[subscription.status]}>{subscription.status}</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="divide-y">
                 <InfoRow
                   label="External ID"
-                  value={
-                    <span className="data-mono">{subscription.externalSubscriptionId}</span>
-                  }
+                  value={<span className="data-mono">{subscription.externalSubscriptionId}</span>}
                 />
                 <InfoRow
                   label="Customer"

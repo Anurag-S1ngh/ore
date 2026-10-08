@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@ore/ui/components/button";
+import { Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +10,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2 } from "lucide-react";
 
 export function ConfirmDialog({
   open,

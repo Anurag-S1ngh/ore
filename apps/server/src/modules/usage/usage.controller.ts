@@ -1,6 +1,6 @@
+import type { Request, Response } from "express";
 import { projectIdParamSchema } from "@/modules/project/project.validation";
 import { AppError } from "@/types/error";
-import type { Request, Response } from "express";
 import { usageService } from "./usage.service";
 import { usageListQuerySchema, usageParamSchema } from "./usage.validation";
 
@@ -14,9 +14,7 @@ export const usageController = {
     }
     const validQuery = usageListQuerySchema.safeParse(req.query);
     if (!validQuery.success) {
-      return res
-        .status(400)
-        .json({ error: validQuery.error.issues[0]?.message || "invalid data" });
+      return res.status(400).json({ error: validQuery.error.issues[0]?.message || "invalid data" });
     }
     const { projectId } = validParam.data;
     const query = validQuery.data;
@@ -35,9 +33,7 @@ export const usageController = {
   async get(req: Request, res: Response) {
     const validParam = usageParamSchema.safeParse(req.params);
     if (!validParam.success) {
-      return res
-        .status(400)
-        .json({ error: validParam.error.issues[0]?.message || "invalid data" });
+      return res.status(400).json({ error: validParam.error.issues[0]?.message || "invalid data" });
     }
     const { projectId, usageId } = validParam.data;
     try {

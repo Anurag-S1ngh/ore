@@ -1,20 +1,14 @@
 import type { Request, Response } from "express";
 import { projectIdParamSchema } from "@/modules/project/project.validation";
-import { plansService } from "./plans.service";
-import {
-  createPlanSchema,
-  planParamSchema,
-  updatePlanSchema,
-} from "./plans.validation";
 import { AppError } from "@/types/error";
+import { plansService } from "./plans.service";
+import { createPlanSchema, planParamSchema, updatePlanSchema } from "./plans.validation";
 
 export const plansController = {
   async list(req: Request, res: Response) {
     const validParam = projectIdParamSchema.safeParse(req.params);
     if (!validParam.success) {
-      return res
-        .status(400)
-        .json({ error: validParam.error.issues[0]?.message });
+      return res.status(400).json({ error: validParam.error.issues[0]?.message });
     }
     const { projectId } = validParam.data;
     try {
@@ -31,9 +25,7 @@ export const plansController = {
   async create(req: Request, res: Response) {
     const validParam = projectIdParamSchema.safeParse(req.params);
     if (!validParam.success) {
-      return res
-        .status(400)
-        .json({ error: validParam.error.issues[0]?.message });
+      return res.status(400).json({ error: validParam.error.issues[0]?.message });
     }
     const { projectId } = validParam.data;
     const validatedData = createPlanSchema.safeParse(req.body);
@@ -63,9 +55,7 @@ export const plansController = {
   async update(req: Request, res: Response) {
     const validParam = planParamSchema.safeParse(req.params);
     if (!validParam.success) {
-      return res
-        .status(400)
-        .json({ error: validParam.error.issues[0]?.message });
+      return res.status(400).json({ error: validParam.error.issues[0]?.message });
     }
     const { projectId, planId } = validParam.data;
     const validatedData = updatePlanSchema.safeParse(req.body);
@@ -96,9 +86,7 @@ export const plansController = {
   async delete(req: Request, res: Response) {
     const validParam = planParamSchema.safeParse(req.params);
     if (!validParam.success) {
-      return res
-        .status(400)
-        .json({ error: validParam.error.issues[0]?.message });
+      return res.status(400).json({ error: validParam.error.issues[0]?.message });
     }
     const { projectId, planId } = validParam.data;
     try {

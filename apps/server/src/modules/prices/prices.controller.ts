@@ -1,5 +1,5 @@
-import { AppError } from "@/types/error";
 import type { Request, Response } from "express";
+import { AppError } from "@/types/error";
 import { pricesService } from "./prices.service";
 import {
   createPriceSchema,
@@ -33,9 +33,7 @@ export const pricesController = {
   async get(req: Request, res: Response) {
     const validParam = priceParamSchema.safeParse(req.params);
     if (!validParam.success) {
-      return res
-        .status(400)
-        .json({ error: validParam.error.issues[0]?.message });
+      return res.status(400).json({ error: validParam.error.issues[0]?.message });
     }
     const { projectId, priceId } = validParam.data;
     try {
@@ -53,9 +51,7 @@ export const pricesController = {
   async create(req: Request, res: Response) {
     const validParam = priceListParamSchema.safeParse(req.params);
     if (!validParam.success) {
-      return res
-        .status(400)
-        .json({ error: validParam.error.issues[0]?.message });
+      return res.status(400).json({ error: validParam.error.issues[0]?.message });
     }
     const validatedData = createPriceSchema.safeParse(req.body);
     if (!validatedData.success) {
@@ -80,9 +76,7 @@ export const pricesController = {
   async update(req: Request, res: Response) {
     const validParam = priceUpdateParamSchema.safeParse(req.params);
     if (!validParam.success) {
-      return res
-        .status(400)
-        .json({ error: validParam.error.issues[0]?.message });
+      return res.status(400).json({ error: validParam.error.issues[0]?.message });
     }
     const validatedData = updatePriceSchema.safeParse(req.body);
     if (!validatedData.success) {
@@ -93,12 +87,7 @@ export const pricesController = {
     const { projectId, planId, priceId } = validParam.data;
     const input = validatedData.data;
     try {
-      const price = await pricesService.update(
-        projectId,
-        planId,
-        priceId,
-        input,
-      );
+      const price = await pricesService.update(projectId, planId, priceId, input);
       return res.status(200).json({ price });
     } catch (err) {
       console.log(err);

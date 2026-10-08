@@ -1,8 +1,5 @@
-import { db } from "@/services";
-import { AppError } from "@/types/error";
-import { isUniqueViolation } from "@/util/db-error";
 import {
-  cadenceEnum,
+  type cadenceEnum,
   customers,
   plans,
   prices,
@@ -10,6 +7,9 @@ import {
   subscriptions,
 } from "@ore/db/schema/index";
 import { and, eq, isNull } from "drizzle-orm";
+import { db } from "@/services";
+import { AppError } from "@/types/error";
+import { isUniqueViolation } from "@/util/db-error";
 import type {
   CreateSubscriptionInput,
   SubscriptionListFilters,
@@ -71,9 +71,7 @@ export const subscriptionsService = {
     const [customer] = await db
       .select({ id: customers.id })
       .from(customers)
-      .where(
-        and(eq(customers.id, customerId), eq(customers.projectId, projectId)),
-      );
+      .where(and(eq(customers.id, customerId), eq(customers.projectId, projectId)));
     if (!customer) {
       throw new AppError("invalid customer id", 400);
     }
@@ -130,20 +128,13 @@ export const subscriptionsService = {
       });
     } catch (err) {
       if (isUniqueViolation(err)) {
-        throw new AppError(
-          "a subscription with the same external id already exists",
-          409,
-        );
+        throw new AppError("a subscription with the same external id already exists", 409);
       }
       throw err;
     }
   },
 
-  async update(
-    projectId: string,
-    subscriptionId: string,
-    input: UpdateSubscriptionInput,
-  ) {
+  async update(projectId: string, subscriptionId: string, input: UpdateSubscriptionInput) {
     const existing = await db.query.subscriptions.findFirst({
       where: { projectId, id: subscriptionId },
       with: {
@@ -175,9 +166,7 @@ export const subscriptionsService = {
         .select({ id: prices.id, planId: prices.planId })
         .from(prices)
         .where(eq(prices.projectId, projectId));
-      const planByPrice = new Map(
-        requested.map((price) => [price.id, price.planId]),
-      );
+      const planByPrice = new Map(requested.map((price) => [price.id, price.planId]));
       for (const priceId of input.priceIds) {
         if (planByPrice.get(priceId) !== targetPlanId) {
           throw new AppError("invalid price id", 400);
@@ -188,9 +177,7 @@ export const subscriptionsService = {
       const planPrices = await db
         .select({ id: prices.id })
         .from(prices)
-        .where(
-          and(eq(prices.planId, targetPlanId), eq(prices.projectId, projectId)),
-        );
+        .where(and(eq(prices.planId, targetPlanId), eq(prices.projectId, projectId)));
       if (planPrices.length === 0) {
         throw new AppError("plan has no prices", 400);
       }
@@ -228,12 +215,7 @@ export const subscriptionsService = {
             planId: targetPlanId,
             cadence,
           })
-          .where(
-            and(
-              eq(subscriptions.id, subscriptionId),
-              eq(subscriptions.projectId, projectId),
-            ),
-          )
+          .where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.projectId, projectId)))
           .returning();
         if (!updated) {
           throw new AppError("subscription not found", 404);
@@ -242,10 +224,7 @@ export const subscriptionsService = {
       });
     } catch (err) {
       if (isUniqueViolation(err)) {
-        throw new AppError(
-          "a subscription with the same external id already exists",
-          409,
-        );
+        throw new AppError("a subscription with the same external id already exists", 409);
       }
       throw err;
     }
@@ -276,12 +255,7 @@ export const subscriptionsService = {
       const [canceled] = await tx
         .update(subscriptions)
         .set({ status: "canceled", canceledAt: now, endDate: now })
-        .where(
-          and(
-            eq(subscriptions.id, subscriptionId),
-            eq(subscriptions.projectId, projectId),
-          ),
-        )
+        .where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.projectId, projectId)))
         .returning();
       if (!canceled) {
         throw new AppError("subscription not found", 404);

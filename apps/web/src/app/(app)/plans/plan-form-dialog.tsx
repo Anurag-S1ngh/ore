@@ -4,6 +4,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@ore/ui/components/button";
 import { Input } from "@ore/ui/components/input";
 import { Label } from "@ore/ui/components/label";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 import {
   Dialog,
   DialogContent,
@@ -12,12 +18,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import * as React from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
 
 import { getErrorMessage } from "@/lib/api";
 import { useProject } from "@/lib/project-context";
@@ -75,9 +75,7 @@ export function PlanFormDialog({
   function submit(values: PlanFormValues) {
     const payload = {
       name: values.name.trim(),
-      ...(values.description?.trim()
-        ? { description: values.description.trim() }
-        : {}),
+      ...(values.description?.trim() ? { description: values.description.trim() } : {}),
       externalPlanId: values.externalPlanId.trim(),
       ...(values.parentId ? { parentId: values.parentId } : {}),
     };
@@ -112,8 +110,7 @@ export function PlanFormDialog({
         <DialogHeader>
           <DialogTitle>{editing ? "Edit plan" : "New plan"}</DialogTitle>
           <DialogDescription>
-            Plans group usage-based prices. Subscriptions enroll customers in a
-            plan.
+            Plans group usage-based prices. Subscriptions enroll customers in a plan.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(submit)} className="flex flex-col gap-4">
@@ -121,9 +118,7 @@ export function PlanFormDialog({
             <Label htmlFor="plan-name">Name</Label>
             <Input id="plan-name" placeholder="Pro" {...form.register("name")} />
             {form.formState.errors.name ? (
-              <p className="text-[11px] text-destructive">
-                {form.formState.errors.name.message}
-              </p>
+              <p className="text-[11px] text-destructive">{form.formState.errors.name.message}</p>
             ) : null}
           </div>
           <div className="flex flex-col gap-1.5">
@@ -165,12 +160,7 @@ export function PlanFormDialog({
             </select>
           </div>
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button type="submit" size="sm" disabled={pending}>

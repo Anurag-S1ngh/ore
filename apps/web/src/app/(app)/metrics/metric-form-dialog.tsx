@@ -4,6 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@ore/ui/components/button";
 import { Input } from "@ore/ui/components/input";
 import { Label } from "@ore/ui/components/label";
+import { Loader2 } from "lucide-react";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 import {
   Dialog,
   DialogContent,
@@ -12,11 +17,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2 } from "lucide-react";
-import * as React from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
 
 import { getErrorMessage } from "@/lib/api";
 import { useProject } from "@/lib/project-context";
@@ -76,8 +76,8 @@ export function MetricFormDialog({
         <DialogHeader>
           <DialogTitle>New metric</DialogTitle>
           <DialogDescription>
-            Metrics are the billable quantities you aggregate from usage events
-            and attach to prices.
+            Metrics are the billable quantities you aggregate from usage events and attach to
+            prices.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(submit)} className="flex flex-col gap-4">
@@ -86,18 +86,14 @@ export function MetricFormDialog({
               <Label htmlFor="metric-name">Name</Label>
               <Input id="metric-name" placeholder="api_calls" {...form.register("name")} />
               {form.formState.errors.name ? (
-                <p className="text-[11px] text-destructive">
-                  {form.formState.errors.name.message}
-                </p>
+                <p className="text-[11px] text-destructive">{form.formState.errors.name.message}</p>
               ) : null}
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="metric-unit">Unit</Label>
               <Input id="metric-unit" placeholder="calls" {...form.register("unit")} />
               {form.formState.errors.unit ? (
-                <p className="text-[11px] text-destructive">
-                  {form.formState.errors.unit.message}
-                </p>
+                <p className="text-[11px] text-destructive">{form.formState.errors.unit.message}</p>
               ) : null}
             </div>
           </div>
@@ -122,18 +118,11 @@ export function MetricFormDialog({
             />
           </div>
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button type="submit" size="sm" disabled={createMetric.isPending}>
-              {createMetric.isPending ? (
-                <Loader2 className="size-3.5 animate-spin" />
-              ) : null}
+              {createMetric.isPending ? <Loader2 className="size-3.5 animate-spin" /> : null}
               Create metric
             </Button>
           </DialogFooter>

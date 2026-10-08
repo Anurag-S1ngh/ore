@@ -1,6 +1,6 @@
+import type { Request, Response } from "express";
 import { projectIdParamSchema } from "@/modules/project/project.validation";
 import { AppError } from "@/types/error";
-import type { Request, Response } from "express";
 import { invoicesService } from "./invoices.service";
 import {
   createInvoiceSchema,
@@ -19,9 +19,7 @@ export const invoicesController = {
     }
     const validQuery = invoiceListQuerySchema.safeParse(req.query);
     if (!validQuery.success) {
-      return res
-        .status(400)
-        .json({ error: validQuery.error.issues[0]?.message || "invalid data" });
+      return res.status(400).json({ error: validQuery.error.issues[0]?.message || "invalid data" });
     }
     const { projectId } = validParam.data;
     try {
@@ -39,9 +37,7 @@ export const invoicesController = {
   async get(req: Request, res: Response) {
     const validParam = invoiceParamSchema.safeParse(req.params);
     if (!validParam.success) {
-      return res
-        .status(400)
-        .json({ error: validParam.error.issues[0]?.message || "invalid data" });
+      return res.status(400).json({ error: validParam.error.issues[0]?.message || "invalid data" });
     }
     const { projectId, invoiceId } = validParam.data;
     try {
@@ -86,9 +82,7 @@ export const invoicesController = {
   async update(req: Request, res: Response) {
     const validParam = invoiceParamSchema.safeParse(req.params);
     if (!validParam.success) {
-      return res
-        .status(400)
-        .json({ error: validParam.error.issues[0]?.message || "invalid data" });
+      return res.status(400).json({ error: validParam.error.issues[0]?.message || "invalid data" });
     }
     const validatedData = updateInvoiceSchema.safeParse(req.body);
     if (!validatedData.success) {
@@ -99,11 +93,7 @@ export const invoicesController = {
     const { projectId, invoiceId } = validParam.data;
     const input = validatedData.data;
     try {
-      const invoice = await invoicesService.updateStatus(
-        projectId,
-        invoiceId,
-        input,
-      );
+      const invoice = await invoicesService.updateStatus(projectId, invoiceId, input);
       return res.status(200).json({ invoice });
     } catch (err) {
       console.log(err);
@@ -117,9 +107,7 @@ export const invoicesController = {
   async remove(req: Request, res: Response) {
     const validParam = invoiceParamSchema.safeParse(req.params);
     if (!validParam.success) {
-      return res
-        .status(400)
-        .json({ error: validParam.error.issues[0]?.message || "invalid data" });
+      return res.status(400).json({ error: validParam.error.issues[0]?.message || "invalid data" });
     }
     const { projectId, invoiceId } = validParam.data;
     try {

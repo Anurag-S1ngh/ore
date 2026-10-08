@@ -7,8 +7,8 @@ import {
   overlaps,
   rateGraduated,
   rateUnit,
-  toMicros,
   type TierBand,
+  toMicros,
 } from "./invoices.money";
 
 const utc = (iso: string): Date => new Date(iso);
@@ -180,20 +180,11 @@ describe("overlaps", () => {
   });
 
   test("null end means still active", () => {
-    expect(
-      overlaps(
-        utc("2026-08-15T00:00:00.000Z"),
-        null,
-        periodStart,
-        periodEnd,
-      ),
-    ).toBe(true);
+    expect(overlaps(utc("2026-08-15T00:00:00.000Z"), null, periodStart, periodEnd)).toBe(true);
   });
 
   test("active interval starting after the period does not overlap", () => {
-    expect(
-      overlaps(utc("2026-11-01T00:00:00.000Z"), null, periodStart, periodEnd),
-    ).toBe(false);
+    expect(overlaps(utc("2026-11-01T00:00:00.000Z"), null, periodStart, periodEnd)).toBe(false);
   });
 
   test("mid-period subscription start overlaps its own period", () => {

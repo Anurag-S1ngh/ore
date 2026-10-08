@@ -10,13 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@ore/ui/components/dropdown-menu";
 import { Skeleton } from "@ore/ui/components/skeleton";
-import {
-  ArrowLeft,
-  MoreHorizontal,
-  Pencil,
-  Plus,
-  Trash2,
-} from "lucide-react";
+import { ArrowLeft, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import * as React from "react";
@@ -25,6 +19,7 @@ import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PageBody, PageHeader } from "@/components/page-header";
 import { ProjectRequired } from "@/components/project-required";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -33,15 +28,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { getErrorMessage } from "@/lib/api";
 import { useProject } from "@/lib/project-context";
-import {
-  useDeletePrice,
-  useMetrics,
-  usePlans,
-  usePrices,
-} from "@/lib/queries";
+import { useDeletePrice, useMetrics, usePlans, usePrices } from "@/lib/queries";
 import type { Price } from "@/lib/types";
 
 import { PriceFormDialog } from "./price-form-dialog";
@@ -49,9 +38,7 @@ import { PriceFormDialog } from "./price-form-dialog";
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-4 py-2">
-      <span className="text-[11px] tracking-widest text-muted-foreground uppercase">
-        {label}
-      </span>
+      <span className="text-[11px] tracking-widest text-muted-foreground uppercase">{label}</span>
       <span className="min-w-0 truncate text-right text-xs">{value}</span>
     </div>
   );
@@ -125,9 +112,7 @@ export default function PlanDetailPage() {
                 <InfoRow
                   label="Created"
                   value={
-                    <span className="data-mono">
-                      {new Date(plan.createdAt).toLocaleString()}
-                    </span>
+                    <span className="data-mono">{new Date(plan.createdAt).toLocaleString()}</span>
                   }
                 />
               </CardContent>
@@ -162,8 +147,7 @@ export default function PlanDetailPage() {
                   </p>
                 ) : !prices.data || prices.data.length === 0 ? (
                   <p className="px-4 text-xs text-muted-foreground">
-                    No prices yet. Subscriptions require at least one price on
-                    the plan.
+                    No prices yet. Subscriptions require at least one price on the plan.
                   </p>
                 ) : (
                   <Table>
@@ -197,9 +181,7 @@ export default function PlanDetailPage() {
                                 ? `${price.unitAmount} ${price.currency}`
                                 : `${price.priceTiers?.length ?? 0} tiers`}
                             </TableCell>
-                            <TableCell className="text-muted-foreground">
-                              {price.cadence}
-                            </TableCell>
+                            <TableCell className="text-muted-foreground">{price.cadence}</TableCell>
                             <TableCell className="data-mono text-[11px] text-muted-foreground">
                               {price.externalPriceId}
                             </TableCell>

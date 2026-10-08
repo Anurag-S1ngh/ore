@@ -4,6 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@ore/ui/components/button";
 import { Input } from "@ore/ui/components/input";
 import { Label } from "@ore/ui/components/label";
+import { Loader2 } from "lucide-react";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import {
   Dialog,
   DialogContent,
@@ -12,20 +16,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2 } from "lucide-react";
-import * as React from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 import type { Customer } from "@/lib/types";
 
 const optionalEmail = z.union([z.email("Enter a valid email"), z.literal("")]).optional();
 
 const schema = z.object({
-  externalId: z
-    .string()
-    .min(1, "External ID is required")
-    .max(255, "External ID is too long"),
+  externalId: z.string().min(1, "External ID is required").max(255, "External ID is too long"),
   name: z.string().max(255, "Name is too long").optional(),
   email: optionalEmail,
   phone: z.string().max(20, "Phone is too long").optional(),
@@ -43,12 +40,7 @@ export function CustomerFormDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   customer?: Customer | null;
-  onSubmit: (values: {
-    externalId: string;
-    name?: string;
-    email?: string;
-    phone?: string;
-  }) => void;
+  onSubmit: (values: { externalId: string; name?: string; email?: string; phone?: string }) => void;
   pending?: boolean;
 }) {
   const editing = Boolean(customer);
@@ -136,12 +128,7 @@ export function CustomerFormDialog({
             </div>
           </div>
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button type="submit" size="sm" disabled={pending}>

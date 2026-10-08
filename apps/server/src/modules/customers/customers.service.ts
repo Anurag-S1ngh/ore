@@ -1,15 +1,12 @@
+import { customers } from "@ore/db/schema/index";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/services";
 import { AppError } from "@/types/error";
 import { isUniqueViolation } from "@/util/db-error";
-import { customers } from "@ore/db/schema/index";
-import { and, eq } from "drizzle-orm";
 
 export const customersService = {
   async list(projectId: string) {
-    return db
-      .select()
-      .from(customers)
-      .where(eq(customers.projectId, projectId));
+    return db.select().from(customers).where(eq(customers.projectId, projectId));
   },
 
   async create(
@@ -55,9 +52,7 @@ export const customersService = {
     const [updated] = await db
       .update(customers)
       .set({ name, email, phone })
-      .where(
-        and(eq(customers.id, customerId), eq(customers.projectId, projectId)),
-      )
+      .where(and(eq(customers.id, customerId), eq(customers.projectId, projectId)))
       .returning();
     if (!updated) {
       throw new AppError("customer not found", 404);
@@ -68,9 +63,7 @@ export const customersService = {
   async delete(projectId: string, customerId: string) {
     const [deleted] = await db
       .delete(customers)
-      .where(
-        and(eq(customers.id, customerId), eq(customers.projectId, projectId)),
-      )
+      .where(and(eq(customers.id, customerId), eq(customers.projectId, projectId)))
       .returning();
     if (!deleted) {
       throw new AppError("customer not found", 404);

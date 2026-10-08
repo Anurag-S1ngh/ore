@@ -4,6 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@ore/ui/components/button";
 import { Input } from "@ore/ui/components/input";
 import { Label } from "@ore/ui/components/label";
+import { Loader2 } from "lucide-react";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import {
   Dialog,
   DialogContent,
@@ -13,19 +17,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Select } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
-import * as React from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 import { CURRENCIES, type Project } from "@/lib/types";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name is too long"),
-  description: z
-    .string()
-    .min(1, "Description is required")
-    .max(255, "Description is too long"),
+  description: z.string().min(1, "Description is required").max(255, "Description is too long"),
   defaultCurrency: z.enum(["USD", "JPY", "INR"]),
 });
 
@@ -81,9 +78,7 @@ export function ProjectFormDialog({
             <Label htmlFor="project-name">Name</Label>
             <Input id="project-name" placeholder="Acme Cloud" {...form.register("name")} />
             {form.formState.errors.name ? (
-              <p className="text-[11px] text-destructive">
-                {form.formState.errors.name.message}
-              </p>
+              <p className="text-[11px] text-destructive">{form.formState.errors.name.message}</p>
             ) : null}
           </div>
           <div className="flex flex-col gap-1.5">
@@ -110,12 +105,7 @@ export function ProjectFormDialog({
             </Select>
           </div>
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button type="submit" size="sm" disabled={pending}>

@@ -1,6 +1,6 @@
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
-import cookieParser from "cookie-parser";
 import { ENV } from "./env.server";
 import { router } from "./router";
 

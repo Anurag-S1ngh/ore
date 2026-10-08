@@ -4,6 +4,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@ore/ui/components/button";
 import { Input } from "@ore/ui/components/input";
 import { Label } from "@ore/ui/components/label";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 import {
   Dialog,
   DialogContent,
@@ -12,12 +18,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import * as React from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
 
 import { getErrorMessage } from "@/lib/api";
 import { useProject } from "@/lib/project-context";
@@ -90,8 +90,8 @@ export function InvoiceFormDialog({
         <DialogHeader>
           <DialogTitle>New invoice</DialogTitle>
           <DialogDescription>
-            Generate a usage invoice for a customer over a billing period. Only
-            prices active in the period are billed.
+            Generate a usage invoice for a customer over a billing period. Only prices active in the
+            period are billed.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(submit)} className="flex flex-col gap-4">
@@ -145,28 +145,17 @@ export function InvoiceFormDialog({
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="invoice-due-date">Due date (optional)</Label>
-            <Input
-              id="invoice-due-date"
-              type="datetime-local"
-              {...form.register("dueDate")}
-            />
+            <Input id="invoice-due-date" type="datetime-local" {...form.register("dueDate")} />
             <p className="text-[11px] text-muted-foreground">
               Defaults to 14 days after issue when left empty.
             </p>
           </div>
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button type="submit" size="sm" disabled={createInvoice.isPending}>
-              {createInvoice.isPending ? (
-                <Loader2 className="size-3.5 animate-spin" />
-              ) : null}
+              {createInvoice.isPending ? <Loader2 className="size-3.5 animate-spin" /> : null}
               Generate invoice
             </Button>
           </DialogFooter>

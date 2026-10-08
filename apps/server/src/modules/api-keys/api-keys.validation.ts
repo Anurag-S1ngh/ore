@@ -6,9 +6,6 @@ export const apiKeyParamSchema = z.object({
 });
 
 export const createApiKeySchema = z.object({
-  name: z
-    .string("invalid name")
-    .min(1, "name is too short")
-    .max(50, "name is too long"),
+  name: z.string("invalid name").min(1, "name is too short").max(50, "name is too long"),
   expiresAt: z.coerce.date("invalid expiresAt").optional(),
 });

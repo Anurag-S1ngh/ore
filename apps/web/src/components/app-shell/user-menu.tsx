@@ -42,9 +42,7 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={
-          <Button variant="ghost" size="icon-sm" aria-label="Account menu" />
-        }
+        render={<Button variant="ghost" size="icon-sm" aria-label="Account menu" />}
       >
         <span className="flex size-6 items-center justify-center bg-primary/15 text-[10px] font-semibold text-primary">
           {initials(label)}

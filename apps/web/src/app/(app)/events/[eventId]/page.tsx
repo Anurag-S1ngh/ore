@@ -6,7 +6,7 @@ import { Skeleton } from "@ore/ui/components/skeleton";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import * as React from "react";
+import type * as React from "react";
 
 import { PageBody, PageHeader } from "@/components/page-header";
 import { ProjectRequired } from "@/components/project-required";
@@ -16,9 +16,7 @@ import { useEvent } from "@/lib/queries";
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-4 py-2">
-      <span className="text-[11px] tracking-widest text-muted-foreground uppercase">
-        {label}
-      </span>
+      <span className="text-[11px] tracking-widest text-muted-foreground uppercase">{label}</span>
       <span className="min-w-0 truncate text-right text-xs">{value}</span>
     </div>
   );
@@ -32,10 +30,7 @@ export default function EventDetailPage() {
 
   return (
     <div className="flex min-h-full flex-col">
-      <PageHeader
-        title="Event"
-        description={event ? event.idempotencyKey : "Usage event details"}
-      >
+      <PageHeader title="Event" description={event ? event.idempotencyKey : "Usage event details"}>
         <Button variant="outline" size="sm" render={<Link href="/events" />}>
           <ArrowLeft />
           Back
@@ -67,12 +62,13 @@ export default function EventDetailPage() {
               <InfoRow
                 label="Timestamp"
                 value={
-                  <span className="data-mono">
-                    {new Date(event.timestamp).toLocaleString()}
-                  </span>
+                  <span className="data-mono">{new Date(event.timestamp).toLocaleString()}</span>
                 }
               />
-              <InfoRow label="Quantity" value={<span className="data-mono">{event.quantity}</span>} />
+              <InfoRow
+                label="Quantity"
+                value={<span className="data-mono">{event.quantity}</span>}
+              />
               <InfoRow
                 label="Metric"
                 value={event.metric?.name ?? <span className="data-mono">{event.metricId}</span>}
@@ -93,9 +89,7 @@ export default function EventDetailPage() {
               <InfoRow
                 label="Received"
                 value={
-                  <span className="data-mono">
-                    {new Date(event.createdAt).toLocaleString()}
-                  </span>
+                  <span className="data-mono">{new Date(event.createdAt).toLocaleString()}</span>
                 }
               />
             </CardContent>

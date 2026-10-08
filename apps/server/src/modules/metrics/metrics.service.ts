@@ -1,8 +1,8 @@
+import { metrics, type metricsAggregationEnum } from "@ore/db/schema/index";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/services";
 import { AppError } from "@/types/error";
 import { isUniqueViolation } from "@/util/db-error";
-import { metrics, metricsAggregationEnum } from "@ore/db/schema/index";
-import { and, eq } from "drizzle-orm";
 
 type Aggregation = (typeof metricsAggregationEnum.enumValues)[number];
 

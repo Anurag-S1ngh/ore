@@ -1,10 +1,7 @@
 import { metricsAggregationEnum } from "@ore/db/schema/index";
 import { z } from "zod";
 
-const aggregation = z.enum(
-  metricsAggregationEnum.enumValues,
-  "invalid aggregation",
-);
+const aggregation = z.enum(metricsAggregationEnum.enumValues, "invalid aggregation");
 
 export const metricParamSchema = z.object({
   projectId: z.uuid("invalid project id"),
@@ -12,18 +9,12 @@ export const metricParamSchema = z.object({
 });
 
 export const createMetricSchema = z.object({
-  name: z
-    .string("invalid name")
-    .min(1, "name is too short")
-    .max(50, "name is too long"),
+  name: z.string("invalid name").min(1, "name is too short").max(50, "name is too long"),
   description: z
     .string("invalid description")
     .min(1, "description is too short")
     .max(255, "description is too long")
     .optional(),
-  unit: z
-    .string("invalid unit")
-    .min(1, "unit is too short")
-    .max(50, "unit is too long"),
+  unit: z.string("invalid unit").min(1, "unit is too short").max(50, "unit is too long"),
   aggregation,
 });

@@ -1,6 +1,6 @@
 import { cn } from "@ore/ui/lib/utils";
 import { ChevronDownIcon } from "lucide-react";
-import * as React from "react";
+import type * as React from "react";
 
 function Select({ className, children, ...props }: React.ComponentProps<"select">) {
   return (

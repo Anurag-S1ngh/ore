@@ -1,21 +1,15 @@
-import { projectIdParamSchema } from "@/modules/project/project.validation";
-import { db } from "@/services";
-import { AppError } from "@/types/error";
 import { projects } from "@ore/db/schema/index";
 import { and, eq } from "drizzle-orm";
 import type { NextFunction, Request, Response } from "express";
+import { projectIdParamSchema } from "@/modules/project/project.validation";
+import { db } from "@/services";
+import { AppError } from "@/types/error";
 
-export const projectOwnedByUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const projectOwnedByUser = async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.userId;
   const validatedParam = projectIdParamSchema.safeParse(req.params);
   if (!validatedParam.success) {
-    return res
-      .status(400)
-      .json({ error: validatedParam.error.issues[0]?.message });
+    return res.status(400).json({ error: validatedParam.error.issues[0]?.message });
   }
   const { projectId } = validatedParam.data;
 

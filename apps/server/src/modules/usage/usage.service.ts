@@ -1,12 +1,8 @@
-import { db } from "@/services";
-import { AppError } from "@/types/error";
 import { customers, metrics, usageAggregates } from "@ore/db/schema/index";
 import { and, desc, eq, gte, inArray, lt } from "drizzle-orm";
-import {
-  bucketRange,
-  foldHourly,
-  type RollupGranularity,
-} from "./usage.rollup";
+import { db } from "@/services";
+import { AppError } from "@/types/error";
+import { bucketRange, foldHourly, type RollupGranularity } from "./usage.rollup";
 import type { UsageListFilters } from "./usage.validation";
 
 const listHourly = async (projectId: string, filters: UsageListFilters) => {
@@ -68,10 +64,7 @@ const listRollup = async (
   const metricIds = [...new Set(buckets.map((row) => row.metricId))];
 
   const customerRows = customerIds.length
-    ? await db
-        .select()
-        .from(customers)
-        .where(inArray(customers.id, customerIds))
+    ? await db.select().from(customers).where(inArray(customers.id, customerIds))
     : [];
   const metricRows = metricIds.length
     ? await db.select().from(metrics).where(inArray(metrics.id, metricIds))

@@ -1,4 +1,5 @@
 import {
+  type AnyPgColumn,
   decimal,
   index,
   pgEnum,
@@ -7,21 +8,13 @@ import {
   timestamp,
   unique,
   uuid,
-  type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 
-export const invoiceStatusEnum = pgEnum("invoice_status_enum", [
-  "draft",
-  "pending",
-  "paid",
-]);
+export const invoiceStatusEnum = pgEnum("invoice_status_enum", ["draft", "pending", "paid"]);
 
 export const cadenceEnum = pgEnum("cadence_enum", ["monthly", "yearly"]);
 
-export const priceModelTypeEnum = pgEnum("price_model_type_enum", [
-  "unit",
-  "tiered",
-]);
+export const priceModelTypeEnum = pgEnum("price_model_type_enum", ["unit", "tiered"]);
 
 export const subscriptionStatusEnum = pgEnum("subscription_status_enum", [
   "active",
@@ -29,23 +22,11 @@ export const subscriptionStatusEnum = pgEnum("subscription_status_enum", [
   "canceled",
 ]);
 
-export const granularityEnum = pgEnum("granularity_enum", [
-  "hour",
-  "day",
-  "week",
-  "month",
-]);
+export const granularityEnum = pgEnum("granularity_enum", ["hour", "day", "week", "month"]);
 
-export const metricsAggregationEnum = pgEnum("aggregation_enum", [
-  "sum",
-  "max",
-  "count",
-]);
+export const metricsAggregationEnum = pgEnum("aggregation_enum", ["sum", "max", "count"]);
 
-export const lineItemTypeEnum = pgEnum("line_item_type_enum", [
-  "fixed",
-  "usage",
-]);
+export const lineItemTypeEnum = pgEnum("line_item_type_enum", ["fixed", "usage"]);
 
 export const currencyEnum = pgEnum("currency_enum", ["USD", "JPY", "INR"]);
 
@@ -54,9 +35,7 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   email: text("email").notNull().unique(),
 
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export const projects = pgTable("projects", {
@@ -69,9 +48,7 @@ export const projects = pgTable("projects", {
     .notNull(),
   defaultCurrency: currencyEnum("default_currency").notNull(),
 
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export const apiKeys = pgTable(
@@ -88,9 +65,7 @@ export const apiKeys = pgTable(
     expiresAt: timestamp("expires_at", { withTimezone: true }),
     revokedAt: timestamp("revoked_at", { withTimezone: true }),
     lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [index("api_keys_project_idx").on(t.projectId)],
 );
@@ -107,9 +82,7 @@ export const customers = pgTable(
     email: text("email"),
     phone: text("phone"),
 
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     unique().on(t.projectId, t.externalId),
@@ -129,9 +102,7 @@ export const metrics = pgTable(
     unit: text("unit").notNull(),
     aggregation: metricsAggregationEnum("aggregation").notNull(),
 
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [unique().on(t.projectId, t.name)],
 );
@@ -153,22 +124,12 @@ export const events = pgTable(
     quantity: decimal("quantity", { precision: 20, scale: 6 }).notNull(),
     timestamp: timestamp("timestamp", { withTimezone: true }).notNull(),
 
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     unique().on(t.projectId, t.idempotencyKey),
-    index("events_project_customer_ts_idx").on(
-      t.projectId,
-      t.customerId,
-      t.timestamp,
-    ),
-    index("events_project_metric_ts_idx").on(
-      t.projectId,
-      t.metricId,
-      t.timestamp,
-    ),
+    index("events_project_customer_ts_idx").on(t.projectId, t.customerId, t.timestamp),
+    index("events_project_metric_ts_idx").on(t.projectId, t.metricId, t.timestamp),
   ],
 );
 
@@ -191,23 +152,11 @@ export const usageAggregates = pgTable(
     periodStart: timestamp("period_start", { withTimezone: true }).notNull(),
     periodEnd: timestamp("period_end", { withTimezone: true }).notNull(),
 
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
-    unique().on(
-      t.projectId,
-      t.customerId,
-      t.metricId,
-      t.granularity,
-      t.periodStart,
-    ),
-    index("usage_aggregates_project_customer_idx").on(
-      t.projectId,
-      t.customerId,
-      t.metricId,
-    ),
+    unique().on(t.projectId, t.customerId, t.metricId, t.granularity, t.periodStart),
+    index("usage_aggregates_project_customer_idx").on(t.projectId, t.customerId, t.metricId),
   ],
 );
 
@@ -223,9 +172,7 @@ export const plans = pgTable(
     externalPlanId: text("external_plan_id").notNull(),
     parentId: uuid("parent_id").references((): AnyPgColumn => plans.id),
 
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [unique().on(t.projectId, t.externalPlanId)],
 );
@@ -249,9 +196,7 @@ export const prices = pgTable(
     cadence: cadenceEnum("cadence").notNull(),
     externalPriceId: text("external_price_id").notNull(),
 
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     unique().on(t.projectId, t.externalPriceId),
@@ -271,14 +216,9 @@ export const priceTiers = pgTable(
     lastUnit: decimal("last_unit", { precision: 20, scale: 6 }), // null = open-ended top tier
     unitAmount: decimal("unit_amount", { precision: 20, scale: 6 }).notNull(),
 
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [
-    unique().on(t.priceId, t.firstUnit),
-    index("price_tiers_price_idx").on(t.priceId),
-  ],
+  (t) => [unique().on(t.priceId, t.firstUnit), index("price_tiers_price_idx").on(t.priceId)],
 );
 
 export const subscriptions = pgTable(
@@ -304,9 +244,7 @@ export const subscriptions = pgTable(
     }),
     currentPeriodEnd: timestamp("current_period_end", { withTimezone: true }),
 
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     canceledAt: timestamp("canceled_at", { withTimezone: true }),
   },
   (t) => [
@@ -329,9 +267,7 @@ export const subscriptionPriceIntervals = pgTable(
     startDate: timestamp("start_date", { withTimezone: true }).notNull(),
     endDate: timestamp("end_date", { withTimezone: true }), // null = currently active interval
 
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [index("subscription_price_intervals_sub_idx").on(t.subscriptionId)],
 );
@@ -356,9 +292,7 @@ export const invoices = pgTable(
     paidAt: timestamp("paid_at", { withTimezone: true }),
     dueDate: timestamp("due_date", { withTimezone: true }).notNull(),
 
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     unique().on(t.projectId, t.invoiceNumber),
@@ -368,11 +302,7 @@ export const invoices = pgTable(
       t.periodStart,
       t.periodEnd,
     ),
-    index("invoices_project_customer_status_idx").on(
-      t.projectId,
-      t.customerId,
-      t.status,
-    ),
+    index("invoices_project_customer_status_idx").on(t.projectId, t.customerId, t.status),
   ],
 );
 
@@ -405,16 +335,11 @@ export const invoiceItems = pgTable(
     periodStart: timestamp("period_start", { withTimezone: true }),
     periodEnd: timestamp("period_end", { withTimezone: true }),
 
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     index("invoice_items_invoice_idx").on(t.invoiceId),
-    index("invoice_items_project_subscription_idx").on(
-      t.projectId,
-      t.subscriptionId,
-    ),
+    index("invoice_items_project_subscription_idx").on(t.projectId, t.subscriptionId),
   ],
 );
 

@@ -1,15 +1,15 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@ore/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@ore/ui/components/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ore/ui/components/card";
 import { Skeleton } from "@ore/ui/components/skeleton";
+import type { LucideIcon } from "lucide-react";
+import { ArrowRight, FolderKanban, Gauge, KeyRound, Users, Zap } from "lucide-react";
+import type { Route } from "next";
+import Link from "next/link";
+import { PageBody, PageHeader } from "@/components/page-header";
+import { StatCard } from "@/components/stat-card";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -18,13 +18,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowRight, FolderKanban, Gauge, KeyRound, Users, Zap } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import type { Route } from "next";
-import Link from "next/link";
-
-import { PageBody, PageHeader } from "@/components/page-header";
-import { StatCard } from "@/components/stat-card";
 import { useProject } from "@/lib/project-context";
 import { useApiKeys, useCustomers } from "@/lib/queries";
 
@@ -92,9 +85,7 @@ export default function DashboardPage() {
           />
           <StatCard
             label="Slug"
-            value={
-              <span className="text-sm">{selectedProject?.slug ?? "—"}</span>
-            }
+            value={<span className="text-sm">{selectedProject?.slug ?? "—"}</span>}
             hint="Used in API calls"
             icon={FolderKanban}
           />

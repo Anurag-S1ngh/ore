@@ -1,21 +1,16 @@
 import { cn } from "@ore/ui/lib/utils";
 import { ChevronRightIcon } from "lucide-react";
-import * as React from "react";
+import type * as React from "react";
 
 function Breadcrumb({ className, ...props }: React.ComponentProps<"nav">) {
-  return (
-    <nav aria-label="Breadcrumb" className={cn("text-xs", className)} {...props} />
-  );
+  return <nav aria-label="Breadcrumb" className={cn("text-xs", className)} {...props} />;
 }
 
 function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
   return (
     <ol
       data-slot="breadcrumb-list"
-      className={cn(
-        "flex flex-wrap items-center gap-1.5 text-muted-foreground",
-        className,
-      )}
+      className={cn("flex flex-wrap items-center gap-1.5 text-muted-foreground", className)}
       {...props}
     />
   );
@@ -68,9 +63,9 @@ function BreadcrumbSeparator({ className, children, ...props }: React.ComponentP
 
 export {
   Breadcrumb,
-  BreadcrumbList,
   BreadcrumbItem,
   BreadcrumbLink,
+  BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
 };

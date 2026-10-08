@@ -1,5 +1,5 @@
-import { AppError } from "@/types/error";
 import { z } from "zod";
+import { AppError } from "@/types/error";
 
 export const eventsValidationSchema = z.object({
   metricName: z
@@ -22,10 +22,7 @@ export const eventsValidationSchema = z.object({
     .number("invalid quantity")
     .positive("quantity must be positive")
     .lt(1e14, "quantity is too large")
-    .refine(
-      (v) => Number(v.toFixed(6)) === v,
-      "quantity supports at most 6 decimal places",
-    ),
+    .refine((v) => Number(v.toFixed(6)) === v, "quantity supports at most 6 decimal places"),
   timestamp: z.iso.datetime("invalid timestamp"),
 });
 
@@ -52,10 +49,7 @@ const eventCursorSchema = z.object({
 
 export type EventCursor = z.output<typeof eventCursorSchema>;
 
-export function encodeEventCursor(cursor: {
-  timestamp: Date;
-  id: string;
-}): string {
+export function encodeEventCursor(cursor: { timestamp: Date; id: string }): string {
   return Buffer.from(
     JSON.stringify({ timestamp: cursor.timestamp.toISOString(), id: cursor.id }),
     "utf8",

@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
-import { sendOTPValidation, verifyOTPValidation } from "./auth.validation";
-import { authService } from "./auth.service";
 import { ENV } from "@/env.server";
 import { AppError } from "@/types/error";
 import { generateJWT } from "@/util/token";
+import { authService } from "./auth.service";
+import { sendOTPValidation, verifyOTPValidation } from "./auth.validation";
 
 const isProd = ENV.NODE_ENV === "production";
 

@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import { AppError } from "@/types/error";
 import type { Currency } from "@/types/projects";
 import { projectService } from "./project.service";
 import {
@@ -6,7 +7,6 @@ import {
   projectIdParamSchema,
   updateProjectSchema,
 } from "./project.validation";
-import { AppError } from "@/types/error";
 
 export const projectController = {
   async get(req: Request, res: Response) {
@@ -23,9 +23,7 @@ export const projectController = {
     const userId = req.userId;
     const validatedData = createProjectSchema.safeParse(req.body);
     if (!validatedData.success) {
-      return res
-        .status(400)
-        .json({ error: validatedData.error.issues[0]?.message });
+      return res.status(400).json({ error: validatedData.error.issues[0]?.message });
     }
     const { name, description, defaultCurrency } = validatedData.data;
     try {
@@ -48,16 +46,12 @@ export const projectController = {
     const userId = req.userId;
     const validParam = projectIdParamSchema.safeParse(req.params);
     if (!validParam.success) {
-      return res
-        .status(400)
-        .json({ error: validParam.error.issues[0]?.message });
+      return res.status(400).json({ error: validParam.error.issues[0]?.message });
     }
     const projectId = validParam.data.projectId;
     const validatedData = updateProjectSchema.safeParse(req.body);
     if (!validatedData.success) {
-      return res
-        .status(400)
-        .json({ error: validatedData.error.issues[0]?.message });
+      return res.status(400).json({ error: validatedData.error.issues[0]?.message });
     }
     const { name, description, defaultCurrency } = validatedData.data;
     try {
@@ -74,18 +68,14 @@ export const projectController = {
       if (err instanceof AppError) {
         return res.status(err.statusCode).json({ error: err.message });
       }
-      return res
-        .status(500)
-        .json({ error: "error while updating the project" });
+      return res.status(500).json({ error: "error while updating the project" });
     }
   },
   async delete(req: Request, res: Response) {
     const userId = req.userId;
     const validParam = projectIdParamSchema.safeParse(req.params);
     if (!validParam.success) {
-      return res
-        .status(400)
-        .json({ error: validParam.error.issues[0]?.message });
+      return res.status(400).json({ error: validParam.error.issues[0]?.message });
     }
     const projectId = validParam.data.projectId;
     try {
@@ -96,9 +86,7 @@ export const projectController = {
       if (err instanceof AppError) {
         return res.status(err.statusCode).json({ error: err.message });
       }
-      return res
-        .status(500)
-        .json({ error: "error while deleting the project" });
+      return res.status(500).json({ error: "error while deleting the project" });
     }
   },
 };

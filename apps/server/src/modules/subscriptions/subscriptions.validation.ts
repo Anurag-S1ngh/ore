@@ -1,7 +1,4 @@
-import {
-  cadenceEnum,
-  subscriptionStatusEnum,
-} from "@ore/db/schema/index";
+import { cadenceEnum, subscriptionStatusEnum } from "@ore/db/schema/index";
 import { z } from "zod";
 
 export const subscriptionParamSchema = z.object({
@@ -12,9 +9,7 @@ export const subscriptionParamSchema = z.object({
 export const subscriptionListQuerySchema = z.object({
   customerId: z.uuid("invalid customer id").optional(),
   planId: z.uuid("invalid plan id").optional(),
-  status: z
-    .enum(subscriptionStatusEnum.enumValues, "invalid status")
-    .optional(),
+  status: z.enum(subscriptionStatusEnum.enumValues, "invalid status").optional(),
 });
 
 export const createSubscriptionSchema = z.object({
@@ -32,21 +27,13 @@ export const updateSubscriptionSchema = z
   .object({
     planId: z.uuid("invalid plan id").optional(),
     cadence: z.enum(cadenceEnum.enumValues, "invalid cadence").optional(),
-    priceIds: z
-      .array(z.uuid("invalid price id"))
-      .min(1, "should have at least 1 price")
-      .optional(),
+    priceIds: z.array(z.uuid("invalid price id")).min(1, "should have at least 1 price").optional(),
   })
   .refine(
-    (v) =>
-      v.planId !== undefined ||
-      v.cadence !== undefined ||
-      v.priceIds !== undefined,
+    (v) => v.planId !== undefined || v.cadence !== undefined || v.priceIds !== undefined,
     "no subscription data provided",
   );
 
-export type SubscriptionListFilters = z.output<
-  typeof subscriptionListQuerySchema
->;
+export type SubscriptionListFilters = z.output<typeof subscriptionListQuerySchema>;
 export type CreateSubscriptionInput = z.output<typeof createSubscriptionSchema>;
 export type UpdateSubscriptionInput = z.output<typeof updateSubscriptionSchema>;

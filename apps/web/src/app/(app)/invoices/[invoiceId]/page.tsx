@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PageBody, PageHeader } from "@/components/page-header";
 import { ProjectRequired } from "@/components/project-required";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -20,14 +21,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { getErrorMessage } from "@/lib/api";
 import { useProject } from "@/lib/project-context";
-import {
-  useDeleteInvoice,
-  useInvoice,
-  useUpdateInvoiceStatus,
-} from "@/lib/queries";
+import { useDeleteInvoice, useInvoice, useUpdateInvoiceStatus } from "@/lib/queries";
 import type { InvoiceStatus } from "@/lib/types";
 
 const STATUS_VARIANT: Record<InvoiceStatus, "muted" | "warning" | "success"> = {
@@ -39,9 +35,7 @@ const STATUS_VARIANT: Record<InvoiceStatus, "muted" | "warning" | "success"> = {
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-4 py-2">
-      <span className="text-[11px] tracking-widest text-muted-foreground uppercase">
-        {label}
-      </span>
+      <span className="text-[11px] tracking-widest text-muted-foreground uppercase">{label}</span>
       <span className="min-w-0 truncate text-right text-xs">{value}</span>
     </div>
   );
@@ -120,9 +114,7 @@ export default function InvoiceDetailPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   Summary
-                  <Badge variant={STATUS_VARIANT[invoice.status]}>
-                    {invoice.status}
-                  </Badge>
+                  <Badge variant={STATUS_VARIANT[invoice.status]}>{invoice.status}</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="divide-y">
@@ -142,39 +134,28 @@ export default function InvoiceDetailPage() {
                   label="Period"
                   value={
                     <span className="data-mono">
-                      {invoice.periodStart
-                        ? new Date(invoice.periodStart).toLocaleString()
-                        : "—"}{" "}
-                      →{" "}
-                      {invoice.periodEnd
-                        ? new Date(invoice.periodEnd).toLocaleString()
-                        : "—"}
+                      {invoice.periodStart ? new Date(invoice.periodStart).toLocaleString() : "—"} →{" "}
+                      {invoice.periodEnd ? new Date(invoice.periodEnd).toLocaleString() : "—"}
                     </span>
                   }
                 />
                 <InfoRow
                   label="Issued"
                   value={
-                    <span className="data-mono">
-                      {new Date(invoice.issuedAt).toLocaleString()}
-                    </span>
+                    <span className="data-mono">{new Date(invoice.issuedAt).toLocaleString()}</span>
                   }
                 />
                 <InfoRow
                   label="Due"
                   value={
-                    <span className="data-mono">
-                      {new Date(invoice.dueDate).toLocaleString()}
-                    </span>
+                    <span className="data-mono">{new Date(invoice.dueDate).toLocaleString()}</span>
                   }
                 />
                 {invoice.paidAt ? (
                   <InfoRow
                     label="Paid"
                     value={
-                      <span className="data-mono">
-                        {new Date(invoice.paidAt).toLocaleString()}
-                      </span>
+                      <span className="data-mono">{new Date(invoice.paidAt).toLocaleString()}</span>
                     }
                   />
                 ) : null}
@@ -218,9 +199,7 @@ export default function InvoiceDetailPage() {
 
             <Card size="sm">
               <CardHeader>
-                <CardTitle>
-                  Line items ({invoice.invoiceItems?.length ?? 0})
-                </CardTitle>
+                <CardTitle>Line items ({invoice.invoiceItems?.length ?? 0})</CardTitle>
               </CardHeader>
               <CardContent className="px-0">
                 {!invoice.invoiceItems || invoice.invoiceItems.length === 0 ? (
@@ -255,9 +234,7 @@ export default function InvoiceDetailPage() {
                           <TableCell className="data-mono text-right">
                             {item.totalQuantity}
                           </TableCell>
-                          <TableCell className="data-mono text-right">
-                            {item.unitAmount}
-                          </TableCell>
+                          <TableCell className="data-mono text-right">{item.unitAmount}</TableCell>
                           <TableCell className="data-mono text-right">
                             {item.amount} {item.currency}
                           </TableCell>
@@ -265,10 +242,7 @@ export default function InvoiceDetailPage() {
                             {item.periodStart
                               ? new Date(item.periodStart).toLocaleDateString()
                               : "—"}{" "}
-                            →{" "}
-                            {item.periodEnd
-                              ? new Date(item.periodEnd).toLocaleDateString()
-                              : "—"}
+                            → {item.periodEnd ? new Date(item.periodEnd).toLocaleDateString() : "—"}
                           </TableCell>
                         </TableRow>
                       ))}

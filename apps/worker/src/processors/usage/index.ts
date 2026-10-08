@@ -1,13 +1,8 @@
+import { events, metrics, usageAggregates, usageProcessedEvent } from "@ore/db/schema/index";
+import type { ProcessUsageJob } from "@ore/queue";
 import type { Job } from "bullmq";
 import { eq, sql } from "drizzle-orm";
 import { db } from "@/service";
-import {
-  events,
-  metrics,
-  usageAggregates,
-  usageProcessedEvent,
-} from "@ore/db/schema/index";
-import type { ProcessUsageJob } from "@ore/queue";
 
 export const processUsage = async (job: Job<ProcessUsageJob>) => {
   const { eventId } = job.data;

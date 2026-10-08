@@ -43,8 +43,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const selectedProject =
-    projects.find((project) => project.id === selectedProjectId) ?? null;
+  const selectedProject = projects.find((project) => project.id === selectedProjectId) ?? null;
 
   const value = React.useMemo<ProjectContextValue>(
     () => ({

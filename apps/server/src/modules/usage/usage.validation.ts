@@ -9,9 +9,7 @@ export const usageParamSchema = z.object({
 export const usageListQuerySchema = z.object({
   metricId: z.uuid("invalid metric id").optional(),
   customerId: z.uuid("invalid customer id").optional(),
-  granularity: z
-    .enum(granularityEnum.enumValues, "invalid granularity")
-    .default("hour"),
+  granularity: z.enum(granularityEnum.enumValues, "invalid granularity").default("hour"),
   period: z.iso.datetime("invalid period"),
 });
 

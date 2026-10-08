@@ -1,6 +1,6 @@
-import { AppError } from "@/types/error";
 import type { Request, Response } from "express";
 import { projectIdParamSchema } from "@/modules/project/project.validation";
+import { AppError } from "@/types/error";
 import { subscriptionsService } from "./subscriptions.service";
 import {
   createSubscriptionSchema,
@@ -33,34 +33,25 @@ export const subscriptionsController = {
       if (err instanceof AppError) {
         return res.status(err.statusCode).json({ error: err.message });
       }
-      return res
-        .status(500)
-        .json({ error: "error while fetching subscriptions" });
+      return res.status(500).json({ error: "error while fetching subscriptions" });
     }
   },
 
   async get(req: Request, res: Response) {
     const validParam = subscriptionParamSchema.safeParse(req.params);
     if (!validParam.success) {
-      return res
-        .status(400)
-        .json({ error: validParam.error.issues[0]?.message });
+      return res.status(400).json({ error: validParam.error.issues[0]?.message });
     }
     const { projectId, subscriptionId } = validParam.data;
     try {
-      const subscription = await subscriptionsService.get(
-        projectId,
-        subscriptionId,
-      );
+      const subscription = await subscriptionsService.get(projectId, subscriptionId);
       return res.status(200).json({ subscription });
     } catch (err) {
       console.log(err);
       if (err instanceof AppError) {
         return res.status(err.statusCode).json({ error: err.message });
       }
-      return res
-        .status(500)
-        .json({ error: "error while fetching subscription" });
+      return res.status(500).json({ error: "error while fetching subscription" });
     }
   },
 
@@ -87,18 +78,14 @@ export const subscriptionsController = {
       if (err instanceof AppError) {
         return res.status(err.statusCode).json({ error: err.message });
       }
-      return res
-        .status(500)
-        .json({ error: "error while creating subscription" });
+      return res.status(500).json({ error: "error while creating subscription" });
     }
   },
 
   async update(req: Request, res: Response) {
     const validParam = subscriptionParamSchema.safeParse(req.params);
     if (!validParam.success) {
-      return res
-        .status(400)
-        .json({ error: validParam.error.issues[0]?.message });
+      return res.status(400).json({ error: validParam.error.issues[0]?.message });
     }
     const validatedData = updateSubscriptionSchema.safeParse(req.body);
     if (!validatedData.success) {
@@ -109,45 +96,32 @@ export const subscriptionsController = {
     const { projectId, subscriptionId } = validParam.data;
     const input = validatedData.data;
     try {
-      const subscription = await subscriptionsService.update(
-        projectId,
-        subscriptionId,
-        input,
-      );
+      const subscription = await subscriptionsService.update(projectId, subscriptionId, input);
       return res.status(200).json({ subscription });
     } catch (err) {
       console.log(err);
       if (err instanceof AppError) {
         return res.status(err.statusCode).json({ error: err.message });
       }
-      return res
-        .status(500)
-        .json({ error: "error while updating subscription" });
+      return res.status(500).json({ error: "error while updating subscription" });
     }
   },
 
   async cancel(req: Request, res: Response) {
     const validParam = subscriptionParamSchema.safeParse(req.params);
     if (!validParam.success) {
-      return res
-        .status(400)
-        .json({ error: validParam.error.issues[0]?.message });
+      return res.status(400).json({ error: validParam.error.issues[0]?.message });
     }
     const { projectId, subscriptionId } = validParam.data;
     try {
-      const subscription = await subscriptionsService.cancel(
-        projectId,
-        subscriptionId,
-      );
+      const subscription = await subscriptionsService.cancel(projectId, subscriptionId);
       return res.status(200).json({ subscription });
     } catch (err) {
       console.log(err);
       if (err instanceof AppError) {
         return res.status(err.statusCode).json({ error: err.message });
       }
-      return res
-        .status(500)
-        .json({ error: "error while canceling subscription" });
+      return res.status(500).json({ error: "error while canceling subscription" });
     }
   },
 };

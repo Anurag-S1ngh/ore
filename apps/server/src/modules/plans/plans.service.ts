@@ -1,15 +1,12 @@
+import { plans, prices, subscriptions } from "@ore/db/schema/index";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/services";
 import { AppError } from "@/types/error";
 import { isForeignKeyViolation, isUniqueViolation } from "@/util/db-error";
-import { plans, prices, subscriptions } from "@ore/db/schema/index";
-import { and, eq } from "drizzle-orm";
 
 export const plansService = {
   async list(projectId: string) {
-    const allPlans = await db
-      .select()
-      .from(plans)
-      .where(eq(plans.projectId, projectId));
+    const allPlans = await db.select().from(plans).where(eq(plans.projectId, projectId));
     return allPlans;
   },
 
@@ -21,10 +18,7 @@ export const plansService = {
     parentId?: string,
   ) {
     if (parentId) {
-      const [parent] = await db
-        .select()
-        .from(plans)
-        .where(eq(plans.id, parentId));
+      const [parent] = await db.select().from(plans).where(eq(plans.id, parentId));
       if (!parent) {
         throw new AppError("invalid parent plan id", 400);
       }
@@ -49,10 +43,7 @@ export const plansService = {
       return created;
     } catch (err) {
       if (isUniqueViolation(err)) {
-        throw new AppError(
-          "a plan with same external plan id already exists",
-          409,
-        );
+        throw new AppError("a plan with same external plan id already exists", 409);
       }
       throw err;
     }
@@ -78,10 +69,7 @@ export const plansService = {
       throw new AppError("invalid parent or plan id", 400);
     }
     if (parentId) {
-      const [parent] = await db
-        .select()
-        .from(plans)
-        .where(eq(plans.id, parentId));
+      const [parent] = await db.select().from(plans).where(eq(plans.id, parentId));
       if (!parent) {
         throw new AppError("invalid parent plan id", 400);
       }
@@ -106,10 +94,7 @@ export const plansService = {
       return updated;
     } catch (err) {
       if (isUniqueViolation(err)) {
-        throw new AppError(
-          "a plan with same external plan id already exists",
-          409,
-        );
+        throw new AppError("a plan with same external plan id already exists", 409);
       }
       throw err;
     }
@@ -138,12 +123,7 @@ export const plansService = {
       db
         .select({ id: subscriptions.id })
         .from(subscriptions)
-        .where(
-          and(
-            eq(subscriptions.planId, planId),
-            eq(subscriptions.projectId, projectId),
-          ),
-        )
+        .where(and(eq(subscriptions.planId, planId), eq(subscriptions.projectId, projectId)))
         .limit(1),
     ]);
 

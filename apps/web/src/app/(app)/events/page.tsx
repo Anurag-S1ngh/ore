@@ -138,8 +138,7 @@ export default function EventsPage() {
                 <div className="flex flex-col items-start gap-3 px-4 py-6">
                   <Zap className="size-6 text-muted-foreground" />
                   <p className="text-xs text-muted-foreground">
-                    Filter the stream, then explore. Events are deduplicated by
-                    idempotency key.
+                    Filter the stream, then explore. Events are deduplicated by idempotency key.
                   </p>
                 </div>
               ) : events.isLoading ? (
@@ -154,8 +153,7 @@ export default function EventsPage() {
                 </p>
               ) : rows.length === 0 ? (
                 <p className="px-4 py-6 text-xs text-muted-foreground">
-                  No events match these filters. Send events with an API key,
-                  then check back.
+                  No events match these filters. Send events with an API key, then check back.
                 </p>
               ) : (
                 <>
@@ -184,12 +182,11 @@ export default function EventsPage() {
                             </Link>
                           </TableCell>
                           <TableCell>
-                            {event.customer?.name ??
-                              event.customer?.externalId ?? (
-                                <span className="data-mono text-[11px] text-muted-foreground">
-                                  {event.customerId.slice(0, 8)}…
-                                </span>
-                              )}
+                            {event.customer?.name ?? event.customer?.externalId ?? (
+                              <span className="data-mono text-[11px] text-muted-foreground">
+                                {event.customerId.slice(0, 8)}…
+                              </span>
+                            )}
                           </TableCell>
                           <TableCell>
                             {event.metric?.name ?? (
@@ -198,9 +195,7 @@ export default function EventsPage() {
                               </span>
                             )}
                           </TableCell>
-                          <TableCell className="data-mono text-right">
-                            {event.quantity}
-                          </TableCell>
+                          <TableCell className="data-mono text-right">{event.quantity}</TableCell>
                           <TableCell className="data-mono text-[11px] text-muted-foreground">
                             {event.idempotencyKey}
                           </TableCell>

@@ -4,7 +4,24 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 
 import { apiFetch } from "@/lib/api";
 import { clearIdentity, setIdentity } from "@/lib/identity";
-import type { ApiKey, Cadence, CreatedApiKey, Currency, Customer, Invoice, InvoiceStatus, Metric, Plan, Price, Project, Subscription, SubscriptionStatus, UsageBucket, UsageEvent, UsageGranularity } from "@/lib/types";
+import type {
+  ApiKey,
+  Cadence,
+  CreatedApiKey,
+  Currency,
+  Customer,
+  Invoice,
+  InvoiceStatus,
+  Metric,
+  Plan,
+  Price,
+  Project,
+  Subscription,
+  SubscriptionStatus,
+  UsageBucket,
+  UsageEvent,
+  UsageGranularity,
+} from "@/lib/types";
 
 export const queryKeys = {
   projects: ["projects"] as const,
@@ -12,12 +29,10 @@ export const queryKeys = {
   apiKeys: (projectId: string) => ["api-keys", projectId] as const,
   plans: (projectId: string) => ["plans", projectId] as const,
   metrics: (projectId: string) => ["metrics", projectId] as const,
-  prices: (projectId: string, planId: string) =>
-    ["prices", projectId, planId] as const,
+  prices: (projectId: string, planId: string) => ["prices", projectId, planId] as const,
   invoices: (projectId: string, filters?: { customerId?: string; status?: InvoiceStatus }) =>
     ["invoices", projectId, filters?.customerId ?? "all", filters?.status ?? "all"] as const,
-  invoice: (projectId: string, invoiceId: string) =>
-    ["invoice", projectId, invoiceId] as const,
+  invoice: (projectId: string, invoiceId: string) => ["invoice", projectId, invoiceId] as const,
   subscriptions: (
     projectId: string,
     filters?: { customerId?: string; planId?: string; status?: SubscriptionStatus },
@@ -133,12 +148,7 @@ export function useCustomers(projectId: string | undefined) {
 export function useCreateCustomer(projectId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: {
-      externalId: string;
-      name?: string;
-      email?: string;
-      phone?: string;
-    }) =>
+    mutationFn: (input: { externalId: string; name?: string; email?: string; phone?: string }) =>
       apiFetch<{ customer: Customer }>(`/customers/${projectId}/`, {
         method: "POST",
         body: input,
@@ -187,8 +197,7 @@ export function useApiKeys(projectId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.apiKeys(projectId ?? "none"),
     enabled: Boolean(projectId),
-    queryFn: () =>
-      apiFetch<{ apiKeys: ApiKey[] }>(`/api-keys/${projectId}`).then((r) => r.apiKeys),
+    queryFn: () => apiFetch<{ apiKeys: ApiKey[] }>(`/api-keys/${projectId}`).then((r) => r.apiKeys),
   });
 }
 
@@ -209,10 +218,9 @@ export function useRevokeApiKey(projectId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (keyId: string) =>
-      apiFetch<{ apiKey: Pick<ApiKey, "id" | "revokedAt"> }>(
-        `/api-keys/${projectId}/${keyId}`,
-        { method: "DELETE" },
-      ),
+      apiFetch<{ apiKey: Pick<ApiKey, "id" | "revokedAt"> }>(`/api-keys/${projectId}/${keyId}`, {
+        method: "DELETE",
+      }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys(projectId ?? "none") }),
   });
@@ -224,8 +232,7 @@ export function usePlans(projectId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.plans(projectId ?? "none"),
     enabled: Boolean(projectId),
-    queryFn: () =>
-      apiFetch<{ plans: Plan[] }>(`/plans/${projectId}`).then((r) => r.plans),
+    queryFn: () => apiFetch<{ plans: Plan[] }>(`/plans/${projectId}`).then((r) => r.plans),
   });
 }
 
@@ -300,10 +307,7 @@ export function usePrices(projectId: string | undefined, planId: string | undefi
   });
 }
 
-export function useCreatePrice(
-  projectId: string | undefined,
-  planId: string | undefined,
-) {
+export function useCreatePrice(projectId: string | undefined, planId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: {
@@ -326,10 +330,7 @@ export function useCreatePrice(
   });
 }
 
-export function useUpdatePrice(
-  projectId: string | undefined,
-  planId: string | undefined,
-) {
+export function useUpdatePrice(projectId: string | undefined, planId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
@@ -356,10 +357,7 @@ export function useUpdatePrice(
   });
 }
 
-export function useDeletePrice(
-  projectId: string | undefined,
-  planId: string | undefined,
-) {
+export function useDeletePrice(projectId: string | undefined, planId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (priceId: string) =>
@@ -379,10 +377,7 @@ export function useMetrics(projectId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.metrics(projectId ?? "none"),
     enabled: Boolean(projectId),
-    queryFn: () =>
-      apiFetch<{ metrics: Metric[] }>(`/metrics/${projectId}/`).then(
-        (r) => r.metrics,
-      ),
+    queryFn: () => apiFetch<{ metrics: Metric[] }>(`/metrics/${projectId}/`).then((r) => r.metrics),
   });
 }
 
@@ -449,9 +444,7 @@ export function useUsage(projectId: string | undefined, filters: UsageFilters | 
     ] as const,
     enabled: Boolean(projectId && filters?.period),
     queryFn: () =>
-      apiFetch<{ usage: UsageBucket[] }>(`/usage/${projectId}${suffix}`).then(
-        (r) => r.usage,
-      ),
+      apiFetch<{ usage: UsageBucket[] }>(`/usage/${projectId}${suffix}`).then((r) => r.usage),
   });
 }
 
@@ -465,10 +458,7 @@ export type EventFilters = {
   limit?: number;
 };
 
-export function useEvents(
-  projectId: string | undefined,
-  filters: EventFilters | undefined,
-) {
+export function useEvents(projectId: string | undefined, filters: EventFilters | undefined) {
   const baseParams = new URLSearchParams();
   if (filters?.metricId) baseParams.set("metricId", filters.metricId);
   if (filters?.customerId) baseParams.set("customerId", filters.customerId);
@@ -505,9 +495,7 @@ export function useEvent(projectId: string | undefined, eventId: string | undefi
     queryKey: ["event", projectId ?? "none", eventId ?? "none"] as const,
     enabled: Boolean(projectId && eventId),
     queryFn: () =>
-      apiFetch<{ event: UsageEvent }>(`/events/${projectId}/${eventId}`).then(
-        (r) => r.event,
-      ),
+      apiFetch<{ event: UsageEvent }>(`/events/${projectId}/${eventId}`).then((r) => r.event),
   });
 }
 
@@ -519,10 +507,7 @@ export type SubscriptionFilters = {
   status?: SubscriptionStatus;
 };
 
-export function useSubscriptions(
-  projectId: string | undefined,
-  filters?: SubscriptionFilters,
-) {
+export function useSubscriptions(projectId: string | undefined, filters?: SubscriptionFilters) {
   const params = new URLSearchParams();
   if (filters?.customerId) params.set("customerId", filters.customerId);
   if (filters?.planId) params.set("planId", filters.planId);
@@ -532,16 +517,13 @@ export function useSubscriptions(
     queryKey: queryKeys.subscriptions(projectId ?? "none", filters),
     enabled: Boolean(projectId),
     queryFn: () =>
-      apiFetch<{ subscriptions: Subscription[] }>(
-        `/subscriptions/${projectId}${suffix}`,
-      ).then((r) => r.subscriptions),
+      apiFetch<{ subscriptions: Subscription[] }>(`/subscriptions/${projectId}${suffix}`).then(
+        (r) => r.subscriptions,
+      ),
   });
 }
 
-export function useSubscription(
-  projectId: string | undefined,
-  subscriptionId: string | undefined,
-) {
+export function useSubscription(projectId: string | undefined, subscriptionId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.subscription(projectId ?? "none", subscriptionId ?? "none"),
     enabled: Boolean(projectId && subscriptionId),
@@ -585,10 +567,10 @@ export function useUpdateSubscription(projectId: string | undefined) {
       cadence?: Cadence;
       priceIds?: string[];
     }) =>
-      apiFetch<{ subscription: Subscription }>(
-        `/subscriptions/${projectId}/${subscriptionId}`,
-        { method: "PATCH", body: input },
-      ).then((r) => r.subscription),
+      apiFetch<{ subscription: Subscription }>(`/subscriptions/${projectId}/${subscriptionId}`, {
+        method: "PATCH",
+        body: input,
+      }).then((r) => r.subscription),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["subscriptions", projectId ?? "none"],
@@ -604,10 +586,9 @@ export function useCancelSubscription(projectId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (subscriptionId: string) =>
-      apiFetch<{ subscription: Subscription }>(
-        `/subscriptions/${projectId}/${subscriptionId}`,
-        { method: "DELETE" },
-      ),
+      apiFetch<{ subscription: Subscription }>(`/subscriptions/${projectId}/${subscriptionId}`, {
+        method: "DELETE",
+      }),
     onSuccess: (_data, subscriptionId) => {
       queryClient.invalidateQueries({
         queryKey: ["subscriptions", projectId ?? "none"],
@@ -632,9 +613,7 @@ export function useInvoices(projectId: string | undefined, filters?: InvoiceFilt
     queryKey: queryKeys.invoices(projectId ?? "none", filters),
     enabled: Boolean(projectId),
     queryFn: () =>
-      apiFetch<{ invoices: Invoice[] }>(`/invoices/${projectId}${suffix}`).then(
-        (r) => r.invoices,
-      ),
+      apiFetch<{ invoices: Invoice[] }>(`/invoices/${projectId}${suffix}`).then((r) => r.invoices),
   });
 }
 
@@ -643,9 +622,7 @@ export function useInvoice(projectId: string | undefined, invoiceId: string | un
     queryKey: queryKeys.invoice(projectId ?? "none", invoiceId ?? "none"),
     enabled: Boolean(projectId && invoiceId),
     queryFn: () =>
-      apiFetch<{ invoice: Invoice }>(`/invoices/${projectId}/${invoiceId}`).then(
-        (r) => r.invoice,
-      ),
+      apiFetch<{ invoice: Invoice }>(`/invoices/${projectId}/${invoiceId}`).then((r) => r.invoice),
   });
 }
 
@@ -662,8 +639,7 @@ export function useCreateInvoice(projectId: string | undefined) {
         method: "POST",
         body: input,
       }).then((r) => r.invoice),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["invoices", projectId ?? "none"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["invoices", projectId ?? "none"] }),
   });
 }
 
@@ -691,7 +667,6 @@ export function useDeleteInvoice(projectId: string | undefined) {
       apiFetch<{ invoice: Invoice }>(`/invoices/${projectId}/${invoiceId}`, {
         method: "DELETE",
       }),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["invoices", projectId ?? "none"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["invoices", projectId ?? "none"] }),
   });
 }

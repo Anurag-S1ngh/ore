@@ -1,4 +1,4 @@
-import { granularityEnum } from "@ore/db/schema/index";
+import type { granularityEnum } from "@ore/db/schema/index";
 
 type Granularity = (typeof granularityEnum.enumValues)[number];
 
@@ -42,10 +42,7 @@ export function periodEnd(start: Date, granularity: Granularity): Date {
   return end;
 }
 
-export function bucketRange(
-  timestamp: Date,
-  granularity: Granularity,
-): { start: Date; end: Date } {
+export function bucketRange(timestamp: Date, granularity: Granularity): { start: Date; end: Date } {
   const start = bucketStart(timestamp, granularity);
   return { start, end: periodEnd(start, granularity) };
 }

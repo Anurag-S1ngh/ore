@@ -38,9 +38,7 @@ export function ProjectSwitcher() {
       <DropdownMenuContent align="start" className="w-64">
         <DropdownMenuLabel>Projects</DropdownMenuLabel>
         {projects.length === 0 ? (
-          <div className="px-2 py-3 text-xs text-muted-foreground">
-            No projects yet.
-          </div>
+          <div className="px-2 py-3 text-xs text-muted-foreground">No projects yet.</div>
         ) : (
           projects.map((project) => (
             <DropdownMenuItem

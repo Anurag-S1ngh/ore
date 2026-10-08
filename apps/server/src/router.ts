@@ -1,15 +1,15 @@
 import { Router } from "express";
-import { authRouter } from "./modules/auth/auth.routes";
-import { projectRouter } from "./modules/project/project.routes";
 import { apiKeysRouter } from "./modules/api-keys/api-keys.routes";
+import { authRouter } from "./modules/auth/auth.routes";
 import { customersRouter } from "./modules/customers/customers.routes";
-import { metricsRouter } from "./modules/metrics/metrics.routes";
 import { eventsRouter } from "./modules/events/events.routes";
+import { invoicesRouter } from "./modules/invoices/invoices.routes";
+import { metricsRouter } from "./modules/metrics/metrics.routes";
 import { plansRouter } from "./modules/plans/plans.routes";
 import { pricesRouter } from "./modules/prices/prices.routes";
+import { projectRouter } from "./modules/project/project.routes";
 import { subscriptionsRouter } from "./modules/subscriptions/subscriptions.routes";
 import { usageRouter } from "./modules/usage/usage.routes";
-import { invoicesRouter } from "./modules/invoices/invoices.routes";
 
 export const router = Router();
 

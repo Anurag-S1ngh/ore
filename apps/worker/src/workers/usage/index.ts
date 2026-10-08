@@ -1,6 +1,6 @@
-import { processUsage } from "@/processors/usage";
 import { redis, USAGE_AGGREGATE_QUEUE } from "@ore/queue";
 import { Worker } from "bullmq";
+import { processUsage } from "@/processors/usage";
 
 export const usageWorker = new Worker(
   USAGE_AGGREGATE_QUEUE,

@@ -31,9 +31,7 @@ export default function UsagePage() {
   const { selectedProject } = useProject();
   const projectId = selectedProject?.id;
 
-  const [periodInput, setPeriodInput] = React.useState(() =>
-    toLocalInputValue(new Date()),
-  );
+  const [periodInput, setPeriodInput] = React.useState(() => toLocalInputValue(new Date()));
   const [appliedPeriod, setAppliedPeriod] = React.useState<string | null>(null);
   const [granularity, setGranularity] = React.useState<UsageGranularity>("hour");
   const [metricId, setMetricId] = React.useState("");
@@ -171,8 +169,8 @@ export default function UsagePage() {
                 </p>
               ) : !usage.data || usage.data.length === 0 ? (
                 <p className="px-4 py-6 text-xs text-muted-foreground">
-                  No usage in this window. Emit events, then check back once the
-                  worker rolls them up.
+                  No usage in this window. Emit events, then check back once the worker rolls them
+                  up.
                 </p>
               ) : (
                 <>
@@ -197,12 +195,11 @@ export default function UsagePage() {
                             {new Date(row.periodStart).toLocaleString()}
                           </TableCell>
                           <TableCell>
-                            {row.customer?.name ??
-                              row.customer?.externalId ?? (
-                                <span className="data-mono text-[11px] text-muted-foreground">
-                                  {row.customerId.slice(0, 8)}…
-                                </span>
-                              )}
+                            {row.customer?.name ?? row.customer?.externalId ?? (
+                              <span className="data-mono text-[11px] text-muted-foreground">
+                                {row.customerId.slice(0, 8)}…
+                              </span>
+                            )}
                           </TableCell>
                           <TableCell>
                             {row.metric?.name ?? (
@@ -211,9 +208,7 @@ export default function UsagePage() {
                               </span>
                             )}
                           </TableCell>
-                          <TableCell className="data-mono text-right">
-                            {row.value}
-                          </TableCell>
+                          <TableCell className="data-mono text-right">{row.value}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

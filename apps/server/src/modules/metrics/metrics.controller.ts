@@ -1,6 +1,6 @@
+import type { Request, Response } from "express";
 import { projectIdParamSchema } from "@/modules/project/project.validation";
 import { AppError } from "@/types/error";
-import type { Request, Response } from "express";
 import { metricsService } from "./metrics.service";
 import { createMetricSchema, metricParamSchema } from "./metrics.validation";
 
@@ -8,9 +8,7 @@ export const metricsController = {
   async list(req: Request, res: Response) {
     const validParam = projectIdParamSchema.safeParse(req.params);
     if (!validParam.success) {
-      return res
-        .status(400)
-        .json({ error: validParam.error.issues[0]?.message });
+      return res.status(400).json({ error: validParam.error.issues[0]?.message });
     }
     const { projectId } = validParam.data;
     try {
@@ -28,26 +26,16 @@ export const metricsController = {
   async create(req: Request, res: Response) {
     const validParam = projectIdParamSchema.safeParse(req.params);
     if (!validParam.success) {
-      return res
-        .status(400)
-        .json({ error: validParam.error.issues[0]?.message });
+      return res.status(400).json({ error: validParam.error.issues[0]?.message });
     }
     const validatedData = createMetricSchema.safeParse(req.body);
     if (!validatedData.success) {
-      return res
-        .status(400)
-        .json({ error: validatedData.error.issues[0]?.message });
+      return res.status(400).json({ error: validatedData.error.issues[0]?.message });
     }
     const { projectId } = validParam.data;
     const { name, unit, aggregation, description } = validatedData.data;
     try {
-      const metric = await metricsService.create(
-        projectId,
-        name,
-        unit,
-        aggregation,
-        description,
-      );
+      const metric = await metricsService.create(projectId, name, unit, aggregation, description);
       return res.status(201).json({ metric });
     } catch (err) {
       console.log(err);
@@ -61,9 +49,7 @@ export const metricsController = {
   async delete(req: Request, res: Response) {
     const validParam = metricParamSchema.safeParse(req.params);
     if (!validParam.success) {
-      return res
-        .status(400)
-        .json({ error: validParam.error.issues[0]?.message });
+      return res.status(400).json({ error: validParam.error.issues[0]?.message });
     }
     const { projectId, metricId } = validParam.data;
     try {

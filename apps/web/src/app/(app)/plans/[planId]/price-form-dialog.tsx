@@ -4,6 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@ore/ui/components/button";
 import { Input } from "@ore/ui/components/input";
 import { Label } from "@ore/ui/components/label";
+import { Loader2, Plus, Trash2 } from "lucide-react";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 import {
   Dialog,
   DialogContent,
@@ -12,20 +17,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2 } from "lucide-react";
-import * as React from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
 
 import { getErrorMessage } from "@/lib/api";
 import { useProject } from "@/lib/project-context";
-import {
-  useCreatePrice,
-  useMetrics,
-  useUpdatePrice,
-  type PriceTierInput,
-} from "@/lib/queries";
+import { type PriceTierInput, useCreatePrice, useMetrics, useUpdatePrice } from "@/lib/queries";
 import { CURRENCIES, type Currency, type Price } from "@/lib/types";
 
 const amountString = z
@@ -64,11 +59,10 @@ const schema = z
       path: ["unitAmount"],
     },
   )
-  .refine(
-    (v) =>
-      v.modelType === "tiered" ? v.tiers !== undefined && v.tiers.length > 0 : true,
-    { message: "At least one tier is required", path: ["tiers"] },
-  );
+  .refine((v) => (v.modelType === "tiered" ? v.tiers !== undefined && v.tiers.length > 0 : true), {
+    message: "At least one tier is required",
+    path: ["tiers"],
+  });
 
 type FormValues = z.infer<typeof schema>;
 
@@ -135,7 +129,10 @@ export function PriceFormDialog({
   const modelType = form.watch("modelType");
   const tiers = form.watch("tiers") ?? [];
 
-  function setTier(index: number, patch: Partial<{ firstUnit: string; lastUnit: string; unitAmount: string }>) {
+  function setTier(
+    index: number,
+    patch: Partial<{ firstUnit: string; lastUnit: string; unitAmount: string }>,
+  ) {
     const next = tiers.map((t, i) => (i === index ? { ...t, ...patch } : t));
     form.setValue("tiers", next, { shouldValidate: true });
   }
@@ -220,8 +217,7 @@ export function PriceFormDialog({
         <DialogHeader>
           <DialogTitle>{editing ? "Edit price" : "New price"}</DialogTitle>
           <DialogDescription>
-            Usage-based prices meter against a metric. Currency defaults to the
-            project default.
+            Usage-based prices meter against a metric. Currency defaults to the project default.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(submit)} className="flex flex-col gap-4">
@@ -336,9 +332,7 @@ export function PriceFormDialog({
                       step="0.000001"
                       min="0"
                       value={tier.firstUnit}
-                      onChange={(e) =>
-                        setTier(index, { firstUnit: e.target.value })
-                      }
+                      onChange={(e) => setTier(index, { firstUnit: e.target.value })}
                     />
                   </div>
                   <div className="flex flex-col gap-1">
@@ -356,9 +350,7 @@ export function PriceFormDialog({
                       step="0.000001"
                       min="0"
                       value={tier.unitAmount}
-                      onChange={(e) =>
-                        setTier(index, { unitAmount: e.target.value })
-                      }
+                      onChange={(e) => setTier(index, { unitAmount: e.target.value })}
                     />
                   </div>
                   <Button
@@ -374,9 +366,7 @@ export function PriceFormDialog({
                 </div>
               ))}
               {form.formState.errors.tiers ? (
-                <p className="text-[11px] text-destructive">
-                  At least one tier is required
-                </p>
+                <p className="text-[11px] text-destructive">At least one tier is required</p>
               ) : null}
               <p className="text-[11px] text-muted-foreground">
                 Only the last tier may be open-ended. Tiers must not overlap.
@@ -385,12 +375,7 @@ export function PriceFormDialog({
           )}
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button type="submit" size="sm" disabled={pending}>

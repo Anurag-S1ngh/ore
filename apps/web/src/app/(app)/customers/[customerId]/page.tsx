@@ -3,7 +3,7 @@
 import { Button } from "@ore/ui/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@ore/ui/components/card";
 import { Skeleton } from "@ore/ui/components/skeleton";
-import { ArrowLeft, Gauge, FileText, Repeat } from "lucide-react";
+import { ArrowLeft, FileText, Gauge, Repeat } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
@@ -17,9 +17,7 @@ import { useCustomers, useInvoices, useSubscriptions } from "@/lib/queries";
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-4 py-2">
-      <span className="text-[11px] tracking-widest text-muted-foreground uppercase">
-        {label}
-      </span>
+      <span className="text-[11px] tracking-widest text-muted-foreground uppercase">{label}</span>
       <span className="min-w-0 truncate text-right text-xs">{value}</span>
     </div>
   );
@@ -37,9 +35,7 @@ export default function CustomerDetailPage() {
     customerId: params.customerId,
   });
 
-  const activeSubscriptions = (subscriptions.data ?? []).filter(
-    (sub) => sub.status === "active",
-  );
+  const activeSubscriptions = (subscriptions.data ?? []).filter((sub) => sub.status === "active");
   const invoiceCount = invoices.data?.length ?? 0;
 
   return (
@@ -107,15 +103,10 @@ export default function CustomerDetailPage() {
                   </span>
                   <div className="flex flex-col">
                     <span className="text-xs font-medium">Usage</span>
-                    <span className="text-[11px] text-muted-foreground">
-                      Explore metered usage
-                    </span>
+                    <span className="text-[11px] text-muted-foreground">Explore metered usage</span>
                   </div>
                 </Link>
-                <Link
-                  href="/subscriptions"
-                  className="flex items-center gap-3 hover:underline"
-                >
+                <Link href="/subscriptions" className="flex items-center gap-3 hover:underline">
                   <span className="flex size-7 items-center justify-center bg-muted text-muted-foreground">
                     <Repeat className="size-3.5" />
                   </span>
@@ -157,8 +148,7 @@ export default function CustomerDetailPage() {
                 </Link>
                 <Separator className="my-1" />
                 <p className="text-[11px] text-muted-foreground">
-                  Subscription and invoice data for this customer across the
-                  selected project.
+                  Subscription and invoice data for this customer across the selected project.
                 </p>
               </CardContent>
             </Card>

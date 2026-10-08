@@ -1,17 +1,10 @@
-import {
-  cadenceEnum,
-  currencyEnum,
-  priceModelTypeEnum,
-} from "@ore/db/schema/index";
+import { cadenceEnum, currencyEnum, priceModelTypeEnum } from "@ore/db/schema/index";
 import { z } from "zod";
 
 const decimalAmount = z
   .number("should be a number")
   .nonnegative("should be zero or greater")
-  .refine(
-    (v) => Number(v.toFixed(6)) === v,
-    "supports at most 6 decimal places",
-  );
+  .refine((v) => Number(v.toFixed(6)) === v, "supports at most 6 decimal places");
 
 const tierSchema = z.object({
   firstUnit: decimalAmount,
@@ -51,9 +44,7 @@ export const createPriceSchema = z.object({
 export const updatePriceSchema = z.object({
   metricId: z.uuid("invalid metric id").optional(),
   currency: z.enum(currencyEnum.enumValues, "invalid currency").optional(),
-  modelType: z
-    .enum(priceModelTypeEnum.enumValues, "invalid model type")
-    .optional(),
+  modelType: z.enum(priceModelTypeEnum.enumValues, "invalid model type").optional(),
   cadence: z.enum(cadenceEnum.enumValues, "invalid cadence").optional(),
   externalPriceId: z
     .string("should be a string")

@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { customersController } from "./customers.controller";
 import { userAuthMiddleware } from "@/middleware/auth";
 import { projectOwnedByUser } from "@/middleware/project";
+import { customersController } from "./customers.controller";
 
 export const customersRouter = Router();
 

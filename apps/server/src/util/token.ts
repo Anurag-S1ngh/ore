@@ -1,5 +1,5 @@
-import { ENV } from "@/env.server";
 import { jwtVerify, SignJWT } from "jose";
+import { ENV } from "@/env.server";
 
 const secret = new TextEncoder().encode(ENV.JWT_SECRET);
 

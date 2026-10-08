@@ -1,8 +1,8 @@
+import { apiKeys } from "@ore/db/schema/index";
+import { and, count, eq, isNull } from "drizzle-orm";
 import { db } from "@/services";
 import { AppError } from "@/types/error";
 import { generateApiKey } from "@/util/generateApiKey";
-import { apiKeys } from "@ore/db/schema/index";
-import { and, count, eq, isNull } from "drizzle-orm";
 
 const ACTIVE_KEY_LIMIT = 10;
 
@@ -28,10 +28,7 @@ export const apiKeysService = {
       .from(apiKeys)
       .where(and(eq(apiKeys.projectId, projectId), isNull(apiKeys.revokedAt)));
     if ((active?.value ?? 0) >= ACTIVE_KEY_LIMIT) {
-      throw new AppError(
-        `active api key limit of ${ACTIVE_KEY_LIMIT} reached`,
-        400,
-      );
+      throw new AppError(`active api key limit of ${ACTIVE_KEY_LIMIT} reached`, 400);
     }
 
     const { key, prefix, hash } = await generateApiKey();
@@ -66,11 +63,7 @@ export const apiKeysService = {
       .update(apiKeys)
       .set({ revokedAt: new Date() })
       .where(
-        and(
-          eq(apiKeys.id, keyId),
-          eq(apiKeys.projectId, projectId),
-          isNull(apiKeys.revokedAt),
-        ),
+        and(eq(apiKeys.id, keyId), eq(apiKeys.projectId, projectId), isNull(apiKeys.revokedAt)),
       )
       .returning();
     if (!revoked) {
