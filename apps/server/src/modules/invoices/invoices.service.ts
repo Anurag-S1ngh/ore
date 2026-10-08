@@ -1,6 +1,6 @@
 import { db } from "@/services";
 import { AppError } from "@/types/error";
-import { isForeignKeyViolation, isUniqueViolation } from "@/util/db-error";
+import { isForeignKeyViolation, isPeriodConflict, isUniqueViolation } from "@/util/db-error";
 import { generateInvoiceNumber } from "@/util/generateInvoiceNumber";
 import {
   customers,
@@ -292,8 +292,13 @@ export const invoicesService = {
           );
           return created;
         } catch (err) {
-          if (isUniqueViolation(err) && attempt < MAX_NUMBER_ATTEMPTS - 1) {
-            continue;
+          if (isUniqueViolation(err)) {
+            if (isPeriodConflict(err)) {
+              throw new AppError("invoice already exists for the period", 409);
+            }
+            if (attempt < MAX_NUMBER_ATTEMPTS - 1) {
+              continue;
+            }
           }
           throw err;
         }

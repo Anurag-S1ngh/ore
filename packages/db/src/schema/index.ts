@@ -350,8 +350,8 @@ export const invoices = pgTable(
     invoiceNumber: text("invoice_number").notNull(),
     currency: currencyEnum("currency").notNull(),
     totalAmount: decimal("total_amount", { precision: 20, scale: 6 }).notNull(),
-    periodStart: timestamp("period_start", { withTimezone: true }),
-    periodEnd: timestamp("period_end", { withTimezone: true }),
+    periodStart: timestamp("period_start", { withTimezone: true }).notNull(),
+    periodEnd: timestamp("period_end", { withTimezone: true }).notNull(),
     issuedAt: timestamp("issued_at", { withTimezone: true }).notNull(),
     paidAt: timestamp("paid_at", { withTimezone: true }),
     dueDate: timestamp("due_date", { withTimezone: true }).notNull(),
@@ -362,6 +362,12 @@ export const invoices = pgTable(
   },
   (t) => [
     unique().on(t.projectId, t.invoiceNumber),
+    unique("invoices_project_customer_period_uniq").on(
+      t.projectId,
+      t.customerId,
+      t.periodStart,
+      t.periodEnd,
+    ),
     index("invoices_project_customer_status_idx").on(
       t.projectId,
       t.customerId,
