@@ -13,7 +13,9 @@
   },
   "scripts": {
     "check-types": "tsc --noEmit",
-    "env:generate": "varlock codegen"
+    "env:generate": "varlock codegen",
+    "lint": "biome check .",
+    "format": "biome check --write ."
   },
   "dependencies": {
     "resend": "^6.30.0",

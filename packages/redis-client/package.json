@@ -13,5 +13,9 @@
   },
   "dependencies": {
     "ioredis": "^6.0.0"
+  },
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome check --write ."
   }
 }

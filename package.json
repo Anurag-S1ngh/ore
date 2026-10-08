@@ -27,6 +27,8 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "check-types": "turbo run check-types",
+    "lint": "turbo run lint",
+    "format": "turbo run format",
     "test": "turbo run test",
     "dev:web": "turbo run dev -F web --",
     "dev:server": "turbo run dev -F server --",
@@ -34,14 +36,15 @@
     "db:studio": "turbo run db:studio -F @ore/db --",
     "db:generate": "turbo run db:generate -F @ore/db --",
     "db:migrate": "turbo run db:migrate -F @ore/db --",
-    "env:generate": "varlock codegen --path ./apps/web/ && varlock codegen --path ./apps/server/ && varlock codegen --path ./packages/db/ && varlock codegen --path ./apps/worker/",
-    "postinstall": "varlock codegen --path ./apps/web/ && varlock codegen --path ./apps/server/ && varlock codegen --path ./packages/db/ && varlock codegen --path ./apps/worker/"
+    "env:generate": "varlock codegen --path ./apps/web/ && varlock codegen --path ./apps/server/ && varlock codegen --path ./packages/db/ && varlock codegen --path ./apps/worker/ && varlock codegen --path ./packages/queue/ && varlock codegen --path ./packages/redis-client/",
+    "postinstall": "varlock codegen --path ./apps/web/ && varlock codegen --path ./apps/server/ && varlock codegen --path ./packages/db/ && varlock codegen --path ./apps/worker/ && varlock codegen --path ./packages/queue/ && varlock codegen --path ./packages/redis-client/"
   },
   "dependencies": {
     "zod": "catalog:"
   },
   "devDependencies": {
     "@ore/config": "workspace:*",
+    "@biomejs/biome": "^2.5.15",
     "@types/bun": "catalog:",
     "turbo": "^2.10.12",
     "typescript": "catalog:",
