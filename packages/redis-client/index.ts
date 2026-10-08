@@ -1,6 +1,9 @@
 import Redis from "ioredis";
+import "varlock/auto-load";
 
-export const redis = new Redis(process.env.REDIS_URL!);
+import { ENV } from "./src/env";
+
+export const redis = new Redis(ENV.REDIS_URL);
 
 export const get = async (key: string) => {
   return redis.get(key);

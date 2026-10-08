@@ -1,11 +1,14 @@
 import { Queue } from "bullmq";
 import Redis from "ioredis";
+import "varlock/auto-load";
+
+import { ENV } from "./env";
 
 export interface ProcessUsageJob {
   eventId: string;
 }
 
-export const redis = new Redis(process.env.REDIS_URL!, {
+export const redis = new Redis(ENV.REDIS_URL, {
   maxRetriesPerRequest: null,
 });
 
@@ -33,9 +36,5 @@ const usageAggregateQueue = new Queue(USAGE_AGGREGATE_QUEUE, {
 });
 
 export const addUsageAggregateJob = async (eventId: string) => {
-  await usageAggregateQueue.add(
-    USAGE_AGGREGATE_JOB,
-    { eventId },
-    { jobId: `usage-${eventId}` },
-  );
+  await usageAggregateQueue.add(USAGE_AGGREGATE_JOB, { eventId }, { jobId: `usage-${eventId}` });
 };
