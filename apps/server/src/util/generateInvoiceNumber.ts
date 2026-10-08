@@ -1,4 +1,4 @@
-import { randomBytes } from "crypto";
+import { randomBytes } from "node:crypto";
 
 export const generateInvoiceNumber = (issuedAt: Date): string => {
   const stamp = issuedAt.toISOString().slice(0, 10).replaceAll("-", "");

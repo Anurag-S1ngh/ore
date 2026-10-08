@@ -4,6 +4,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@ore/ui/components/button";
 import { Input } from "@ore/ui/components/input";
 import { Label } from "@ore/ui/components/label";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 import {
   Dialog,
   DialogContent,
@@ -12,12 +18,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import * as React from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
 
 import { getErrorMessage } from "@/lib/api";
 import { useProject } from "@/lib/project-context";
@@ -124,17 +124,19 @@ export function SubscriptionFormDialog({
 
   function submitEdit(values: EditValues) {
     if (!subscription) return;
-    const changedPlan = values.planId && values.planId !== subscription.planId;
-    const changedCadence = values.cadence && values.cadence !== subscription.cadence;
-    if (!changedPlan && !changedCadence) {
+    const nextPlanId =
+      values.planId && values.planId !== subscription.planId ? values.planId : undefined;
+    const nextCadence =
+      values.cadence && values.cadence !== subscription.cadence ? values.cadence : undefined;
+    if (!nextPlanId && !nextCadence) {
       onOpenChange(false);
       return;
     }
     updateSubscription.mutate(
       {
         subscriptionId: subscription.id,
-        ...(changedPlan ? { planId: values.planId! } : {}),
-        ...(changedCadence ? { cadence: values.cadence as Cadence } : {}),
+        ...(nextPlanId ? { planId: nextPlanId } : {}),
+        ...(nextCadence ? { cadence: nextCadence as Cadence } : {}),
       },
       {
         onSuccess: () => {
@@ -150,9 +152,7 @@ export function SubscriptionFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
-            {editing ? "Change plan" : "New subscription"}
-          </DialogTitle>
+          <DialogTitle>{editing ? "Change plan" : "New subscription"}</DialogTitle>
           <DialogDescription>
             {editing
               ? "Switching plans closes current price intervals and opens new ones."
@@ -160,10 +160,7 @@ export function SubscriptionFormDialog({
           </DialogDescription>
         </DialogHeader>
         {editing ? (
-          <form
-            onSubmit={editForm.handleSubmit(submitEdit)}
-            className="flex flex-col gap-4"
-          >
+          <form onSubmit={editForm.handleSubmit(submitEdit)} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="subscription-plan">Plan</Label>
               <select
@@ -190,12 +187,7 @@ export function SubscriptionFormDialog({
               </select>
             </div>
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => onOpenChange(false)}
-              >
+              <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
               <Button type="submit" size="sm" disabled={pending}>
@@ -205,10 +197,7 @@ export function SubscriptionFormDialog({
             </DialogFooter>
           </form>
         ) : (
-          <form
-            onSubmit={createForm.handleSubmit(submitCreate)}
-            className="flex flex-col gap-4"
-          >
+          <form onSubmit={createForm.handleSubmit(submitCreate)} className="flex flex-col gap-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="subscription-customer">Customer</Label>
@@ -287,12 +276,7 @@ export function SubscriptionFormDialog({
               </div>
             </div>
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => onOpenChange(false)}
-              >
+              <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
               <Button type="submit" size="sm" disabled={pending}>

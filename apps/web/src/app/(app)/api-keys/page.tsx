@@ -3,6 +3,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@ore/ui/components/button";
 import { Card, CardContent } from "@ore/ui/components/card";
+import { Input } from "@ore/ui/components/input";
+import { Label } from "@ore/ui/components/label";
+import { Skeleton } from "@ore/ui/components/skeleton";
+import { Check, Copy, KeyRound, Loader2, Plus, Trash2 } from "lucide-react";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { PageBody, PageHeader } from "@/components/page-header";
+import { ProjectRequired } from "@/components/project-required";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -11,26 +23,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@ore/ui/components/input";
-import { Label } from "@ore/ui/components/label";
-import { Skeleton } from "@ore/ui/components/skeleton";
-import {
-  Check,
-  Copy,
-  KeyRound,
-  Loader2,
-  Plus,
-  Trash2,
-} from "lucide-react";
-import * as React from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
-
-import { ConfirmDialog } from "@/components/confirm-dialog";
-import { PageBody, PageHeader } from "@/components/page-header";
-import { ProjectRequired } from "@/components/project-required";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -120,8 +112,7 @@ export default function ApiKeysPage() {
         ) : (
           <>
             <p className="text-[11px] text-muted-foreground">
-              <span className="data-mono">{activeCount}</span> active of 10 allowed per
-              project.
+              <span className="data-mono">{activeCount}</span> active of 10 allowed per project.
             </p>
             <Card size="sm">
               <CardContent className="px-0">
@@ -213,9 +204,7 @@ export default function ApiKeysPage() {
               <Label htmlFor="key-name">Name</Label>
               <Input id="key-name" placeholder="Production server" {...form.register("name")} />
               {form.formState.errors.name ? (
-                <p className="text-[11px] text-destructive">
-                  {form.formState.errors.name.message}
-                </p>
+                <p className="text-[11px] text-destructive">{form.formState.errors.name.message}</p>
               ) : null}
             </div>
             <div className="flex flex-col gap-1.5">
@@ -240,7 +229,11 @@ export default function ApiKeysPage() {
         </DialogContent>
       </Dialog>
 
-      <CreatedKeyDialog key={createdKey?.id} createdKey={createdKey} onClose={() => setCreatedKey(null)} />
+      <CreatedKeyDialog
+        key={createdKey?.id}
+        createdKey={createdKey}
+        onClose={() => setCreatedKey(null)}
+      />
 
       <ConfirmDialog
         open={Boolean(revoking)}
@@ -266,6 +259,7 @@ function CreatedKeyDialog({
 }) {
   const [copied, setCopied] = React.useState(false);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reset copied state whenever a new key is created
   React.useEffect(() => {
     setCopied(false);
   }, [createdKey]);
@@ -292,9 +286,7 @@ function CreatedKeyDialog({
         </DialogHeader>
         <div className="flex items-center gap-2 border bg-muted p-3">
           <KeyRound className="size-4 shrink-0 text-muted-foreground" />
-          <code className="data-mono min-w-0 flex-1 truncate text-xs">
-            {createdKey?.key}
-          </code>
+          <code className="data-mono min-w-0 flex-1 truncate text-xs">{createdKey?.key}</code>
           <Button variant="outline" size="icon-sm" onClick={copy} aria-label="Copy key">
             {copied ? <Check className="size-4 text-emerald-500" /> : <Copy className="size-4" />}
           </Button>

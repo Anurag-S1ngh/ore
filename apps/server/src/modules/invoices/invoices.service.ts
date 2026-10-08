@@ -1,28 +1,24 @@
-import { db } from "@/services";
-import { AppError } from "@/types/error";
-import {
-  isForeignKeyViolation,
-  isPeriodConflict,
-  isUniqueViolation,
-} from "@/util/db-error";
-import { generateInvoiceNumber } from "@/util/generateInvoiceNumber";
 import {
   customers,
   invoiceItems,
-  invoiceStatusEnum,
+  type invoiceStatusEnum,
   invoices,
   subscriptions,
   usageAggregates,
 } from "@ore/db/schema/index";
 import { and, eq, gt, isNull, lt, or, sql } from "drizzle-orm";
+import { db } from "@/services";
+import { AppError } from "@/types/error";
+import { isForeignKeyViolation, isPeriodConflict, isUniqueViolation } from "@/util/db-error";
+import { generateInvoiceNumber } from "@/util/generateInvoiceNumber";
 import {
   effectiveRate,
   fromMicros,
   overlaps,
   rateGraduated,
   rateUnit,
-  toMicros,
   type TierBand,
+  toMicros,
 } from "./invoices.money";
 import type {
   CreateInvoiceInput,
@@ -77,12 +73,7 @@ export const invoicesService = {
     const [customer] = await db
       .select({ id: customers.id })
       .from(customers)
-      .where(
-        and(
-          eq(customers.id, input.customerId),
-          eq(customers.projectId, projectId),
-        ),
-      );
+      .where(and(eq(customers.id, input.customerId), eq(customers.projectId, projectId)));
     if (!customer) {
       throw new AppError("invalid customer id", 400);
     }
@@ -91,10 +82,7 @@ export const invoicesService = {
       .select({ id: subscriptions.id })
       .from(subscriptions)
       .where(
-        and(
-          eq(subscriptions.customerId, customer.id),
-          eq(subscriptions.projectId, projectId),
-        ),
+        and(eq(subscriptions.customerId, customer.id), eq(subscriptions.projectId, projectId)),
       );
     if (subs.length === 0) {
       throw new AppError("customer has no subscriptions", 400);
@@ -109,19 +97,13 @@ export const invoicesService = {
         },
       },
     });
-    const billable = intervals
-      .filter(
-        (interval) =>
-          interval.price !== null &&
-          overlaps(
-            interval.startDate,
-            interval.endDate,
-            periodStart,
-            periodEnd,
-          ),
-      )
-      .map((interval) => ({ ...interval, price: interval.price! }));
-    if (billable.length === 0) {
+    const billable = intervals.filter(
+      (interval): interval is typeof interval & { price: NonNullable<typeof interval.price> } =>
+        interval.price !== null &&
+        overlaps(interval.startDate, interval.endDate, periodStart, periodEnd),
+    );
+    const [first] = billable;
+    if (!first) {
       throw new AppError("no billable prices for the period", 400);
     }
 
@@ -129,7 +111,7 @@ export const invoicesService = {
     if (currencies.size !== 1) {
       throw new AppError("prices span multiple currencies", 409);
     }
-    const currency = billable[0]!.price.currency;
+    const currency = first.price.currency;
 
     const items: Array<{
       subscriptionId: string;
@@ -151,12 +133,9 @@ export const invoicesService = {
       if (price.modelType === "tiered" && price.priceTiers.length === 0) {
         throw new AppError("tiered price has no tiers", 500);
       }
-      const usageStart =
-        interval.startDate > periodStart ? interval.startDate : periodStart;
+      const usageStart = interval.startDate > periodStart ? interval.startDate : periodStart;
       const usageEnd =
-        interval.endDate === null || interval.endDate > periodEnd
-          ? periodEnd
-          : interval.endDate;
+        interval.endDate === null || interval.endDate > periodEnd ? periodEnd : interval.endDate;
 
       const [usageRow] = await db
         .select({ total: sql<string | null>`sum(${usageAggregates.value})` })
@@ -171,19 +150,20 @@ export const invoicesService = {
             lt(usageAggregates.periodStart, usageEnd),
           ),
         );
-      const quantityMicros =
-        usageRow?.total == null ? 0n : toMicros(usageRow.total);
+      const quantityMicros = usageRow?.total == null ? 0n : toMicros(usageRow.total);
 
       const rated =
         price.modelType === "unit"
           ? rateUnit(quantityMicros, toMicros(price.unitAmount ?? "0"))
           : rateGraduated(
               quantityMicros,
-              price.priceTiers.map((tier): TierBand => ({
-                firstUnit: tier.firstUnit,
-                lastUnit: tier.lastUnit,
-                unitAmount: tier.unitAmount,
-              })),
+              price.priceTiers.map(
+                (tier): TierBand => ({
+                  firstUnit: tier.firstUnit,
+                  lastUnit: tier.lastUnit,
+                  unitAmount: tier.unitAmount,
+                }),
+              ),
             );
 
       totalMicros += rated.amountMicros;
@@ -192,9 +172,7 @@ export const invoicesService = {
         priceId: price.id,
         metricId: price.metricId,
         totalQuantity: fromMicros(rated.quantityMicros),
-        unitAmount: fromMicros(
-          effectiveRate(rated.amountMicros, rated.quantityMicros),
-        ),
+        unitAmount: fromMicros(effectiveRate(rated.amountMicros, rated.quantityMicros)),
         amount: fromMicros(rated.amountMicros),
         usageStart,
         usageEnd,
@@ -211,20 +189,14 @@ export const invoicesService = {
         .select({ id: subscriptions.id })
         .from(subscriptions)
         .where(
-          and(
-            eq(subscriptions.customerId, customer.id),
-            eq(subscriptions.projectId, projectId),
-          ),
+          and(eq(subscriptions.customerId, customer.id), eq(subscriptions.projectId, projectId)),
         )
         .for("update");
       if (
         locked.length !== subscriptionIds.length ||
         !subscriptionIds.every((id) => locked.some((row) => row.id === id))
       ) {
-        throw new AppError(
-          "subscriptions changed during generation, retry",
-          409,
-        );
+        throw new AppError("subscriptions changed during generation, retry", 409);
       }
 
       const [overlap] = await tx
@@ -243,9 +215,7 @@ export const invoicesService = {
         throw new AppError("invoice already exists for the period", 409);
       }
       if (overlap) {
-        await tx
-          .delete(invoiceItems)
-          .where(eq(invoiceItems.invoiceId, overlap.id));
+        await tx.delete(invoiceItems).where(eq(invoiceItems.invoiceId, overlap.id));
         await tx.delete(invoices).where(eq(invoices.id, overlap.id));
       }
 
@@ -303,11 +273,7 @@ export const invoicesService = {
     });
   },
 
-  async updateStatus(
-    projectId: string,
-    invoiceId: string,
-    input: UpdateInvoiceInput,
-  ) {
+  async updateStatus(projectId: string, invoiceId: string, input: UpdateInvoiceInput) {
     const existing = await db.query.invoices.findFirst({
       where: { projectId, id: invoiceId },
     });
@@ -348,14 +314,10 @@ export const invoicesService = {
 
     try {
       return await db.transaction(async (tx) => {
-        await tx
-          .delete(invoiceItems)
-          .where(eq(invoiceItems.invoiceId, invoiceId));
+        await tx.delete(invoiceItems).where(eq(invoiceItems.invoiceId, invoiceId));
         const [deleted] = await tx
           .delete(invoices)
-          .where(
-            and(eq(invoices.id, invoiceId), eq(invoices.projectId, projectId)),
-          )
+          .where(and(eq(invoices.id, invoiceId), eq(invoices.projectId, projectId)))
           .returning();
         if (!deleted) {
           throw new AppError("invoice not found", 404);

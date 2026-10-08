@@ -2,18 +2,12 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@ore/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@ore/ui/components/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ore/ui/components/card";
 import { Input } from "@ore/ui/components/input";
 import { Label } from "@ore/ui/components/label";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
 import type { Route } from "next";
+import { useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -76,8 +70,7 @@ export function LoginForm() {
       {
         onSuccess: () => {
           rememberIdentity(account.email, account.username);
-          const destination: Route =
-            next && next.startsWith("/") ? (next as Route) : "/dashboard";
+          const destination: Route = next?.startsWith("/") ? (next as Route) : "/dashboard";
           router.push(destination);
           router.refresh();
         },
@@ -108,10 +101,7 @@ export function LoginForm() {
       </CardHeader>
       <CardContent>
         {step === "details" ? (
-          <form
-            onSubmit={detailsForm.handleSubmit(onSendDetails)}
-            className="flex flex-col gap-4"
-          >
+          <form onSubmit={detailsForm.handleSubmit(onSendDetails)} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="username">Username</Label>
               <Input

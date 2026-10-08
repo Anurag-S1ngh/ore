@@ -1,27 +1,22 @@
-import { db } from "@/services";
-import { AppError } from "@/types/error";
-import { isForeignKeyViolation, isUniqueViolation } from "@/util/db-error";
 import {
   invoiceItems,
   metrics,
   plans,
-  priceModelTypeEnum,
-  priceTiers,
+  type priceModelTypeEnum,
   prices,
+  priceTiers,
   projects,
   subscriptionPriceIntervals,
 } from "@ore/db/schema/index";
 import { and, eq } from "drizzle-orm";
-import type {
-  CreatePriceInput,
-  TierInput,
-  UpdatePriceInput,
-} from "./prices.validation";
+import { db } from "@/services";
+import { AppError } from "@/types/error";
+import { isForeignKeyViolation, isUniqueViolation } from "@/util/db-error";
+import type { CreatePriceInput, TierInput, UpdatePriceInput } from "./prices.validation";
 
 type ModelType = (typeof priceModelTypeEnum.enumValues)[number];
 
-const toDecimal = (value: number | null) =>
-  value === null ? null : value.toFixed(6);
+const toDecimal = (value: number | null) => (value === null ? null : value.toFixed(6));
 
 const getProjectCurrency = async (projectId: string) => {
   const [project] = await db
@@ -66,25 +61,22 @@ const assertPriceConsistency = (input: {
   const sorted = [...tiers].sort((a, b) => a.firstUnit - b.firstUnit);
   const seen = new Set<number>();
   for (let i = 0; i < sorted.length; i++) {
-    const tier = sorted[i]!;
+    const tier = sorted[i];
+    if (!tier) {
+      continue;
+    }
     if (seen.has(tier.firstUnit)) {
       throw new AppError("tier first units must be unique", 400);
     }
     seen.add(tier.firstUnit);
 
     if (tier.lastUnit != null && tier.lastUnit < tier.firstUnit) {
-      throw new AppError(
-        "tier last unit must be greater than its first unit",
-        400,
-      );
+      throw new AppError("tier last unit must be greater than its first unit", 400);
     }
 
     const next = sorted[i + 1];
     if (next && (tier.lastUnit == null || tier.lastUnit >= next.firstUnit)) {
-      throw new AppError(
-        "tiers must not overlap and only the last tier may be open-ended",
-        400,
-      );
+      throw new AppError("tiers must not overlap and only the last tier may be open-ended", 400);
     }
   }
 };
@@ -124,8 +116,7 @@ export const pricesService = {
   },
 
   async create(projectId: string, planId: string, input: CreatePriceInput) {
-    const { metricId, modelType, cadence, externalPriceId, unitAmount, tiers } =
-      input;
+    const { metricId, modelType, cadence, externalPriceId, unitAmount, tiers } = input;
 
     const [plan] = await db
       .select({ id: plans.id })
@@ -188,21 +179,13 @@ export const pricesService = {
       });
     } catch (err) {
       if (isUniqueViolation(err)) {
-        throw new AppError(
-          "a price with the same external price id or tier already exists",
-          409,
-        );
+        throw new AppError("a price with the same external price id or tier already exists", 409);
       }
       throw err;
     }
   },
 
-  async update(
-    projectId: string,
-    planId: string,
-    priceId: string,
-    input: UpdatePriceInput,
-  ) {
+  async update(projectId: string, planId: string, priceId: string, input: UpdatePriceInput) {
     const existing = await db.query.prices.findFirst({
       where: { projectId, planId, id: priceId },
       with: {
@@ -213,15 +196,12 @@ export const pricesService = {
       throw new AppError("price not found", 404);
     }
 
-    const metricId =
-      input.metricId === undefined ? existing.metricId : input.metricId;
+    const metricId = input.metricId === undefined ? existing.metricId : input.metricId;
     if (input.metricId) {
       const [metric] = await db
         .select({ id: metrics.id })
         .from(metrics)
-        .where(
-          and(eq(metrics.id, input.metricId), eq(metrics.projectId, projectId)),
-        );
+        .where(and(eq(metrics.id, input.metricId), eq(metrics.projectId, projectId)));
       if (!metric) {
         throw new AppError("invalid metric id", 400);
       }
@@ -290,10 +270,7 @@ export const pricesService = {
       });
     } catch (err) {
       if (isUniqueViolation(err)) {
-        throw new AppError(
-          "a price with the same external price id or tier already exists",
-          409,
-        );
+        throw new AppError("a price with the same external price id or tier already exists", 409);
       }
       throw err;
     }

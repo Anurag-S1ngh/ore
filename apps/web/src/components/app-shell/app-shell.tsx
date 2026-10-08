@@ -8,8 +8,8 @@ import {
   FolderKanban,
   Gauge,
   KeyRound,
-  LayoutDashboard,
   Layers,
+  LayoutDashboard,
   Menu,
   Repeat,
   Settings,
@@ -17,9 +17,9 @@ import {
   X,
   Zap,
 } from "lucide-react";
+import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { Route } from "next";
 import * as React from "react";
 
 import { ModeToggle } from "@/components/mode-toggle";
@@ -118,6 +118,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const pathname = usePathname();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: close the mobile nav on every navigation
   React.useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
@@ -125,65 +126,65 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <ProjectProvider>
       <div className="grid min-h-svh grid-cols-1 lg:grid-cols-[236px_1fr]">
-      <aside className="sticky top-0 hidden h-svh flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:flex">
-        <div className="flex h-12 items-center border-b border-sidebar-border px-2">
-          <Brand />
-        </div>
-        <div className="border-b border-sidebar-border p-2">
-          <ProjectSwitcher />
-        </div>
-        <SidebarNav />
-        <div className="flex items-center justify-between gap-2 border-t border-sidebar-border p-2">
-          <UserMenu />
-          <ModeToggle />
-        </div>
-      </aside>
+        <aside className="sticky top-0 hidden h-svh flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:flex">
+          <div className="flex h-12 items-center border-b border-sidebar-border px-2">
+            <Brand />
+          </div>
+          <div className="border-b border-sidebar-border p-2">
+            <ProjectSwitcher />
+          </div>
+          <SidebarNav />
+          <div className="flex items-center justify-between gap-2 border-t border-sidebar-border p-2">
+            <UserMenu />
+            <ModeToggle />
+          </div>
+        </aside>
 
-      {mobileOpen ? (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setMobileOpen(false)}
-            aria-hidden
-          />
-          <aside className="relative z-10 flex h-full w-72 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
-            <div className="flex h-12 items-center justify-between border-b border-sidebar-border px-2">
-              <Brand />
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => setMobileOpen(false)}
-                aria-label="Close navigation"
-              >
-                <X className="size-4" />
-              </Button>
-            </div>
-            <div className="border-b border-sidebar-border p-2">
-              <ProjectSwitcher />
-            </div>
-            <SidebarNav onNavigate={() => setMobileOpen(false)} />
-            <div className="flex items-center justify-between gap-2 border-t border-sidebar-border p-2">
-              <UserMenu />
-              <ModeToggle />
-            </div>
-          </aside>
-        </div>
-      ) : null}
+        {mobileOpen ? (
+          <div className="fixed inset-0 z-40 lg:hidden">
+            <div
+              className="absolute inset-0 bg-black/50"
+              onClick={() => setMobileOpen(false)}
+              aria-hidden
+            />
+            <aside className="relative z-10 flex h-full w-72 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
+              <div className="flex h-12 items-center justify-between border-b border-sidebar-border px-2">
+                <Brand />
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => setMobileOpen(false)}
+                  aria-label="Close navigation"
+                >
+                  <X className="size-4" />
+                </Button>
+              </div>
+              <div className="border-b border-sidebar-border p-2">
+                <ProjectSwitcher />
+              </div>
+              <SidebarNav onNavigate={() => setMobileOpen(false)} />
+              <div className="flex items-center justify-between gap-2 border-t border-sidebar-border p-2">
+                <UserMenu />
+                <ModeToggle />
+              </div>
+            </aside>
+          </div>
+        ) : null}
 
-      <div className="flex min-w-0 flex-col">
-        <header className="sticky top-0 z-30 flex h-12 items-center gap-2 border-b bg-background/80 px-3 backdrop-blur lg:hidden">
-          <Button
-            variant="outline"
-            size="icon-sm"
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open navigation"
-          >
-            <Menu className="size-4" />
-          </Button>
-          <Brand />
-        </header>
-        <main className="min-w-0 flex-1">{children}</main>
-      </div>
+        <div className="flex min-w-0 flex-col">
+          <header className="sticky top-0 z-30 flex h-12 items-center gap-2 border-b bg-background/80 px-3 backdrop-blur lg:hidden">
+            <Button
+              variant="outline"
+              size="icon-sm"
+              onClick={() => setMobileOpen(true)}
+              aria-label="Open navigation"
+            >
+              <Menu className="size-4" />
+            </Button>
+            <Brand />
+          </header>
+          <main className="min-w-0 flex-1">{children}</main>
+        </div>
       </div>
     </ProjectProvider>
   );

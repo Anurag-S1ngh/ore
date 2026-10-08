@@ -29,7 +29,12 @@ import {
 } from "@/components/ui/table";
 import { getErrorMessage } from "@/lib/api";
 import { useProject } from "@/lib/project-context";
-import { useCreateCustomer, useCustomers, useDeleteCustomer, useUpdateCustomer } from "@/lib/queries";
+import {
+  useCreateCustomer,
+  useCustomers,
+  useDeleteCustomer,
+  useUpdateCustomer,
+} from "@/lib/queries";
 import type { Customer } from "@/lib/types";
 
 import { CustomerFormDialog } from "./customer-form-dialog";
@@ -54,17 +59,12 @@ export default function CustomersPage() {
     if (!q) return list;
     return list.filter((customer) =>
       [customer.externalId, customer.name, customer.email, customer.phone]
-        .filter(Boolean)
-        .some((value) => value!.toLowerCase().includes(q)),
+        .filter((value): value is string => Boolean(value))
+        .some((value) => value.toLowerCase().includes(q)),
     );
   }, [customers.data, query]);
 
-  function onSubmit(values: {
-    externalId: string;
-    name?: string;
-    email?: string;
-    phone?: string;
-  }) {
+  function onSubmit(values: { externalId: string; name?: string; email?: string; phone?: string }) {
     if (editing) {
       updateCustomer.mutate(
         { customerId: editing.id, name: values.name, email: values.email, phone: values.phone },

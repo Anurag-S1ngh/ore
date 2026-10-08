@@ -52,8 +52,8 @@ export default function PlansPage() {
     if (!q) return list;
     return list.filter((plan) =>
       [plan.name, plan.externalPlanId, plan.description]
-        .filter(Boolean)
-        .some((value) => value!.toLowerCase().includes(q)),
+        .filter((value): value is string => Boolean(value))
+        .some((value) => value.toLowerCase().includes(q)),
     );
   }, [plans.data, query]);
 
@@ -155,10 +155,7 @@ export default function PlansPage() {
                     {filtered.map((plan) => (
                       <TableRow key={plan.id}>
                         <TableCell className="font-medium">
-                          <Link
-                            href={`/plans/${plan.id}`}
-                            className="text-primary hover:underline"
-                          >
+                          <Link href={`/plans/${plan.id}`} className="text-primary hover:underline">
                             {plan.name}
                           </Link>
                         </TableCell>
@@ -175,19 +172,13 @@ export default function PlansPage() {
                           <DropdownMenu>
                             <DropdownMenuTrigger
                               render={
-                                <Button
-                                  variant="ghost"
-                                  size="icon-sm"
-                                  aria-label="Plan actions"
-                                />
+                                <Button variant="ghost" size="icon-sm" aria-label="Plan actions" />
                               }
                             >
                               <MoreHorizontal className="size-4" />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                render={<Link href={`/plans/${plan.id}`} />}
-                              >
+                              <DropdownMenuItem render={<Link href={`/plans/${plan.id}`} />}>
                                 <Eye className="size-3.5" />
                                 View prices
                               </DropdownMenuItem>
@@ -221,11 +212,7 @@ export default function PlansPage() {
         )}
       </PageBody>
 
-      <PlanFormDialog
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        plan={editing}
-      />
+      <PlanFormDialog open={formOpen} onOpenChange={setFormOpen} plan={editing} />
 
       <ConfirmDialog
         open={Boolean(deleting)}

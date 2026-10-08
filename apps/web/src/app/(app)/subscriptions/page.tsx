@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PageBody, PageHeader } from "@/components/page-header";
 import { ProjectRequired } from "@/components/project-required";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -27,15 +28,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { getErrorMessage } from "@/lib/api";
 import { useProject } from "@/lib/project-context";
-import {
-  useCancelSubscription,
-  useCustomers,
-  usePlans,
-  useSubscriptions,
-} from "@/lib/queries";
+import { useCancelSubscription, useCustomers, usePlans, useSubscriptions } from "@/lib/queries";
 import type { Subscription, SubscriptionStatus } from "@/lib/types";
 
 import { SubscriptionFormDialog } from "./subscription-form-dialog";
@@ -51,9 +46,7 @@ export default function SubscriptionsPage() {
   const projectId = selectedProject?.id;
 
   const [query, setQuery] = React.useState("");
-  const [statusFilter, setStatusFilter] = React.useState<SubscriptionStatus | "all">(
-    "all",
-  );
+  const [statusFilter, setStatusFilter] = React.useState<SubscriptionStatus | "all">("all");
   const [formOpen, setFormOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<Subscription | null>(null);
   const [canceling, setCanceling] = React.useState<Subscription | null>(null);
@@ -96,8 +89,8 @@ export default function SubscriptionsPage() {
         plan?.name,
         plan?.externalPlanId,
       ]
-        .filter(Boolean)
-        .some((value) => value!.toLowerCase().includes(q));
+        .filter((value): value is string => Boolean(value))
+        .some((value) => value.toLowerCase().includes(q));
     });
   }, [subscriptions.data, query, customerById, planById]);
 
@@ -149,18 +142,16 @@ export default function SubscriptionsPage() {
                   className="h-8 max-w-xs"
                 />
                 <div className="ml-auto flex items-center gap-1">
-                  {(["all", "active", "upcoming", "canceled"] as const).map(
-                    (status) => (
-                      <Button
-                        key={status}
-                        size="sm"
-                        variant={statusFilter === status ? "default" : "ghost"}
-                        onClick={() => setStatusFilter(status)}
-                      >
-                        {status === "all" ? "All" : status}
-                      </Button>
-                    ),
-                  )}
+                  {(["all", "active", "upcoming", "canceled"] as const).map((status) => (
+                    <Button
+                      key={status}
+                      size="sm"
+                      variant={statusFilter === status ? "default" : "ghost"}
+                      onClick={() => setStatusFilter(status)}
+                    >
+                      {status === "all" ? "All" : status}
+                    </Button>
+                  ))}
                 </div>
               </div>
 
@@ -236,13 +227,9 @@ export default function SubscriptionsPage() {
                               </span>
                             )}
                           </TableCell>
-                          <TableCell className="text-muted-foreground">
-                            {sub.cadence}
-                          </TableCell>
+                          <TableCell className="text-muted-foreground">{sub.cadence}</TableCell>
                           <TableCell>
-                            <Badge variant={STATUS_VARIANT[sub.status]}>
-                              {sub.status}
-                            </Badge>
+                            <Badge variant={STATUS_VARIANT[sub.status]}>{sub.status}</Badge>
                           </TableCell>
                           <TableCell className="data-mono text-[11px] text-muted-foreground">
                             {sub.currentPeriodStart
@@ -310,11 +297,7 @@ export default function SubscriptionsPage() {
         )}
       </PageBody>
 
-      <SubscriptionFormDialog
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        subscription={editing}
-      />
+      <SubscriptionFormDialog open={formOpen} onOpenChange={setFormOpen} subscription={editing} />
 
       <ConfirmDialog
         open={Boolean(canceling)}

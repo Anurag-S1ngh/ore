@@ -1,12 +1,8 @@
-import { verifyJWT } from "@/util/token";
 import type { NextFunction, Request, Response } from "express";
+import { verifyJWT } from "@/util/token";
 
-export const userAuthMiddleware = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  const authCookie = req.cookies["auth_cookie"];
+export const userAuthMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+  const authCookie = req.cookies.auth_cookie;
   if (!authCookie) {
     return res.status(401).json({ error: "unauthorized" });
   }

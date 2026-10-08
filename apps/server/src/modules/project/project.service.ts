@@ -1,9 +1,9 @@
+import { projects } from "@ore/db/schema/index";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/services";
 import { AppError } from "@/types/error";
 import type { Currency } from "@/types/projects";
 import { generateSlug } from "@/util/generateSlug";
-import { projects } from "@ore/db/schema/index";
-import { and, eq } from "drizzle-orm";
 
 export const projectService = {
   async get(userId: string) {
@@ -44,12 +44,9 @@ export const projectService = {
     defaultCurrency?: Currency,
   ) {
     if (!projectName && !description && !defaultCurrency) {
-      throw new AppError(
-        "please provide either project name or description",
-        400,
-      );
+      throw new AppError("please provide either project name or description", 400);
     }
-    let slug;
+    let slug: string | undefined;
     if (projectName) {
       slug = generateSlug(projectName);
     }

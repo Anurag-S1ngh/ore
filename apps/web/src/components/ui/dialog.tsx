@@ -61,11 +61,7 @@ function DialogTrigger({
   );
 }
 
-function DialogContent({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<"div">) {
+function DialogContent({ className, children, ...props }: React.ComponentProps<"div">) {
   const { open, setOpen } = useDialog();
   const [mounted, setMounted] = React.useState(false);
 
@@ -89,9 +85,11 @@ function DialogContent({
 
   return createPortal(
     <div data-slot="dialog" className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
+      <button
+        type="button"
+        aria-label="Dismiss dialog"
         data-slot="dialog-overlay"
-        className="absolute inset-0 bg-black/50 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=open]:fade-in-0"
+        className="absolute inset-0 cursor-default appearance-none border-0 bg-black/50 p-0 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=open]:fade-in-0"
         onClick={() => setOpen(false)}
       />
       <div
@@ -160,12 +158,12 @@ function DialogClose({
 
 export {
   Dialog,
-  DialogTrigger,
+  DialogClose,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
   useDialog,
 };

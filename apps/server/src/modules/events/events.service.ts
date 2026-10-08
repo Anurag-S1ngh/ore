@@ -1,14 +1,10 @@
-import { db } from "@/services";
-import { AppError } from "@/types/error";
 import { apiKeys, customers, events, metrics } from "@ore/db/schema/index";
 import { addUsageAggregateJob } from "@ore/queue";
 import argon2 from "argon2";
 import { and, eq, gt, isNull, or } from "drizzle-orm";
-import {
-  decodeEventCursor,
-  encodeEventCursor,
-  type EventListFilters,
-} from "./events.validation";
+import { db } from "@/services";
+import { AppError } from "@/types/error";
+import { decodeEventCursor, type EventListFilters, encodeEventCursor } from "./events.validation";
 
 export const eventsService = {
   async list(projectId: string, filters: EventListFilters) {
@@ -34,10 +30,7 @@ export const eventsService = {
               OR: [
                 { timestamp: { lt: cursorTimestamp } },
                 {
-                  AND: [
-                    { timestamp: { eq: cursorTimestamp } },
-                    { id: { lt: decoded.id } },
-                  ],
+                  AND: [{ timestamp: { eq: cursorTimestamp } }, { id: { lt: decoded.id } }],
                 },
               ],
             }
@@ -55,9 +48,7 @@ export const eventsService = {
     const page = hasMore ? rows.slice(0, limit) : rows;
     const last = page[page.length - 1];
     const nextCursor =
-      hasMore && last
-        ? encodeEventCursor({ timestamp: last.timestamp, id: last.id })
-        : null;
+      hasMore && last ? encodeEventCursor({ timestamp: last.timestamp, id: last.id }) : null;
 
     return { events: page, nextCursor };
   },
@@ -94,8 +85,8 @@ export const eventsService = {
           or(isNull(apiKeys.expiresAt), gt(apiKeys.expiresAt, new Date())),
         ),
       );
-    let projectId;
-    let apiKeyId;
+    let projectId: string | undefined;
+    let apiKeyId: string | undefined;
     for (const row of rows) {
       if (await argon2.verify(row.keyHash, apiKey)) {
         apiKeyId = row.id;
@@ -110,12 +101,7 @@ export const eventsService = {
     const [customer] = await db
       .select()
       .from(customers)
-      .where(
-        and(
-          eq(customers.externalId, externalCustomerId),
-          eq(customers.projectId, projectId),
-        ),
-      );
+      .where(and(eq(customers.externalId, externalCustomerId), eq(customers.projectId, projectId)));
     if (!customer) {
       throw new AppError("invalid customer", 400);
     }
@@ -123,9 +109,7 @@ export const eventsService = {
     const [metric] = await db
       .select()
       .from(metrics)
-      .where(
-        and(eq(metrics.name, metricName), eq(metrics.projectId, projectId)),
-      );
+      .where(and(eq(metrics.name, metricName), eq(metrics.projectId, projectId)));
     if (!metric) {
       throw new AppError("invalid metric", 400);
     }
@@ -146,10 +130,7 @@ export const eventsService = {
         })
         .returning();
       if (created) {
-        await tx
-          .update(apiKeys)
-          .set({ lastUsedAt: new Date() })
-          .where(eq(apiKeys.id, apiKeyId));
+        await tx.update(apiKeys).set({ lastUsedAt: new Date() }).where(eq(apiKeys.id, apiKeyId));
 
         return { event: created, duplicate: false };
       }
@@ -157,12 +138,7 @@ export const eventsService = {
       const [existing] = await tx
         .select()
         .from(events)
-        .where(
-          and(
-            eq(events.projectId, projectId),
-            eq(events.idempotencyKey, idempotencyKey),
-          ),
-        );
+        .where(and(eq(events.projectId, projectId), eq(events.idempotencyKey, idempotencyKey)));
       if (!existing) {
         throw new AppError("error while creating the event", 500);
       }

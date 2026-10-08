@@ -16,11 +16,11 @@ import {
   Clock,
   Eye,
   FileText,
+  MoreHorizontal,
   Plus,
   Send,
   Trash2,
 } from "lucide-react";
-import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PageBody, PageHeader } from "@/components/page-header";
 import { ProjectRequired } from "@/components/project-required";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -36,15 +37,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { getErrorMessage } from "@/lib/api";
 import { useProject } from "@/lib/project-context";
-import {
-  useCustomers,
-  useDeleteInvoice,
-  useInvoices,
-  useUpdateInvoiceStatus,
-} from "@/lib/queries";
+import { useCustomers, useDeleteInvoice, useInvoices, useUpdateInvoiceStatus } from "@/lib/queries";
 import type { Invoice, InvoiceStatus } from "@/lib/types";
 
 import { InvoiceFormDialog } from "./invoice-form-dialog";
@@ -94,8 +89,8 @@ export default function InvoicesPage() {
     return list.filter((invoice) => {
       const customer = customerById.get(invoice.customerId);
       return [invoice.invoiceNumber, customer?.name, customer?.externalId]
-        .filter(Boolean)
-        .some((value) => value!.toLowerCase().includes(q));
+        .filter((value): value is string => Boolean(value))
+        .some((value) => value.toLowerCase().includes(q));
     });
   }, [invoices.data, query, customerById]);
 
@@ -131,10 +126,7 @@ export default function InvoicesPage() {
         }
       >
         {projectId ? (
-          <Button
-            size="sm"
-            onClick={() => setFormOpen(true)}
-          >
+          <Button size="sm" onClick={() => setFormOpen(true)}>
             <Plus />
             New invoice
           </Button>
@@ -229,9 +221,7 @@ export default function InvoicesPage() {
                             {formatPeriod(invoice.periodStart, invoice.periodEnd)}
                           </TableCell>
                           <TableCell>
-                            <Badge variant={STATUS_VARIANT[invoice.status]}>
-                              {invoice.status}
-                            </Badge>
+                            <Badge variant={STATUS_VARIANT[invoice.status]}>{invoice.status}</Badge>
                           </TableCell>
                           <TableCell className="data-mono text-right">
                             {invoice.totalAmount} {invoice.currency}
@@ -268,9 +258,7 @@ export default function InvoicesPage() {
                                   </DropdownMenuItem>
                                 ) : null}
                                 {invoice.status !== "paid" ? (
-                                  <DropdownMenuItem
-                                    onClick={() => onStatusChange(invoice, "paid")}
-                                  >
+                                  <DropdownMenuItem onClick={() => onStatusChange(invoice, "paid")}>
                                     <CheckCircle2 className="size-3.5" />
                                     Mark paid
                                   </DropdownMenuItem>

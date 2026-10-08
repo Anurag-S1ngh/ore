@@ -6,7 +6,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@ore/ui/components/dropdown-menu";
 import { Input } from "@ore/ui/components/input";
@@ -18,6 +17,7 @@ import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PageBody, PageHeader } from "@/components/page-header";
 import { ProjectRequired } from "@/components/project-required";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -26,7 +26,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { getErrorMessage } from "@/lib/api";
 import { useProject } from "@/lib/project-context";
 import { useDeleteMetric, useMetrics } from "@/lib/queries";
@@ -51,8 +50,8 @@ export default function MetricsPage() {
     if (!q) return list;
     return list.filter((metric) =>
       [metric.name, metric.unit, metric.aggregation, metric.description]
-        .filter(Boolean)
-        .some((value) => value!.toLowerCase().includes(q)),
+        .filter((value): value is string => Boolean(value))
+        .some((value) => value.toLowerCase().includes(q)),
     );
   }, [metrics.data, query]);
 

@@ -3,7 +3,7 @@ const HALF_MICRO = 500_000n;
 
 export const toMicros = (decimal: string): bigint => {
   const [int = "0", frac = ""] = decimal.split(".");
-  return BigInt(int) * MICROS + BigInt((frac + "000000").slice(0, 6));
+  return BigInt(int) * MICROS + BigInt(`${frac}000000`.slice(0, 6));
 };
 
 export const fromMicros = (micros: bigint): string => {
@@ -16,10 +16,7 @@ export const fromMicros = (micros: bigint): string => {
 
 export const multiplyRounded = (a: bigint, b: bigint): bigint => {
   const product = a * b;
-  const rounded =
-    product >= 0n
-      ? (product + HALF_MICRO) / MICROS
-      : (product - HALF_MICRO) / MICROS;
+  const rounded = product >= 0n ? (product + HALF_MICRO) / MICROS : (product - HALF_MICRO) / MICROS;
   return rounded;
 };
 
@@ -34,20 +31,14 @@ export type RatedAmount = {
   amountMicros: bigint;
 };
 
-export const rateUnit = (
-  quantityMicros: bigint,
-  rateMicros: bigint,
-): RatedAmount => ({
+export const rateUnit = (quantityMicros: bigint, rateMicros: bigint): RatedAmount => ({
   quantityMicros,
   amountMicros: multiplyRounded(quantityMicros, rateMicros),
 });
 
 export const TIER_RATING = "graduated" as const;
 
-export const rateGraduated = (
-  quantityMicros: bigint,
-  tiers: TierBand[],
-): RatedAmount => {
+export const rateGraduated = (quantityMicros: bigint, tiers: TierBand[]): RatedAmount => {
   const sorted = tiers
     .map((tier) => ({
       first: toMicros(tier.firstUnit),
@@ -69,10 +60,7 @@ export const rateGraduated = (
   return { quantityMicros, amountMicros };
 };
 
-export const effectiveRate = (
-  amountMicros: bigint,
-  quantityMicros: bigint,
-): bigint => {
+export const effectiveRate = (amountMicros: bigint, quantityMicros: bigint): bigint => {
   if (quantityMicros === 0n) {
     return 0n;
   }
@@ -84,6 +72,4 @@ export const overlaps = (
   intervalEnd: Date | null,
   periodStart: Date,
   periodEnd: Date,
-): boolean =>
-  intervalStart < periodEnd &&
-  (intervalEnd === null || intervalEnd > periodStart);
+): boolean => intervalStart < periodEnd && (intervalEnd === null || intervalEnd > periodStart);
