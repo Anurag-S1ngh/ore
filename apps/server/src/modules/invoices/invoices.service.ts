@@ -14,6 +14,7 @@ import { and, eq, gt, isNull, lt, or, sql } from "drizzle-orm";
 import {
   effectiveRate,
   fromMicros,
+  overlaps,
   rateGraduated,
   rateUnit,
   toMicros,
@@ -36,15 +37,6 @@ const allowedTransitions: Record<InvoiceStatus, InvoiceStatus[]> = {
   pending: ["paid"],
   paid: [],
 };
-
-const overlaps = (
-  intervalStart: Date,
-  intervalEnd: Date | null,
-  periodStart: Date,
-  periodEnd: Date,
-): boolean =>
-  intervalStart < periodEnd &&
-  (intervalEnd === null || intervalEnd > periodStart);
 
 export const invoicesService = {
   async list(projectId: string, filters: InvoiceListFilters) {

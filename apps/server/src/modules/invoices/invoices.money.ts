@@ -78,3 +78,12 @@ export const effectiveRate = (
   }
   return (amountMicros * MICROS + quantityMicros / 2n) / quantityMicros;
 };
+
+export const overlaps = (
+  intervalStart: Date,
+  intervalEnd: Date | null,
+  periodStart: Date,
+  periodEnd: Date,
+): boolean =>
+  intervalStart < periodEnd &&
+  (intervalEnd === null || intervalEnd > periodStart);
