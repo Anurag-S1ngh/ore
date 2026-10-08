@@ -21,6 +21,10 @@ export const createInvoiceSchema = z
   .refine(
     (v) => new Date(v.periodStart).getTime() < new Date(v.periodEnd).getTime(),
     "period end must be after period start",
+  )
+  .refine(
+    (v) => !v.dueDate || new Date(v.dueDate).getTime() > new Date(v.periodEnd).getTime(),
+    "due date must be after period end",
   );
 
 export const updateInvoiceSchema = z.object({

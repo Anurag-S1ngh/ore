@@ -33,6 +33,10 @@ const schema = z
   .refine((v) => new Date(v.periodStart).getTime() < new Date(v.periodEnd).getTime(), {
     message: "Period end must be after period start",
     path: ["periodEnd"],
+  })
+  .refine((v) => !v.dueDate || new Date(v.dueDate).getTime() > new Date(v.periodEnd).getTime(), {
+    message: "Due date must be after period end",
+    path: ["dueDate"],
   });
 
 export type InvoiceFormValues = z.infer<typeof schema>;
@@ -146,6 +150,11 @@ export function InvoiceFormDialog({
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="invoice-due-date">Due date (optional)</Label>
             <Input id="invoice-due-date" type="datetime-local" {...form.register("dueDate")} />
+            {form.formState.errors.dueDate ? (
+              <p className="text-[11px] text-destructive">
+                {form.formState.errors.dueDate.message}
+              </p>
+            ) : null}
             <p className="text-[11px] text-muted-foreground">
               Defaults to 14 days after issue when left empty.
             </p>
