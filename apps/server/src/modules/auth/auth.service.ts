@@ -1,5 +1,6 @@
 import { db } from "@/services";
 import { AppError } from "@/types/error";
+import { ENV } from "@/env.server";
 import { isUniqueViolation } from "@/util/db-error";
 import { generateOTP } from "@/util/generateOTP";
 import { users } from "@ore/db/schema/index";
@@ -44,6 +45,10 @@ export const authService = {
       `<strong>OTP is ${otp}</strong>`,
     );
     if (err) {
+      if (ENV.NODE_ENV !== "production") {
+        console.log(`[auth] email send failed; dev OTP for ${email}: ${otp}`);
+        return;
+      }
       await del(key);
       throw new AppError("Error while sending email", 500);
     }
