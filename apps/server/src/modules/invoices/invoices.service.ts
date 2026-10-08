@@ -1,6 +1,10 @@
 import { db } from "@/services";
 import { AppError } from "@/types/error";
-import { isForeignKeyViolation, isPeriodConflict, isUniqueViolation } from "@/util/db-error";
+import {
+  isForeignKeyViolation,
+  isPeriodConflict,
+  isUniqueViolation,
+} from "@/util/db-error";
 import { generateInvoiceNumber } from "@/util/generateInvoiceNumber";
 import {
   customers,
