@@ -10,7 +10,7 @@ import {
 } from "@ore/ui/components/dropdown-menu";
 import { Input } from "@ore/ui/components/input";
 import { Skeleton } from "@ore/ui/components/skeleton";
-import { Gauge, MoreHorizontal, Plus, Trash2 } from "lucide-react";
+import { Gauge, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -39,6 +39,7 @@ export default function MetricsPage() {
 
   const [query, setQuery] = React.useState("");
   const [formOpen, setFormOpen] = React.useState(false);
+  const [editing, setEditing] = React.useState<Metric | null>(null);
   const [deleting, setDeleting] = React.useState<Metric | null>(null);
 
   const metrics = useMetrics(projectId);
@@ -164,6 +165,10 @@ export default function MetricsPage() {
                               <MoreHorizontal className="size-4" />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => setEditing(metric)}>
+                                <Pencil className="size-3.5" />
+                                Edit
+                              </DropdownMenuItem>
                               <DropdownMenuItem
                                 variant="destructive"
                                 onClick={() => setDeleting(metric)}
@@ -185,6 +190,14 @@ export default function MetricsPage() {
       </PageBody>
 
       <MetricFormDialog open={formOpen} onOpenChange={setFormOpen} />
+
+      <MetricFormDialog
+        open={Boolean(editing)}
+        onOpenChange={(open) => {
+          if (!open) setEditing(null);
+        }}
+        editing={editing}
+      />
 
       <ConfirmDialog
         open={Boolean(deleting)}

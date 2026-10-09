@@ -12,6 +12,12 @@ metricsRouter.post(
   projectOwnedByUser,
   metricsController.create,
 );
+metricsRouter.patch(
+  "/:projectId/:metricId",
+  userAuthMiddleware,
+  projectOwnedByUser,
+  metricsController.update,
+);
 metricsRouter.delete(
   "/:projectId/:metricId",
   userAuthMiddleware,

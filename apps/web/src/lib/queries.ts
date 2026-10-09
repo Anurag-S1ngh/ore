@@ -401,6 +401,32 @@ export function useCreateMetric(projectId: string | undefined) {
   });
 }
 
+export function useUpdateMetric(projectId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      metricId,
+      input,
+    }: {
+      metricId: string;
+      input: {
+        name?: string;
+        description?: string | null;
+        unit?: string;
+        aggregation?: "sum" | "max" | "count";
+      };
+    }) =>
+      apiFetch<{ metric: Metric }>(`/metrics/${projectId}/${metricId}`, {
+        method: "PATCH",
+        body: input,
+      }).then((r) => r.metric),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.metrics(projectId ?? "none"),
+      }),
+  });
+}
+
 export function useDeleteMetric(projectId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({

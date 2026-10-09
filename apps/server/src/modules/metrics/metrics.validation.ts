@@ -18,3 +18,32 @@ export const createMetricSchema = z.object({
   unit: z.string("invalid unit").min(1, "unit is too short").max(50, "unit is too long"),
   aggregation,
 });
+
+export const updateMetricSchema = z
+  .object({
+    name: z
+      .string("invalid name")
+      .min(1, "name is too short")
+      .max(50, "name is too long")
+      .optional(),
+    description: z
+      .string("invalid description")
+      .min(1, "description is too short")
+      .max(255, "description is too long")
+      .nullable()
+      .optional(),
+    unit: z
+      .string("invalid unit")
+      .min(1, "unit is too short")
+      .max(50, "unit is too long")
+      .optional(),
+    aggregation: aggregation.optional(),
+  })
+  .refine(
+    (v) =>
+      v.name !== undefined ||
+      v.description !== undefined ||
+      v.unit !== undefined ||
+      v.aggregation !== undefined,
+    "no metric data provided",
+  );

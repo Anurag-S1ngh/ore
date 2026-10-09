@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { projectIdParamSchema } from "@/modules/project/project.validation";
 import { AppError } from "@/types/error";
 import { metricsService } from "./metrics.service";
-import { createMetricSchema, metricParamSchema } from "./metrics.validation";
+import { createMetricSchema, metricParamSchema, updateMetricSchema } from "./metrics.validation";
 
 export const metricsController = {
   async list(req: Request, res: Response) {
@@ -43,6 +43,28 @@ export const metricsController = {
         return res.status(err.statusCode).json({ error: err.message });
       }
       return res.status(500).json({ error: "error while creating metric" });
+    }
+  },
+
+  async update(req: Request, res: Response) {
+    const validParam = metricParamSchema.safeParse(req.params);
+    if (!validParam.success) {
+      return res.status(400).json({ error: validParam.error.issues[0]?.message });
+    }
+    const validatedData = updateMetricSchema.safeParse(req.body);
+    if (!validatedData.success) {
+      return res.status(400).json({ error: validatedData.error.issues[0]?.message });
+    }
+    const { projectId, metricId } = validParam.data;
+    try {
+      const metric = await metricsService.update(projectId, metricId, validatedData.data);
+      return res.status(200).json({ metric });
+    } catch (err) {
+      console.log(err);
+      if (err instanceof AppError) {
+        return res.status(err.statusCode).json({ error: err.message });
+      }
+      return res.status(500).json({ error: "error while updating metric" });
     }
   },
 
