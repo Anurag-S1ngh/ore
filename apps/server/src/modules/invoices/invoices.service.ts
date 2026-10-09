@@ -7,6 +7,7 @@ import {
   usageAggregates,
 } from "@ore/db/schema/index";
 import { and, eq, gt, isNull, lt, or, sql } from "drizzle-orm";
+import { unionAll } from "drizzle-orm/pg-core";
 import { db } from "@/services";
 import { AppError } from "@/types/error";
 import { isForeignKeyViolation, isPeriodConflict, isUniqueViolation } from "@/util/db-error";
@@ -98,7 +99,11 @@ export const invoicesService = {
       },
     });
     const billable = intervals.filter(
-      (interval): interval is typeof interval & { price: NonNullable<typeof interval.price> } =>
+      (
+        interval,
+      ): interval is typeof interval & {
+        price: NonNullable<typeof interval.price>;
+      } =>
         interval.price !== null &&
         overlaps(interval.startDate, interval.endDate, periodStart, periodEnd),
     );
@@ -125,7 +130,7 @@ export const invoicesService = {
     }> = [];
     let totalMicros = 0n;
 
-    for (const interval of billable) {
+    const billableWindows = billable.map((interval, i) => {
       const price = interval.price;
       if (price.modelType === "unit" && price.unitAmount === null) {
         throw new AppError("unit price is missing unit amount", 500);
@@ -136,21 +141,40 @@ export const invoicesService = {
       const usageStart = interval.startDate > periodStart ? interval.startDate : periodStart;
       const usageEnd =
         interval.endDate === null || interval.endDate > periodEnd ? periodEnd : interval.endDate;
+      return { interval, i, usageStart, usageEnd };
+    });
 
-      const [usageRow] = await db
-        .select({ total: sql<string | null>`sum(${usageAggregates.value})` })
+    const windows = billableWindows.map(({ interval, i, usageStart, usageEnd }) =>
+      db
+        .select({
+          idx: sql<number>`${i}`.as("idx"),
+          total: sql<string | null>`sum(${usageAggregates.value})`.as("total"),
+        })
         .from(usageAggregates)
         .where(
           and(
             eq(usageAggregates.projectId, projectId),
             eq(usageAggregates.customerId, customer.id),
-            eq(usageAggregates.metricId, price.metricId),
+            eq(usageAggregates.metricId, interval.price.metricId),
             eq(usageAggregates.granularity, "hour"),
             gt(usageAggregates.periodEnd, usageStart),
             lt(usageAggregates.periodStart, usageEnd),
           ),
-        );
-      const quantityMicros = usageRow?.total == null ? 0n : toMicros(usageRow.total);
+        ),
+    );
+
+    const [firstWindow, secondWindow, ...remainingWindows] = windows;
+    if (!firstWindow) {
+      throw new AppError("no billable prices for the period", 400);
+    }
+    const usageRows = await (secondWindow
+      ? unionAll(firstWindow, secondWindow, ...remainingWindows)
+      : firstWindow);
+    const totals = new Map(usageRows.map((row) => [Number(row.idx), row.total ?? "0"]));
+
+    for (const { interval, i, usageStart, usageEnd } of billableWindows) {
+      const price = interval.price;
+      const quantityMicros = toMicros(totals.get(i) ?? "0");
 
       const rated =
         price.modelType === "unit"
