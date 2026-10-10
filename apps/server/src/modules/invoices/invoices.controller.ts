@@ -23,8 +23,8 @@ export const invoicesController = {
     }
     const { projectId } = validParam.data;
     try {
-      const invoices = await invoicesService.list(projectId, validQuery.data);
-      return res.status(200).json({ invoices });
+      const { invoices, nextCursor } = await invoicesService.list(projectId, validQuery.data);
+      return res.status(200).json({ invoices, nextCursor });
     } catch (err) {
       return handleControllerError(req, res, err, {
         module: "invoices",

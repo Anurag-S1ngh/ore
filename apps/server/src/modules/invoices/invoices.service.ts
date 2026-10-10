@@ -10,6 +10,7 @@ import { and, eq, gt, isNull, lt, or, sql } from "drizzle-orm";
 import { unionAll } from "drizzle-orm/pg-core";
 import { db } from "@/services";
 import { AppError } from "@/types/error";
+import { decodeKeysetCursor, paginate } from "@/util/cursor";
 import { isForeignKeyViolation, isPeriodConflict, isUniqueViolation } from "@/util/db-error";
 import { generateInvoiceNumber } from "@/util/generateInvoiceNumber";
 import {
@@ -41,14 +42,30 @@ const allowedTransitions: Record<InvoiceStatus, InvoiceStatus[]> = {
 
 export const invoicesService = {
   async list(projectId: string, filters: InvoiceListFilters) {
-    return db.query.invoices.findMany({
+    const { customerId, status, limit, cursor } = filters;
+    const decoded = cursor ? decodeKeysetCursor(cursor) : null;
+    const cursorDate = decoded ? new Date(decoded.v) : null;
+
+    const rows = await db.query.invoices.findMany({
       where: {
         projectId,
-        ...(filters.customerId ? { customerId: filters.customerId } : {}),
-        ...(filters.status ? { status: filters.status } : {}),
+        ...(customerId ? { customerId } : {}),
+        ...(status ? { status } : {}),
+        ...(decoded && cursorDate
+          ? {
+              OR: [
+                { issuedAt: { lt: cursorDate } },
+                { AND: [{ issuedAt: { eq: cursorDate } }, { id: { lt: decoded.id } }] },
+              ],
+            }
+          : {}),
       },
-      orderBy: (row, { desc }) => [desc(row.issuedAt)],
+      orderBy: (row, { desc }) => [desc(row.issuedAt), desc(row.id)],
+      limit: limit + 1,
     });
+
+    const { page, nextCursor } = paginate(rows, limit, (row) => row.issuedAt);
+    return { invoices: page, nextCursor };
   },
 
   async get(projectId: string, invoiceId: string) {

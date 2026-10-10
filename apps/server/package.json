@@ -8,7 +8,7 @@
     "compile": "bun build --compile --no-compile-autoload-dotenv --minify --sourcemap --bytecode ./src/index.ts --outfile server",
     "dev": "bun run --hot src/index.ts",
     "start": "bun run dist/index.mjs",
-    "test": "bun test ./src/modules/invoices",
+    "test": "bun test ./src",
     "env:generate": "varlock codegen",
     "lint": "biome check .",
     "format": "biome check --write ."

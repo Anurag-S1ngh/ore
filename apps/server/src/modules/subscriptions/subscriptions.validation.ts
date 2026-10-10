@@ -1,5 +1,6 @@
 import { cadenceEnum, subscriptionStatusEnum } from "@ore/db/schema/index";
 import { z } from "zod";
+import { paginationSchema } from "@/util/cursor";
 
 export const subscriptionParamSchema = z.object({
   projectId: z.uuid("invalid project id"),
@@ -7,6 +8,7 @@ export const subscriptionParamSchema = z.object({
 });
 
 export const subscriptionListQuerySchema = z.object({
+  ...paginationSchema,
   customerId: z.uuid("invalid customer id").optional(),
   planId: z.uuid("invalid plan id").optional(),
   status: z.enum(subscriptionStatusEnum.enumValues, "invalid status").optional(),

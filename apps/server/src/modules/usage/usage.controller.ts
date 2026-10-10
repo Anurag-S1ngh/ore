@@ -19,8 +19,8 @@ export const usageController = {
     const { projectId } = validParam.data;
     const query = validQuery.data;
     try {
-      const { usage } = await usageService.list(projectId, query);
-      return res.status(200).json({ usage });
+      const { usage, nextCursor } = await usageService.list(projectId, query);
+      return res.status(200).json({ usage, nextCursor });
     } catch (err) {
       return handleControllerError(req, res, err, {
         module: "usage",

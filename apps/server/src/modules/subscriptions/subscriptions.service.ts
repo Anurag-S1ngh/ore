@@ -9,6 +9,7 @@ import {
 import { and, eq, isNull } from "drizzle-orm";
 import { db } from "@/services";
 import { AppError } from "@/types/error";
+import { decodeKeysetCursor, paginate } from "@/util/cursor";
 import { isUniqueViolation } from "@/util/db-error";
 import type {
   CreateSubscriptionInput,
@@ -30,12 +31,24 @@ const addCadence = (date: Date, cadence: Cadence) => {
 
 export const subscriptionsService = {
   async list(projectId: string, filters: SubscriptionListFilters) {
-    return db.query.subscriptions.findMany({
+    const { customerId, planId, status, limit, cursor } = filters;
+    const decoded = cursor ? decodeKeysetCursor(cursor) : null;
+    const cursorDate = decoded ? new Date(decoded.v) : null;
+
+    const rows = await db.query.subscriptions.findMany({
       where: {
         projectId,
-        ...(filters.customerId ? { customerId: filters.customerId } : {}),
-        ...(filters.planId ? { planId: filters.planId } : {}),
-        ...(filters.status ? { status: filters.status } : {}),
+        ...(customerId ? { customerId } : {}),
+        ...(planId ? { planId } : {}),
+        ...(status ? { status } : {}),
+        ...(decoded && cursorDate
+          ? {
+              OR: [
+                { createdAt: { lt: cursorDate } },
+                { AND: [{ createdAt: { eq: cursorDate } }, { id: { lt: decoded.id } }] },
+              ],
+            }
+          : {}),
       },
       with: {
         customer: true,
@@ -44,8 +57,12 @@ export const subscriptionsService = {
           with: { price: true },
         },
       },
-      orderBy: (row, { desc }) => [desc(row.createdAt)],
+      orderBy: (row, { desc }) => [desc(row.createdAt), desc(row.id)],
+      limit: limit + 1,
     });
+
+    const { page, nextCursor } = paginate(rows, limit, (row) => row.createdAt);
+    return { subscriptions: page, nextCursor };
   },
 
   async get(projectId: string, subscriptionId: string) {

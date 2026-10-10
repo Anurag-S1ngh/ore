@@ -26,8 +26,8 @@ export const subscriptionsController = {
     const { projectId } = validParam.data;
     const input = validQuery.data;
     try {
-      const subscriptions = await subscriptionsService.list(projectId, input);
-      return res.status(200).json({ subscriptions });
+      const { subscriptions, nextCursor } = await subscriptionsService.list(projectId, input);
+      return res.status(200).json({ subscriptions, nextCursor });
     } catch (err) {
       return handleControllerError(req, res, err, {
         module: "subscriptions",

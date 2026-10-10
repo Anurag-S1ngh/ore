@@ -1,5 +1,6 @@
 import { invoiceStatusEnum } from "@ore/db/schema/index";
 import { z } from "zod";
+import { paginationSchema } from "@/util/cursor";
 
 export const invoiceParamSchema = z.object({
   projectId: z.uuid("invalid project id"),
@@ -7,6 +8,7 @@ export const invoiceParamSchema = z.object({
 });
 
 export const invoiceListQuerySchema = z.object({
+  ...paginationSchema,
   customerId: z.uuid("invalid customer id").optional(),
   status: z.enum(invoiceStatusEnum.enumValues, "invalid status").optional(),
 });
