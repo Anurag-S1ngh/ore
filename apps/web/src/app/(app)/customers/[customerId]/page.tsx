@@ -35,8 +35,10 @@ export default function CustomerDetailPage() {
     customerId: params.customerId,
   });
 
-  const activeSubscriptions = (subscriptions.data ?? []).filter((sub) => sub.status === "active");
-  const invoiceCount = invoices.data?.length ?? 0;
+  const activeSubscriptions = (
+    subscriptions.data?.pages.flatMap((page) => page.subscriptions) ?? []
+  ).filter((sub) => sub.status === "active");
+  const invoiceCount = invoices.data?.pages.flatMap((page) => page.invoices).length ?? 0;
 
   return (
     <div className="flex min-h-full flex-col">

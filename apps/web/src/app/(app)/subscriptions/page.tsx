@@ -17,6 +17,7 @@ import * as React from "react";
 import { toast } from "sonner";
 
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { LoadMore } from "@/components/load-more";
 import { PageBody, PageHeader } from "@/components/page-header";
 import { ProjectRequired } from "@/components/project-required";
 import { Badge } from "@/components/ui/badge";
@@ -59,6 +60,11 @@ export default function SubscriptionsPage() {
   const plans = usePlans(projectId);
   const cancelSubscription = useCancelSubscription(projectId);
 
+  const rows = React.useMemo(
+    () => subscriptions.data?.pages.flatMap((page) => page.subscriptions) ?? [],
+    [subscriptions.data],
+  );
+
   const customerById = React.useMemo(() => {
     const map = new Map<string, { name: string | null; externalId: string }>();
     for (const c of customers.data ?? []) {
@@ -76,7 +82,7 @@ export default function SubscriptionsPage() {
   }, [plans.data]);
 
   const filtered = React.useMemo(() => {
-    const list = subscriptions.data ?? [];
+    const list = rows;
     const q = query.trim().toLowerCase();
     if (!q) return list;
     return list.filter((sub) => {
@@ -92,7 +98,7 @@ export default function SubscriptionsPage() {
         .filter((value): value is string => Boolean(value))
         .some((value) => value.toLowerCase().includes(q));
     });
-  }, [subscriptions.data, query, customerById, planById]);
+  }, [rows, query, customerById, planById]);
 
   function onCancel() {
     if (!canceling) return;
@@ -169,11 +175,11 @@ export default function SubscriptionsPage() {
                 <div className="flex flex-col items-start gap-3 px-4 py-6">
                   <Repeat className="size-6 text-muted-foreground" />
                   <p className="text-xs text-muted-foreground">
-                    {subscriptions.data?.length === 0
+                    {rows.length === 0
                       ? "No subscriptions yet. Enroll a customer in a plan."
                       : "No subscriptions match your search."}
                   </p>
-                  {subscriptions.data?.length === 0 ? (
+                  {rows.length === 0 ? (
                     <Button
                       size="sm"
                       onClick={() => {
@@ -292,6 +298,11 @@ export default function SubscriptionsPage() {
                   </TableBody>
                 </Table>
               )}
+              <LoadMore
+                hasNextPage={subscriptions.hasNextPage}
+                isFetching={subscriptions.isFetchingNextPage}
+                onLoadMore={() => subscriptions.fetchNextPage()}
+              />
             </CardContent>
           </Card>
         )}

@@ -26,6 +26,7 @@ import * as React from "react";
 import { toast } from "sonner";
 
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { LoadMore } from "@/components/load-more";
 import { PageBody, PageHeader } from "@/components/page-header";
 import { ProjectRequired } from "@/components/project-required";
 import { Badge } from "@/components/ui/badge";
@@ -74,6 +75,11 @@ export default function InvoicesPage() {
   const updateStatus = useUpdateInvoiceStatus(projectId);
   const deleteInvoice = useDeleteInvoice(projectId);
 
+  const rows = React.useMemo(
+    () => invoices.data?.pages.flatMap((page) => page.invoices) ?? [],
+    [invoices.data],
+  );
+
   const customerById = React.useMemo(() => {
     const map = new Map<string, { name: string | null; externalId: string }>();
     for (const c of customers.data ?? []) {
@@ -83,7 +89,7 @@ export default function InvoicesPage() {
   }, [customers.data]);
 
   const filtered = React.useMemo(() => {
-    const list = invoices.data ?? [];
+    const list = rows;
     const q = query.trim().toLowerCase();
     if (!q) return list;
     return list.filter((invoice) => {
@@ -92,7 +98,7 @@ export default function InvoicesPage() {
         .filter((value): value is string => Boolean(value))
         .some((value) => value.toLowerCase().includes(q));
     });
-  }, [invoices.data, query, customerById]);
+  }, [rows, query, customerById]);
 
   function onStatusChange(invoice: Invoice, status: InvoiceStatus) {
     updateStatus.mutate(
@@ -173,11 +179,11 @@ export default function InvoicesPage() {
                 <div className="flex flex-col items-start gap-3 px-4 py-6">
                   <FileText className="size-6 text-muted-foreground" />
                   <p className="text-xs text-muted-foreground">
-                    {invoices.data?.length === 0
+                    {rows.length === 0
                       ? "No invoices yet. Generate one for a billing period."
                       : "No invoices match your search."}
                   </p>
-                  {invoices.data?.length === 0 ? (
+                  {rows.length === 0 ? (
                     <Button size="sm" onClick={() => setFormOpen(true)}>
                       <Plus />
                       New invoice
@@ -292,6 +298,11 @@ export default function InvoicesPage() {
                   </TableBody>
                 </Table>
               )}
+              <LoadMore
+                hasNextPage={invoices.hasNextPage}
+                isFetching={invoices.isFetchingNextPage}
+                onLoadMore={() => invoices.fetchNextPage()}
+              />
             </CardContent>
           </Card>
         )}

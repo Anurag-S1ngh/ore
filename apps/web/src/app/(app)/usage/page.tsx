@@ -8,6 +8,7 @@ import { Skeleton } from "@ore/ui/components/skeleton";
 import { Activity, Search } from "lucide-react";
 import * as React from "react";
 
+import { LoadMore } from "@/components/load-more";
 import { PageBody, PageHeader } from "@/components/page-header";
 import { ProjectRequired } from "@/components/project-required";
 import {
@@ -57,15 +58,19 @@ export default function UsagePage() {
     setAppliedPeriod(new Date(periodInput).toISOString());
   }
 
+  const rows = React.useMemo(
+    () => usage.data?.pages.flatMap((page) => page.usage) ?? [],
+    [usage.data],
+  );
+
   const total = React.useMemo(() => {
-    const rows = usage.data ?? [];
     let sum = 0;
     for (const row of rows) {
       const v = Number(row.value);
       if (!Number.isNaN(v)) sum += v;
     }
     return sum;
-  }, [usage.data]);
+  }, [rows]);
 
   return (
     <div className="flex min-h-full flex-col">
@@ -167,7 +172,7 @@ export default function UsagePage() {
                 <p className="px-4 text-xs text-destructive">
                   Could not load usage. Is the API running?
                 </p>
-              ) : !usage.data || usage.data.length === 0 ? (
+              ) : rows.length === 0 ? (
                 <p className="px-4 py-6 text-xs text-muted-foreground">
                   No usage in this window. Emit events, then check back once the worker rolls them
                   up.
@@ -175,7 +180,7 @@ export default function UsagePage() {
               ) : (
                 <>
                   <p className="data-mono px-4 text-[11px] text-muted-foreground">
-                    {usage.data.length} buckets · total {total}
+                    {rows.length} buckets · total {total} (loaded)
                   </p>
                   <Table>
                     <TableHeader>
@@ -187,7 +192,7 @@ export default function UsagePage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {usage.data.map((row, index) => (
+                      {rows.map((row, index) => (
                         <TableRow
                           key={`${row.customerId}-${row.metricId}-${row.periodStart}-${index}`}
                         >
@@ -213,6 +218,11 @@ export default function UsagePage() {
                       ))}
                     </TableBody>
                   </Table>
+                  <LoadMore
+                    hasNextPage={usage.hasNextPage}
+                    isFetching={usage.isFetchingNextPage}
+                    onLoadMore={() => usage.fetchNextPage()}
+                  />
                 </>
               )}
             </CardContent>

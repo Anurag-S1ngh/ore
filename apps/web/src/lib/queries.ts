@@ -470,15 +470,15 @@ export type UsageFilters = {
 };
 
 export function useUsage(projectId: string | undefined, filters: UsageFilters | undefined) {
-  const params = new URLSearchParams();
+  const baseParams = new URLSearchParams();
   if (filters) {
-    params.set("period", filters.period);
-    if (filters.granularity) params.set("granularity", filters.granularity);
-    if (filters.metricId) params.set("metricId", filters.metricId);
-    if (filters.customerId) params.set("customerId", filters.customerId);
+    baseParams.set("period", filters.period);
+    if (filters.granularity) baseParams.set("granularity", filters.granularity);
+    if (filters.metricId) baseParams.set("metricId", filters.metricId);
+    if (filters.customerId) baseParams.set("customerId", filters.customerId);
   }
-  const suffix = params.size > 0 ? `?${params.toString()}` : "";
-  return useQuery({
+  const base = baseParams.toString();
+  return useInfiniteQuery({
     queryKey: [
       "usage",
       projectId ?? "none",
@@ -488,8 +488,16 @@ export function useUsage(projectId: string | undefined, filters: UsageFilters | 
       filters?.customerId ?? "all",
     ] as const,
     enabled: Boolean(projectId && filters?.period),
-    queryFn: () =>
-      apiFetch<{ usage: UsageBucket[] }>(`/usage/${projectId}${suffix}`).then((r) => r.usage),
+    initialPageParam: null as string | null,
+    queryFn: ({ pageParam }) => {
+      const params = new URLSearchParams(base);
+      if (pageParam) params.set("cursor", pageParam);
+      const suffix = params.size > 0 ? `?${params.toString()}` : "";
+      return apiFetch<{ usage: UsageBucket[]; nextCursor: string | null }>(
+        `/usage/${projectId}${suffix}`,
+      );
+    },
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
 }
 
@@ -553,18 +561,24 @@ export type SubscriptionFilters = {
 };
 
 export function useSubscriptions(projectId: string | undefined, filters?: SubscriptionFilters) {
-  const params = new URLSearchParams();
-  if (filters?.customerId) params.set("customerId", filters.customerId);
-  if (filters?.planId) params.set("planId", filters.planId);
-  if (filters?.status) params.set("status", filters.status);
-  const suffix = params.size > 0 ? `?${params.toString()}` : "";
-  return useQuery({
+  const baseParams = new URLSearchParams();
+  if (filters?.customerId) baseParams.set("customerId", filters.customerId);
+  if (filters?.planId) baseParams.set("planId", filters.planId);
+  if (filters?.status) baseParams.set("status", filters.status);
+  const base = baseParams.toString();
+  return useInfiniteQuery({
     queryKey: queryKeys.subscriptions(projectId ?? "none", filters),
     enabled: Boolean(projectId),
-    queryFn: () =>
-      apiFetch<{ subscriptions: Subscription[] }>(`/subscriptions/${projectId}${suffix}`).then(
-        (r) => r.subscriptions,
-      ),
+    initialPageParam: null as string | null,
+    queryFn: ({ pageParam }) => {
+      const params = new URLSearchParams(base);
+      if (pageParam) params.set("cursor", pageParam);
+      const suffix = params.size > 0 ? `?${params.toString()}` : "";
+      return apiFetch<{ subscriptions: Subscription[]; nextCursor: string | null }>(
+        `/subscriptions/${projectId}${suffix}`,
+      );
+    },
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
 }
 
@@ -650,15 +664,23 @@ export function useCancelSubscription(projectId: string | undefined) {
 export type InvoiceFilters = { customerId?: string; status?: InvoiceStatus };
 
 export function useInvoices(projectId: string | undefined, filters?: InvoiceFilters) {
-  const params = new URLSearchParams();
-  if (filters?.customerId) params.set("customerId", filters.customerId);
-  if (filters?.status) params.set("status", filters.status);
-  const suffix = params.size > 0 ? `?${params.toString()}` : "";
-  return useQuery({
+  const baseParams = new URLSearchParams();
+  if (filters?.customerId) baseParams.set("customerId", filters.customerId);
+  if (filters?.status) baseParams.set("status", filters.status);
+  const base = baseParams.toString();
+  return useInfiniteQuery({
     queryKey: queryKeys.invoices(projectId ?? "none", filters),
     enabled: Boolean(projectId),
-    queryFn: () =>
-      apiFetch<{ invoices: Invoice[] }>(`/invoices/${projectId}${suffix}`).then((r) => r.invoices),
+    initialPageParam: null as string | null,
+    queryFn: ({ pageParam }) => {
+      const params = new URLSearchParams(base);
+      if (pageParam) params.set("cursor", pageParam);
+      const suffix = params.size > 0 ? `?${params.toString()}` : "";
+      return apiFetch<{ invoices: Invoice[]; nextCursor: string | null }>(
+        `/invoices/${projectId}${suffix}`,
+      );
+    },
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
 }
 
