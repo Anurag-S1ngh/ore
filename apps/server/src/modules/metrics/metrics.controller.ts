@@ -2,7 +2,12 @@ import type { Request, Response } from "express";
 import { handleControllerError } from "@/middleware/error";
 import { projectIdParamSchema } from "@/modules/project/project.validation";
 import { metricsService } from "./metrics.service";
-import { createMetricSchema, metricParamSchema, updateMetricSchema } from "./metrics.validation";
+import {
+  createMetricSchema,
+  metricListQuerySchema,
+  metricParamSchema,
+  updateMetricSchema,
+} from "./metrics.validation";
 
 export const metricsController = {
   async list(req: Request, res: Response) {
@@ -10,10 +15,14 @@ export const metricsController = {
     if (!validParam.success) {
       return res.status(400).json({ error: validParam.error.issues[0]?.message });
     }
+    const validQuery = metricListQuerySchema.safeParse(req.query);
+    if (!validQuery.success) {
+      return res.status(400).json({ error: validQuery.error.issues[0]?.message });
+    }
     const { projectId } = validParam.data;
     try {
-      const metrics = await metricsService.list(projectId);
-      return res.status(200).json({ metrics });
+      const { metrics, nextCursor } = await metricsService.list(projectId, validQuery.data);
+      return res.status(200).json({ metrics, nextCursor });
     } catch (err) {
       return handleControllerError(req, res, err, {
         module: "metrics",

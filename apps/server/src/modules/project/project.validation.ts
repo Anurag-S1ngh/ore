@@ -1,7 +1,14 @@
 import { currencyEnum } from "@ore/db/schema/index";
 import { z } from "zod";
+import { paginationSchema } from "@/util/cursor";
 
 const currency = z.enum(currencyEnum.enumValues, "invalid currency");
+
+export const projectListQuerySchema = z.object({
+  ...paginationSchema,
+});
+
+export type ProjectListFilters = z.output<typeof projectListQuerySchema>;
 
 export const createProjectSchema = z.object({
   name: z.string("invalid name").min(1, "name is too short").max(50, "name is too long"),

@@ -1,13 +1,36 @@
 import { plans, prices, subscriptions } from "@ore/db/schema/index";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, lt, or } from "drizzle-orm";
 import { db } from "@/services";
 import { AppError } from "@/types/error";
+import { decodeKeysetCursor, paginate } from "@/util/cursor";
 import { isForeignKeyViolation, isUniqueViolation } from "@/util/db-error";
+import type { PlanListFilters } from "./plans.validation";
 
 export const plansService = {
-  async list(projectId: string) {
-    const allPlans = await db.select().from(plans).where(eq(plans.projectId, projectId));
-    return allPlans;
+  async list(projectId: string, filters: PlanListFilters) {
+    const { limit, cursor } = filters;
+    const decoded = cursor ? decodeKeysetCursor(cursor) : null;
+    const cursorDate = decoded ? new Date(decoded.v) : null;
+
+    const rows = await db
+      .select()
+      .from(plans)
+      .where(
+        and(
+          eq(plans.projectId, projectId),
+          decoded && cursorDate
+            ? or(
+                lt(plans.createdAt, cursorDate),
+                and(eq(plans.createdAt, cursorDate), lt(plans.id, decoded.id)),
+              )
+            : undefined,
+        ),
+      )
+      .orderBy(desc(plans.createdAt), desc(plans.id))
+      .limit(limit + 1);
+
+    const { page, nextCursor } = paginate(rows, limit, (row) => row.createdAt);
+    return { plans: page, nextCursor };
   },
 
   async create(

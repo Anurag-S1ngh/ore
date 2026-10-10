@@ -4,6 +4,7 @@ import { projectIdParamSchema } from "@/modules/project/project.validation";
 import { customersService } from "./customers.service";
 import {
   createCustomerSchema,
+  customerListQuerySchema,
   customerParamSchema,
   updateCustomerSchema,
 } from "./customers.validation";
@@ -14,10 +15,14 @@ export const customersController = {
     if (!validParam.success) {
       return res.status(400).json({ error: validParam.error.issues[0]?.message });
     }
+    const validQuery = customerListQuerySchema.safeParse(req.query);
+    if (!validQuery.success) {
+      return res.status(400).json({ error: validQuery.error.issues[0]?.message });
+    }
     const { projectId } = validParam.data;
     try {
-      const customers = await customersService.list(projectId);
-      return res.status(200).json({ customers });
+      const { customers, nextCursor } = await customersService.list(projectId, validQuery.data);
+      return res.status(200).json({ customers, nextCursor });
     } catch (err) {
       return handleControllerError(req, res, err, {
         module: "customers",

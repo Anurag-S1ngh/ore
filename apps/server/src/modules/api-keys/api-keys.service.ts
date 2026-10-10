@@ -1,14 +1,20 @@
 import { apiKeys } from "@ore/db/schema/index";
-import { and, count, eq, isNull } from "drizzle-orm";
+import { and, count, desc, eq, isNull, lt, or } from "drizzle-orm";
 import { db } from "@/services";
 import { AppError } from "@/types/error";
+import { decodeKeysetCursor, paginate } from "@/util/cursor";
 import { generateApiKey } from "@/util/generateApiKey";
+import type { ApiKeyListFilters } from "./api-keys.validation";
 
 const ACTIVE_KEY_LIMIT = 10;
 
 export const apiKeysService = {
-  async list(projectId: string) {
-    return db
+  async list(projectId: string, filters: ApiKeyListFilters) {
+    const { limit, cursor } = filters;
+    const decoded = cursor ? decodeKeysetCursor(cursor) : null;
+    const cursorDate = decoded ? new Date(decoded.v) : null;
+
+    const rows = await db
       .select({
         id: apiKeys.id,
         name: apiKeys.name,
@@ -19,7 +25,22 @@ export const apiKeysService = {
         createdAt: apiKeys.createdAt,
       })
       .from(apiKeys)
-      .where(eq(apiKeys.projectId, projectId));
+      .where(
+        and(
+          eq(apiKeys.projectId, projectId),
+          decoded && cursorDate
+            ? or(
+                lt(apiKeys.createdAt, cursorDate),
+                and(eq(apiKeys.createdAt, cursorDate), lt(apiKeys.id, decoded.id)),
+              )
+            : undefined,
+        ),
+      )
+      .orderBy(desc(apiKeys.createdAt), desc(apiKeys.id))
+      .limit(limit + 1);
+
+    const { page, nextCursor } = paginate(rows, limit, (row) => row.createdAt);
+    return { apiKeys: page, nextCursor };
   },
 
   async create(projectId: string, name: string, expiresAt?: Date) {

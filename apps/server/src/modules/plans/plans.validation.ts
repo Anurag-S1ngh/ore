@@ -1,9 +1,16 @@
 import { z } from "zod";
+import { paginationSchema } from "@/util/cursor";
 
 export const planParamSchema = z.object({
   projectId: z.uuid("invalid project id"),
   planId: z.uuid("invalid plan id"),
 });
+
+export const planListQuerySchema = z.object({
+  ...paginationSchema,
+});
+
+export type PlanListFilters = z.output<typeof planListQuerySchema>;
 
 export const createPlanSchema = z.object({
   name: z

@@ -1,12 +1,36 @@
 import { customers } from "@ore/db/schema/index";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, lt, or } from "drizzle-orm";
 import { db } from "@/services";
 import { AppError } from "@/types/error";
+import { decodeKeysetCursor, paginate } from "@/util/cursor";
 import { isUniqueViolation } from "@/util/db-error";
+import type { CustomerListFilters } from "./customers.validation";
 
 export const customersService = {
-  async list(projectId: string) {
-    return db.select().from(customers).where(eq(customers.projectId, projectId));
+  async list(projectId: string, filters: CustomerListFilters) {
+    const { limit, cursor } = filters;
+    const decoded = cursor ? decodeKeysetCursor(cursor) : null;
+    const cursorDate = decoded ? new Date(decoded.v) : null;
+
+    const rows = await db
+      .select()
+      .from(customers)
+      .where(
+        and(
+          eq(customers.projectId, projectId),
+          decoded && cursorDate
+            ? or(
+                lt(customers.createdAt, cursorDate),
+                and(eq(customers.createdAt, cursorDate), lt(customers.id, decoded.id)),
+              )
+            : undefined,
+        ),
+      )
+      .orderBy(desc(customers.createdAt), desc(customers.id))
+      .limit(limit + 1);
+
+    const { page, nextCursor } = paginate(rows, limit, (row) => row.createdAt);
+    return { customers: page, nextCursor };
   },
 
   async create(

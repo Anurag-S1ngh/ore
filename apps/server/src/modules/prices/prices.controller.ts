@@ -4,6 +4,7 @@ import { pricesService } from "./prices.service";
 import {
   createPriceSchema,
   priceListParamSchema,
+  priceListQuerySchema,
   priceParamSchema,
   priceUpdateParamSchema,
   updatePriceSchema,
@@ -17,10 +18,14 @@ export const pricesController = {
         error: validParam.error.issues[0]?.message || "invalid input",
       });
     }
+    const validQuery = priceListQuerySchema.safeParse(req.query);
+    if (!validQuery.success) {
+      return res.status(400).json({ error: validQuery.error.issues[0]?.message });
+    }
     const { projectId, planId } = validParam.data;
     try {
-      const prices = await pricesService.list(projectId, planId);
-      return res.status(200).json({ prices });
+      const { prices, nextCursor } = await pricesService.list(projectId, planId, validQuery.data);
+      return res.status(200).json({ prices, nextCursor });
     } catch (err) {
       return handleControllerError(req, res, err, {
         module: "prices",

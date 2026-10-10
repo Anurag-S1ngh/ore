@@ -2,7 +2,12 @@ import type { Request, Response } from "express";
 import { handleControllerError } from "@/middleware/error";
 import { projectIdParamSchema } from "@/modules/project/project.validation";
 import { plansService } from "./plans.service";
-import { createPlanSchema, planParamSchema, updatePlanSchema } from "./plans.validation";
+import {
+  createPlanSchema,
+  planListQuerySchema,
+  planParamSchema,
+  updatePlanSchema,
+} from "./plans.validation";
 
 export const plansController = {
   async list(req: Request, res: Response) {
@@ -10,10 +15,14 @@ export const plansController = {
     if (!validParam.success) {
       return res.status(400).json({ error: validParam.error.issues[0]?.message });
     }
+    const validQuery = planListQuerySchema.safeParse(req.query);
+    if (!validQuery.success) {
+      return res.status(400).json({ error: validQuery.error.issues[0]?.message });
+    }
     const { projectId } = validParam.data;
     try {
-      const plans = await plansService.list(projectId);
-      return res.status(200).json({ plans });
+      const { plans, nextCursor } = await plansService.list(projectId, validQuery.data);
+      return res.status(200).json({ plans, nextCursor });
     } catch (err) {
       return handleControllerError(req, res, err, {
         module: "plans",

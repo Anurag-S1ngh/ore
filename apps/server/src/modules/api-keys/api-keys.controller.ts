@@ -2,7 +2,11 @@ import type { Request, Response } from "express";
 import { handleControllerError } from "@/middleware/error";
 import { projectIdParamSchema } from "@/modules/project/project.validation";
 import { apiKeysService } from "./api-keys.service";
-import { apiKeyParamSchema, createApiKeySchema } from "./api-keys.validation";
+import {
+  apiKeyListQuerySchema,
+  apiKeyParamSchema,
+  createApiKeySchema,
+} from "./api-keys.validation";
 
 export const apiKeysController = {
   async list(req: Request, res: Response) {
@@ -10,10 +14,14 @@ export const apiKeysController = {
     if (!validParam.success) {
       return res.status(400).json({ error: validParam.error.issues[0]?.message });
     }
+    const validQuery = apiKeyListQuerySchema.safeParse(req.query);
+    if (!validQuery.success) {
+      return res.status(400).json({ error: validQuery.error.issues[0]?.message });
+    }
     const { projectId } = validParam.data;
     try {
-      const apiKeys = await apiKeysService.list(projectId);
-      return res.status(200).json({ apiKeys });
+      const { apiKeys, nextCursor } = await apiKeysService.list(projectId, validQuery.data);
+      return res.status(200).json({ apiKeys, nextCursor });
     } catch (err) {
       return handleControllerError(req, res, err, {
         module: "api-keys",

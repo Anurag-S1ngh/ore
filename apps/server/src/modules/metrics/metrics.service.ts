@@ -1,8 +1,10 @@
 import { metrics, type metricsAggregationEnum, usageAggregates } from "@ore/db/schema/index";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, lt, or } from "drizzle-orm";
 import { db } from "@/services";
 import { AppError } from "@/types/error";
+import { decodeKeysetCursor, paginate } from "@/util/cursor";
 import { isUniqueViolation } from "@/util/db-error";
+import type { MetricListFilters } from "./metrics.validation";
 
 type Aggregation = (typeof metricsAggregationEnum.enumValues)[number];
 
@@ -14,8 +16,30 @@ type MetricUpdate = {
 };
 
 export const metricsService = {
-  async list(projectId: string) {
-    return db.select().from(metrics).where(eq(metrics.projectId, projectId));
+  async list(projectId: string, filters: MetricListFilters) {
+    const { limit, cursor } = filters;
+    const decoded = cursor ? decodeKeysetCursor(cursor) : null;
+    const cursorDate = decoded ? new Date(decoded.v) : null;
+
+    const rows = await db
+      .select()
+      .from(metrics)
+      .where(
+        and(
+          eq(metrics.projectId, projectId),
+          decoded && cursorDate
+            ? or(
+                lt(metrics.createdAt, cursorDate),
+                and(eq(metrics.createdAt, cursorDate), lt(metrics.id, decoded.id)),
+              )
+            : undefined,
+        ),
+      )
+      .orderBy(desc(metrics.createdAt), desc(metrics.id))
+      .limit(limit + 1);
+
+    const { page, nextCursor } = paginate(rows, limit, (row) => row.createdAt);
+    return { metrics: page, nextCursor };
   },
 
   async create(

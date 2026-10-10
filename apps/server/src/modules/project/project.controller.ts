@@ -5,15 +5,20 @@ import { projectService } from "./project.service";
 import {
   createProjectSchema,
   projectIdParamSchema,
+  projectListQuerySchema,
   updateProjectSchema,
 } from "./project.validation";
 
 export const projectController = {
   async get(req: Request, res: Response) {
+    const validQuery = projectListQuerySchema.safeParse(req.query);
+    if (!validQuery.success) {
+      return res.status(400).json({ error: validQuery.error.issues[0]?.message });
+    }
     const userId = req.userId;
     try {
-      const userProjects = await projectService.get(userId);
-      return res.status(200).json({ projects: userProjects });
+      const { projects, nextCursor } = await projectService.get(userId, validQuery.data);
+      return res.status(200).json({ projects, nextCursor });
     } catch (err) {
       return handleControllerError(req, res, err, {
         module: "project",

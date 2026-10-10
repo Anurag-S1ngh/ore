@@ -11,8 +11,14 @@ import {
 import { and, eq } from "drizzle-orm";
 import { db } from "@/services";
 import { AppError } from "@/types/error";
+import { decodeKeysetCursor, paginate } from "@/util/cursor";
 import { isForeignKeyViolation, isUniqueViolation } from "@/util/db-error";
-import type { CreatePriceInput, TierInput, UpdatePriceInput } from "./prices.validation";
+import type {
+  CreatePriceInput,
+  PriceListFilters,
+  TierInput,
+  UpdatePriceInput,
+} from "./prices.validation";
 
 type ModelType = (typeof priceModelTypeEnum.enumValues)[number];
 
@@ -82,7 +88,7 @@ const assertPriceConsistency = (input: {
 };
 
 export const pricesService = {
-  async list(projectId: string, planId: string) {
+  async list(projectId: string, planId: string, filters: PriceListFilters) {
     const [plan] = await db
       .select({ id: plans.id })
       .from(plans)
@@ -91,14 +97,33 @@ export const pricesService = {
       throw new AppError("invalid plan id", 400);
     }
 
-    return db.query.prices.findMany({
-      where: { projectId, planId },
+    const { limit, cursor } = filters;
+    const decoded = cursor ? decodeKeysetCursor(cursor) : null;
+    const cursorDate = decoded ? new Date(decoded.v) : null;
+
+    const rows = await db.query.prices.findMany({
+      where: {
+        projectId,
+        planId,
+        ...(decoded && cursorDate
+          ? {
+              OR: [
+                { createdAt: { lt: cursorDate } },
+                { AND: [{ createdAt: { eq: cursorDate } }, { id: { lt: decoded.id } }] },
+              ],
+            }
+          : {}),
+      },
       with: {
         priceTiers: true,
         metric: true,
       },
-      orderBy: (row, { desc }) => [desc(row.createdAt)],
+      orderBy: (row, { desc }) => [desc(row.createdAt), desc(row.id)],
+      limit: limit + 1,
     });
+
+    const { page, nextCursor } = paginate(rows, limit, (row) => row.createdAt);
+    return { prices: page, nextCursor };
   },
 
   async get(projectId: string, priceId: string) {

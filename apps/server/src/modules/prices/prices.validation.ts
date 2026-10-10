@@ -1,5 +1,6 @@
 import { cadenceEnum, currencyEnum, priceModelTypeEnum } from "@ore/db/schema/index";
 import { z } from "zod";
+import { paginationSchema } from "@/util/cursor";
 
 const decimalAmount = z
   .number("should be a number")
@@ -21,6 +22,12 @@ export const priceListParamSchema = z.object({
   projectId: z.uuid("invalid project id"),
   planId: z.uuid("invalid plan id"),
 });
+
+export const priceListQuerySchema = z.object({
+  ...paginationSchema,
+});
+
+export type PriceListFilters = z.output<typeof priceListQuerySchema>;
 
 export const priceUpdateParamSchema = z.object({
   projectId: z.uuid("invalid project id"),

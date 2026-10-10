@@ -1,5 +1,6 @@
 import { metricsAggregationEnum } from "@ore/db/schema/index";
 import { z } from "zod";
+import { paginationSchema } from "@/util/cursor";
 
 const aggregation = z.enum(metricsAggregationEnum.enumValues, "invalid aggregation");
 
@@ -7,6 +8,12 @@ export const metricParamSchema = z.object({
   projectId: z.uuid("invalid project id"),
   metricId: z.uuid("invalid metric id"),
 });
+
+export const metricListQuerySchema = z.object({
+  ...paginationSchema,
+});
+
+export type MetricListFilters = z.output<typeof metricListQuerySchema>;
 
 export const createMetricSchema = z.object({
   name: z.string("invalid name").min(1, "name is too short").max(50, "name is too long"),

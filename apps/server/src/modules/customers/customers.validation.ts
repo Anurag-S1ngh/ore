@@ -1,9 +1,16 @@
 import { z } from "zod";
+import { paginationSchema } from "@/util/cursor";
 
 export const customerParamSchema = z.object({
   projectId: z.uuid("invalid project id"),
   customerId: z.uuid("invalid customer id"),
 });
+
+export const customerListQuerySchema = z.object({
+  ...paginationSchema,
+});
+
+export type CustomerListFilters = z.output<typeof customerListQuerySchema>;
 
 export const createCustomerSchema = z.object({
   externalId: z

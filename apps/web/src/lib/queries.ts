@@ -48,8 +48,31 @@ export const queryKeys = {
     ["subscription", projectId, subscriptionId] as const,
 };
 
-/* ---------------------------------- auth --------------------------------- */
+// Pages through a cursor-paginated list endpoint and returns every item.
+// Used for list endpoints that also feed selectors/dropdowns, so the UI keeps
+// seeing the full set until real frontend pagination lands.
+async function fetchAllPages<T>(path: string, key: string): Promise<T[]> {
+  const items: T[] = [];
+  let cursor: string | undefined;
+  for (;;) {
+    const params = new URLSearchParams();
+    if (cursor) {
+      params.set("cursor", cursor);
+    }
+    const suffix = params.size > 0 ? `?${params.toString()}` : "";
+    const page = await apiFetch<Record<string, T[]> & { nextCursor: string | null }>(
+      `${path}${suffix}`,
+    );
+    items.push(...(page[key] ?? []));
+    if (!page.nextCursor) {
+      break;
+    }
+    cursor = page.nextCursor;
+  }
+  return items;
+}
 
+/* ---------------------------------- auth --------------------------------- */
 export function useSendOtp() {
   return useMutation({
     mutationFn: (input: { email: string; username: string }) =>
@@ -90,7 +113,7 @@ export function rememberIdentity(email: string, username: string) {
 export function useProjects() {
   return useQuery({
     queryKey: queryKeys.projects,
-    queryFn: () => apiFetch<{ projects: Project[] }>("/projects").then((r) => r.projects),
+    queryFn: () => fetchAllPages<Project>("/projects", "projects"),
   });
 }
 
@@ -140,8 +163,7 @@ export function useCustomers(projectId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.customers(projectId ?? "none"),
     enabled: Boolean(projectId),
-    queryFn: () =>
-      apiFetch<{ customers: Customer[] }>(`/customers/${projectId}/`).then((r) => r.customers),
+    queryFn: () => fetchAllPages<Customer>(`/customers/${projectId}/`, "customers"),
   });
 }
 
@@ -197,7 +219,7 @@ export function useApiKeys(projectId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.apiKeys(projectId ?? "none"),
     enabled: Boolean(projectId),
-    queryFn: () => apiFetch<{ apiKeys: ApiKey[] }>(`/api-keys/${projectId}`).then((r) => r.apiKeys),
+    queryFn: () => fetchAllPages<ApiKey>(`/api-keys/${projectId}`, "apiKeys"),
   });
 }
 
@@ -232,7 +254,7 @@ export function usePlans(projectId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.plans(projectId ?? "none"),
     enabled: Boolean(projectId),
-    queryFn: () => apiFetch<{ plans: Plan[] }>(`/plans/${projectId}`).then((r) => r.plans),
+    queryFn: () => fetchAllPages<Plan>(`/plans/${projectId}`, "plans"),
   });
 }
 
@@ -300,10 +322,7 @@ export function usePrices(projectId: string | undefined, planId: string | undefi
   return useQuery({
     queryKey: queryKeys.prices(projectId ?? "none", planId ?? "none"),
     enabled: Boolean(projectId && planId),
-    queryFn: () =>
-      apiFetch<{ prices: Price[] }>(`/prices/${projectId}/plans/${planId}/all`).then(
-        (r) => r.prices,
-      ),
+    queryFn: () => fetchAllPages<Price>(`/prices/${projectId}/plans/${planId}/all`, "prices"),
   });
 }
 
@@ -377,7 +396,7 @@ export function useMetrics(projectId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.metrics(projectId ?? "none"),
     enabled: Boolean(projectId),
-    queryFn: () => apiFetch<{ metrics: Metric[] }>(`/metrics/${projectId}/`).then((r) => r.metrics),
+    queryFn: () => fetchAllPages<Metric>(`/metrics/${projectId}/`, "metrics"),
   });
 }
 

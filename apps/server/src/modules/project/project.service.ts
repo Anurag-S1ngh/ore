@@ -3,14 +3,34 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/services";
 import { AppError } from "@/types/error";
 import type { Currency } from "@/types/projects";
+import { decodeKeysetCursor, paginate } from "@/util/cursor";
 import { generateSlug } from "@/util/generateSlug";
+import type { ProjectListFilters } from "./project.validation";
 
 export const projectService = {
-  async get(userId: string) {
-    const userProjects = await db.query.projects.findMany({
-      where: { userId: { eq: userId } },
+  async get(userId: string, filters: ProjectListFilters) {
+    const { limit, cursor } = filters;
+    const decoded = cursor ? decodeKeysetCursor(cursor) : null;
+    const cursorDate = decoded ? new Date(decoded.v) : null;
+
+    const rows = await db.query.projects.findMany({
+      where: {
+        userId: { eq: userId },
+        ...(decoded && cursorDate
+          ? {
+              OR: [
+                { createdAt: { lt: cursorDate } },
+                { AND: [{ createdAt: { eq: cursorDate } }, { id: { lt: decoded.id } }] },
+              ],
+            }
+          : {}),
+      },
+      orderBy: (row, { desc }) => [desc(row.createdAt), desc(row.id)],
+      limit: limit + 1,
     });
-    return userProjects;
+
+    const { page, nextCursor } = paginate(rows, limit, (row) => row.createdAt);
+    return { projects: page, nextCursor };
   },
 
   async create(
