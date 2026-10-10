@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
+import { handleControllerError } from "@/middleware/error";
 import { projectIdParamSchema } from "@/modules/project/project.validation";
-import { AppError } from "@/types/error";
 import { plansService } from "./plans.service";
 import { createPlanSchema, planParamSchema, updatePlanSchema } from "./plans.validation";
 
@@ -15,11 +15,11 @@ export const plansController = {
       const plans = await plansService.list(projectId);
       return res.status(200).json({ plans });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while fetching plans" });
+      return handleControllerError(req, res, err, {
+        module: "plans",
+        action: "list",
+        fallback: "error while fetching plans",
+      });
     }
   },
   async create(req: Request, res: Response) {
@@ -45,11 +45,11 @@ export const plansController = {
       );
       return res.status(201).json({ plan });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while creating plan" });
+      return handleControllerError(req, res, err, {
+        module: "plans",
+        action: "create",
+        fallback: "error while creating plan",
+      });
     }
   },
   async update(req: Request, res: Response) {
@@ -76,11 +76,11 @@ export const plansController = {
       );
       return res.status(200).json({ plan });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while updating plan" });
+      return handleControllerError(req, res, err, {
+        module: "plans",
+        action: "update",
+        fallback: "error while updating plan",
+      });
     }
   },
   async delete(req: Request, res: Response) {
@@ -93,11 +93,11 @@ export const plansController = {
       const plan = await plansService.delete(planId, projectId);
       return res.status(200).json({ plan });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while deleting plan" });
+      return handleControllerError(req, res, err, {
+        module: "plans",
+        action: "delete",
+        fallback: "error while deleting plan",
+      });
     }
   },
 };

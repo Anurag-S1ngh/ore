@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { AppError } from "@/types/error";
+import { handleControllerError } from "@/middleware/error";
 import { pricesService } from "./prices.service";
 import {
   createPriceSchema,
@@ -22,11 +22,11 @@ export const pricesController = {
       const prices = await pricesService.list(projectId, planId);
       return res.status(200).json({ prices });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while fetching prices" });
+      return handleControllerError(req, res, err, {
+        module: "prices",
+        action: "list",
+        fallback: "error while fetching prices",
+      });
     }
   },
 
@@ -40,11 +40,11 @@ export const pricesController = {
       const price = await pricesService.get(projectId, priceId);
       return res.status(200).json({ price });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while fetching price" });
+      return handleControllerError(req, res, err, {
+        module: "prices",
+        action: "get",
+        fallback: "error while fetching price",
+      });
     }
   },
 
@@ -65,11 +65,11 @@ export const pricesController = {
       const price = await pricesService.create(projectId, planId, input);
       return res.status(201).json({ price });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while creating price" });
+      return handleControllerError(req, res, err, {
+        module: "prices",
+        action: "create",
+        fallback: "error while creating price",
+      });
     }
   },
 
@@ -90,11 +90,11 @@ export const pricesController = {
       const price = await pricesService.update(projectId, planId, priceId, input);
       return res.status(200).json({ price });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while updating price" });
+      return handleControllerError(req, res, err, {
+        module: "prices",
+        action: "update",
+        fallback: "error while updating price",
+      });
     }
   },
 
@@ -110,11 +110,11 @@ export const pricesController = {
       const price = await pricesService.delete(projectId, priceId);
       return res.status(200).json({ price });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while deleting price" });
+      return handleControllerError(req, res, err, {
+        module: "prices",
+        action: "delete",
+        fallback: "error while deleting price",
+      });
     }
   },
 };

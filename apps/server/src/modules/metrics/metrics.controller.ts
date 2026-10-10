@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
+import { handleControllerError } from "@/middleware/error";
 import { projectIdParamSchema } from "@/modules/project/project.validation";
-import { AppError } from "@/types/error";
 import { metricsService } from "./metrics.service";
 import { createMetricSchema, metricParamSchema, updateMetricSchema } from "./metrics.validation";
 
@@ -15,11 +15,11 @@ export const metricsController = {
       const metrics = await metricsService.list(projectId);
       return res.status(200).json({ metrics });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while fetching metrics" });
+      return handleControllerError(req, res, err, {
+        module: "metrics",
+        action: "list",
+        fallback: "error while fetching metrics",
+      });
     }
   },
 
@@ -38,11 +38,11 @@ export const metricsController = {
       const metric = await metricsService.create(projectId, name, unit, aggregation, description);
       return res.status(201).json({ metric });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while creating metric" });
+      return handleControllerError(req, res, err, {
+        module: "metrics",
+        action: "create",
+        fallback: "error while creating metric",
+      });
     }
   },
 
@@ -60,11 +60,11 @@ export const metricsController = {
       const metric = await metricsService.update(projectId, metricId, validatedData.data);
       return res.status(200).json({ metric });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while updating metric" });
+      return handleControllerError(req, res, err, {
+        module: "metrics",
+        action: "update",
+        fallback: "error while updating metric",
+      });
     }
   },
 
@@ -78,11 +78,11 @@ export const metricsController = {
       const metric = await metricsService.delete(projectId, metricId);
       return res.status(200).json({ metric });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while deleting metric" });
+      return handleControllerError(req, res, err, {
+        module: "metrics",
+        action: "delete",
+        fallback: "error while deleting metric",
+      });
     }
   },
 };

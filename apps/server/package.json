@@ -14,9 +14,10 @@
     "format": "biome check --write ."
   },
   "dependencies": {
-    "@ore/queue": "workspace:*",
     "@ore/db": "workspace:*",
     "@ore/email": "workspace:*",
+    "@ore/logger": "workspace:*",
+    "@ore/queue": "workspace:*",
     "@ore/redis-client": "workspace:*",
     "argon2": "^0.45.1",
     "cookie-parser": "^1.4.7",
@@ -25,6 +26,7 @@
     "express": "^5.2.1",
     "jose": "^6.2.12",
     "pg": "^8.23.0",
+    "pino-http": "^11.0.0",
     "varlock": "catalog:",
     "zod": "catalog:"
   },

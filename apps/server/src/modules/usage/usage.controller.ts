@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
+import { handleControllerError } from "@/middleware/error";
 import { projectIdParamSchema } from "@/modules/project/project.validation";
-import { AppError } from "@/types/error";
 import { usageService } from "./usage.service";
 import { usageListQuerySchema, usageParamSchema } from "./usage.validation";
 
@@ -22,11 +22,11 @@ export const usageController = {
       const { usage } = await usageService.list(projectId, query);
       return res.status(200).json({ usage });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while listing usage" });
+      return handleControllerError(req, res, err, {
+        module: "usage",
+        action: "list",
+        fallback: "error while listing usage",
+      });
     }
   },
 
@@ -40,11 +40,11 @@ export const usageController = {
       const usage = await usageService.get(projectId, usageId);
       return res.status(200).json({ usage });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while fetching usage" });
+      return handleControllerError(req, res, err, {
+        module: "usage",
+        action: "get",
+        fallback: "error while fetching usage",
+      });
     }
   },
 };

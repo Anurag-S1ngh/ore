@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { AppError } from "@/types/error";
+import { handleControllerError } from "@/middleware/error";
 import { projectIdParamSchema } from "../project/project.validation";
 import { eventsService } from "./events.service";
 import {
@@ -23,11 +23,11 @@ export const eventsController = {
       const { events, nextCursor } = await eventsService.list(projectId, validQuery.data);
       return res.status(200).json({ events, nextCursor });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while listing events" });
+      return handleControllerError(req, res, err, {
+        module: "events",
+        action: "list",
+        fallback: "error while listing events",
+      });
     }
   },
   async get(req: Request, res: Response) {
@@ -40,11 +40,11 @@ export const eventsController = {
       const event = await eventsService.get(projectId, eventId);
       return res.status(200).json({ event });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while fetching event" });
+      return handleControllerError(req, res, err, {
+        module: "events",
+        action: "get",
+        fallback: "error while fetching event",
+      });
     }
   },
   async create(req: Request, res: Response) {
@@ -65,11 +65,11 @@ export const eventsController = {
       );
       return res.status(duplicate ? 200 : 201).json({ event });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while creating event" });
+      return handleControllerError(req, res, err, {
+        module: "events",
+        action: "create",
+        fallback: "error while creating event",
+      });
     }
   },
 };

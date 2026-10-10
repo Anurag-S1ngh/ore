@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
+import { handleControllerError } from "@/middleware/error";
 import { projectIdParamSchema } from "@/modules/project/project.validation";
-import { AppError } from "@/types/error";
 import { subscriptionsService } from "./subscriptions.service";
 import {
   createSubscriptionSchema,
@@ -29,11 +29,11 @@ export const subscriptionsController = {
       const subscriptions = await subscriptionsService.list(projectId, input);
       return res.status(200).json({ subscriptions });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while fetching subscriptions" });
+      return handleControllerError(req, res, err, {
+        module: "subscriptions",
+        action: "list",
+        fallback: "error while fetching subscriptions",
+      });
     }
   },
 
@@ -47,11 +47,11 @@ export const subscriptionsController = {
       const subscription = await subscriptionsService.get(projectId, subscriptionId);
       return res.status(200).json({ subscription });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while fetching subscription" });
+      return handleControllerError(req, res, err, {
+        module: "subscriptions",
+        action: "get",
+        fallback: "error while fetching subscription",
+      });
     }
   },
 
@@ -74,11 +74,11 @@ export const subscriptionsController = {
       const subscription = await subscriptionsService.create(projectId, input);
       return res.status(201).json({ subscription });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while creating subscription" });
+      return handleControllerError(req, res, err, {
+        module: "subscriptions",
+        action: "create",
+        fallback: "error while creating subscription",
+      });
     }
   },
 
@@ -99,11 +99,11 @@ export const subscriptionsController = {
       const subscription = await subscriptionsService.update(projectId, subscriptionId, input);
       return res.status(200).json({ subscription });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while updating subscription" });
+      return handleControllerError(req, res, err, {
+        module: "subscriptions",
+        action: "update",
+        fallback: "error while updating subscription",
+      });
     }
   },
 
@@ -117,11 +117,11 @@ export const subscriptionsController = {
       const subscription = await subscriptionsService.cancel(projectId, subscriptionId);
       return res.status(200).json({ subscription });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while canceling subscription" });
+      return handleControllerError(req, res, err, {
+        module: "subscriptions",
+        action: "cancel",
+        fallback: "error while canceling subscription",
+      });
     }
   },
 };

@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { AppError } from "@/types/error";
+import { handleControllerError } from "@/middleware/error";
 import type { Currency } from "@/types/projects";
 import { projectService } from "./project.service";
 import {
@@ -15,8 +15,11 @@ export const projectController = {
       const userProjects = await projectService.get(userId);
       return res.status(200).json({ projects: userProjects });
     } catch (err) {
-      console.log(err);
-      return res.status(500).json({ error: "error while fetching projects" });
+      return handleControllerError(req, res, err, {
+        module: "project",
+        action: "get",
+        fallback: "error while fetching projects",
+      });
     }
   },
   async create(req: Request, res: Response) {
@@ -35,11 +38,11 @@ export const projectController = {
       );
       return res.status(201).json({ project: newProject });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while creating project" });
+      return handleControllerError(req, res, err, {
+        module: "project",
+        action: "create",
+        fallback: "error while creating project",
+      });
     }
   },
   async update(req: Request, res: Response) {
@@ -64,11 +67,11 @@ export const projectController = {
       );
       return res.status(200).json({ project: updatedProject });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while updating the project" });
+      return handleControllerError(req, res, err, {
+        module: "project",
+        action: "update",
+        fallback: "error while updating the project",
+      });
     }
   },
   async delete(req: Request, res: Response) {
@@ -82,11 +85,11 @@ export const projectController = {
       await projectService.delete(userId, projectId);
       return res.status(200).json({ status: "project deleted successfully" });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while deleting the project" });
+      return handleControllerError(req, res, err, {
+        module: "project",
+        action: "delete",
+        fallback: "error while deleting the project",
+      });
     }
   },
 };

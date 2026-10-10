@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
+import { handleControllerError } from "@/middleware/error";
 import { projectIdParamSchema } from "@/modules/project/project.validation";
-import { AppError } from "@/types/error";
 import { invoicesService } from "./invoices.service";
 import {
   createInvoiceSchema,
@@ -26,11 +26,11 @@ export const invoicesController = {
       const invoices = await invoicesService.list(projectId, validQuery.data);
       return res.status(200).json({ invoices });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while listing invoices" });
+      return handleControllerError(req, res, err, {
+        module: "invoices",
+        action: "list",
+        fallback: "error while listing invoices",
+      });
     }
   },
 
@@ -44,11 +44,11 @@ export const invoicesController = {
       const invoice = await invoicesService.get(projectId, invoiceId);
       return res.status(200).json({ invoice });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while fetching invoice" });
+      return handleControllerError(req, res, err, {
+        module: "invoices",
+        action: "get",
+        fallback: "error while fetching invoice",
+      });
     }
   },
 
@@ -71,11 +71,11 @@ export const invoicesController = {
       const invoice = await invoicesService.create(projectId, input);
       return res.status(201).json({ invoice });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while creating invoice" });
+      return handleControllerError(req, res, err, {
+        module: "invoices",
+        action: "create",
+        fallback: "error while creating invoice",
+      });
     }
   },
 
@@ -96,11 +96,11 @@ export const invoicesController = {
       const invoice = await invoicesService.updateStatus(projectId, invoiceId, input);
       return res.status(200).json({ invoice });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while updating invoice" });
+      return handleControllerError(req, res, err, {
+        module: "invoices",
+        action: "update",
+        fallback: "error while updating invoice",
+      });
     }
   },
 
@@ -114,11 +114,11 @@ export const invoicesController = {
       const invoice = await invoicesService.remove(projectId, invoiceId);
       return res.status(200).json({ invoice });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while deleting invoice" });
+      return handleControllerError(req, res, err, {
+        module: "invoices",
+        action: "remove",
+        fallback: "error while deleting invoice",
+      });
     }
   },
 };

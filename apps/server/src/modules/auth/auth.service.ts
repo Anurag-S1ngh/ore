@@ -3,6 +3,7 @@ import { sendEmail } from "@ore/email";
 import { del, get, set } from "@ore/redis-client";
 import { eq } from "drizzle-orm";
 import { ENV } from "@/env.server";
+import { logger } from "@/logger";
 import { db } from "@/services";
 import { AppError } from "@/types/error";
 import { isUniqueViolation } from "@/util/db-error";
@@ -38,7 +39,7 @@ export const authService = {
     const err = await sendEmail(email, "Verify your email", `<strong>OTP is ${otp}</strong>`);
     if (err) {
       if (ENV.NODE_ENV !== "production") {
-        console.log(`[auth] email send failed; dev OTP for ${email}: ${otp}`);
+        logger.warn({ email, otp }, "email send failed; dev OTP");
         return;
       }
       await del(key);

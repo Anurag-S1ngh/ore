@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
+import { handleControllerError } from "@/middleware/error";
 import { projectIdParamSchema } from "@/modules/project/project.validation";
-import { AppError } from "@/types/error";
 import { apiKeysService } from "./api-keys.service";
 import { apiKeyParamSchema, createApiKeySchema } from "./api-keys.validation";
 
@@ -15,11 +15,11 @@ export const apiKeysController = {
       const apiKeys = await apiKeysService.list(projectId);
       return res.status(200).json({ apiKeys });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while fetching api keys" });
+      return handleControllerError(req, res, err, {
+        module: "api-keys",
+        action: "list",
+        fallback: "error while fetching api keys",
+      });
     }
   },
 
@@ -37,11 +37,11 @@ export const apiKeysController = {
       const apiKey = await apiKeysService.create(validParam.data.projectId, name, expiresAt);
       return res.status(201).json({ apiKey });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while creating api key" });
+      return handleControllerError(req, res, err, {
+        module: "api-keys",
+        action: "create",
+        fallback: "error while creating api key",
+      });
     }
   },
 
@@ -55,11 +55,11 @@ export const apiKeysController = {
       const apiKey = await apiKeysService.revoke(projectId, keyId);
       return res.status(200).json({ apiKey });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while revoking api key" });
+      return handleControllerError(req, res, err, {
+        module: "api-keys",
+        action: "revoke",
+        fallback: "error while revoking api key",
+      });
     }
   },
 };

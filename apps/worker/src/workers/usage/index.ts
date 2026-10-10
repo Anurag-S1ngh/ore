@@ -1,5 +1,6 @@
 import { redis, USAGE_AGGREGATE_QUEUE } from "@ore/queue";
 import { Worker } from "bullmq";
+import { logger } from "@/logger";
 import { processUsage } from "@/processors/usage";
 
 export const usageWorker = new Worker(
@@ -11,19 +12,23 @@ export const usageWorker = new Worker(
 );
 
 usageWorker.on("completed", (job) => {
-  console.log("usage job completed", { jobId: job.id });
+  logger.debug({ jobId: job.id, eventId: job.data?.eventId }, "usage job completed");
 });
 
 usageWorker.on("failed", (job, error) => {
-  console.log("Usage job failed", {
-    jobId: job?.id,
-    attemptsMade: job?.attemptsMade,
-    error: error.message,
-  });
+  logger.error(
+    {
+      jobId: job?.id,
+      eventId: job?.data?.eventId,
+      attemptsMade: job?.attemptsMade,
+      err: error,
+    },
+    "usage job failed",
+  );
 });
 
 usageWorker.on("error", (error) => {
-  console.log("usage worker error", error);
+  logger.error({ err: error }, "usage worker error");
 });
 
 const shutdown = async () => {

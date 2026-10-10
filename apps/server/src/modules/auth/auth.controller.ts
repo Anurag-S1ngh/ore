@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { ENV } from "@/env.server";
-import { AppError } from "@/types/error";
+import { handleControllerError } from "@/middleware/error";
 import { generateJWT } from "@/util/token";
 import { authService } from "./auth.service";
 import { sendOTPValidation, verifyOTPValidation } from "./auth.validation";
@@ -32,11 +32,11 @@ export const authController = {
       await authService.sendOTP(email, username);
       return res.status(200).json({ status: "ok" });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "something went wrong" });
+      return handleControllerError(req, res, err, {
+        module: "auth",
+        action: "send-otp",
+        fallback: "something went wrong",
+      });
     }
   },
 
@@ -55,11 +55,11 @@ export const authController = {
       });
       return res.status(200).json({ status: "ok" });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "something went wrong" });
+      return handleControllerError(req, res, err, {
+        module: "auth",
+        action: "verify-otp",
+        fallback: "something went wrong",
+      });
     }
   },
   async logout(_req: Request, res: Response) {

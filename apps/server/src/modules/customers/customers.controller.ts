@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
+import { handleControllerError } from "@/middleware/error";
 import { projectIdParamSchema } from "@/modules/project/project.validation";
-import { AppError } from "@/types/error";
 import { customersService } from "./customers.service";
 import {
   createCustomerSchema,
@@ -19,11 +19,11 @@ export const customersController = {
       const customers = await customersService.list(projectId);
       return res.status(200).json({ customers });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while fetching customers" });
+      return handleControllerError(req, res, err, {
+        module: "customers",
+        action: "list",
+        fallback: "error while fetching customers",
+      });
     }
   },
 
@@ -42,11 +42,11 @@ export const customersController = {
       const customer = await customersService.create(projectId, externalId, name, email, phone);
       return res.status(201).json({ customer });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while creating customer" });
+      return handleControllerError(req, res, err, {
+        module: "customers",
+        action: "create",
+        fallback: "error while creating customer",
+      });
     }
   },
 
@@ -65,11 +65,11 @@ export const customersController = {
       const customer = await customersService.update(projectId, customerId, name, email, phone);
       return res.status(200).json({ customer });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while updating customer" });
+      return handleControllerError(req, res, err, {
+        module: "customers",
+        action: "update",
+        fallback: "error while updating customer",
+      });
     }
   },
 
@@ -83,11 +83,11 @@ export const customersController = {
       const customer = await customersService.delete(projectId, customerId);
       return res.status(200).json({ customer });
     } catch (err) {
-      console.log(err);
-      if (err instanceof AppError) {
-        return res.status(err.statusCode).json({ error: err.message });
-      }
-      return res.status(500).json({ error: "error while deleting customer" });
+      return handleControllerError(req, res, err, {
+        module: "customers",
+        action: "delete",
+        fallback: "error while deleting customer",
+      });
     }
   },
 };

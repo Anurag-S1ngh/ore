@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
+import { logger } from "@/logger";
 import { verifyJWT } from "@/util/token";
 
 export const userAuthMiddleware = async (req: Request, res: Response, next: NextFunction) => {
@@ -15,7 +16,7 @@ export const userAuthMiddleware = async (req: Request, res: Response, next: Next
     req.userId = userId;
     next();
   } catch (err) {
-    console.log(err);
+    (req.log ?? logger).warn({ err }, "auth verification failed");
     return res.status(401).json({ error: "unauthorized" });
   }
 };

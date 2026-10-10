@@ -2,6 +2,7 @@ import { events, metrics, usageAggregates, usageProcessedEvent } from "@ore/db/s
 import type { ProcessUsageJob } from "@ore/queue";
 import { type Job, UnrecoverableError } from "bullmq";
 import { eq, sql } from "drizzle-orm";
+import { logger } from "@/logger";
 import { db } from "@/service";
 
 export const processUsage = async (job: Job<ProcessUsageJob>) => {
@@ -9,10 +10,7 @@ export const processUsage = async (job: Job<ProcessUsageJob>) => {
   if (!eventId || typeof eventId !== "string") {
     throw new UnrecoverableError("invalid job payload: missing eventId");
   }
-  console.log("Processing usage event", {
-    jobId: job.id,
-    eventId,
-  });
+  logger.debug({ jobId: job.id, eventId }, "processing usage event");
 
   return db.transaction(async (tx) => {
     const [row] = await tx
