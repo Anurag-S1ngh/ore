@@ -4,10 +4,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@ore/ui/components/button";
 import { Input } from "@ore/ui/components/input";
 import { Label } from "@ore/ui/components/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@ore/ui/components/select";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import {
@@ -156,28 +163,52 @@ export function SubscriptionFormDialog({
           <form onSubmit={editForm.handleSubmit(submitEdit)} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="subscription-plan">Plan</Label>
-              <select
-                id="subscription-plan"
-                className="h-8 border border-input bg-transparent px-2.5 text-xs outline-none focus-visible:border-ring"
-                {...editForm.register("planId")}
-              >
-                {(plans.data ?? []).map((plan) => (
-                  <option key={plan.id} value={plan.id}>
-                    {plan.name}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                control={editForm.control}
+                name="planId"
+                render={({ field }) => (
+                  <Select
+                    items={(plans.data ?? []).map((plan) => ({
+                      value: plan.id,
+                      label: plan.name,
+                    }))}
+                    value={field.value || undefined}
+                    onValueChange={(value) => field.onChange(value ?? "")}
+                  >
+                    <SelectTrigger id="subscription-plan" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(plans.data ?? []).map((plan) => (
+                        <SelectItem key={plan.id} value={plan.id}>
+                          {plan.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="subscription-cadence">Cadence</Label>
-              <select
-                id="subscription-cadence"
-                className="h-8 border border-input bg-transparent px-2.5 text-xs outline-none focus-visible:border-ring"
-                {...editForm.register("cadence")}
-              >
-                <option value="monthly">monthly</option>
-                <option value="yearly">yearly</option>
-              </select>
+              <Controller
+                control={editForm.control}
+                name="cadence"
+                render={({ field }) => (
+                  <Select
+                    value={field.value ?? "monthly"}
+                    onValueChange={(value) => field.onChange(value ?? "")}
+                  >
+                    <SelectTrigger id="subscription-cadence" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="monthly">monthly</SelectItem>
+                      <SelectItem value="yearly">yearly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)}>
@@ -194,18 +225,31 @@ export function SubscriptionFormDialog({
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="subscription-customer">Customer</Label>
-                <select
-                  id="subscription-customer"
-                  className="h-8 border border-input bg-transparent px-2.5 text-xs outline-none focus-visible:border-ring"
-                  {...createForm.register("customerId")}
-                >
-                  <option value="">Select a customer…</option>
-                  {(customers.data ?? []).map((customer) => (
-                    <option key={customer.id} value={customer.id}>
-                      {customer.name ?? customer.email ?? `${customer.id.slice(0, 8)}…`}
-                    </option>
-                  ))}
-                </select>
+                <Controller
+                  control={createForm.control}
+                  name="customerId"
+                  render={({ field }) => (
+                    <Select
+                      items={(customers.data ?? []).map((customer) => ({
+                        value: customer.id,
+                        label: customer.name ?? customer.email ?? `${customer.id.slice(0, 8)}…`,
+                      }))}
+                      value={field.value ? field.value : null}
+                      onValueChange={(value) => field.onChange(value ?? "")}
+                    >
+                      <SelectTrigger id="subscription-customer" className="w-full">
+                        <SelectValue placeholder="Select a customer…" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(customers.data ?? []).map((customer) => (
+                          <SelectItem key={customer.id} value={customer.id}>
+                            {customer.name ?? customer.email ?? `${customer.id.slice(0, 8)}…`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
                 {createForm.formState.errors.customerId ? (
                   <p className="text-[11px] text-destructive">
                     {createForm.formState.errors.customerId.message}
@@ -214,18 +258,31 @@ export function SubscriptionFormDialog({
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="subscription-plan-new">Plan</Label>
-                <select
-                  id="subscription-plan-new"
-                  className="h-8 border border-input bg-transparent px-2.5 text-xs outline-none focus-visible:border-ring"
-                  {...createForm.register("planId")}
-                >
-                  <option value="">Select a plan…</option>
-                  {(plans.data ?? []).map((plan) => (
-                    <option key={plan.id} value={plan.id}>
-                      {plan.name}
-                    </option>
-                  ))}
-                </select>
+                <Controller
+                  control={createForm.control}
+                  name="planId"
+                  render={({ field }) => (
+                    <Select
+                      items={(plans.data ?? []).map((plan) => ({
+                        value: plan.id,
+                        label: plan.name,
+                      }))}
+                      value={field.value ? field.value : null}
+                      onValueChange={(value) => field.onChange(value ?? "")}
+                    >
+                      <SelectTrigger id="subscription-plan-new" className="w-full">
+                        <SelectValue placeholder="Select a plan…" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(plans.data ?? []).map((plan) => (
+                          <SelectItem key={plan.id} value={plan.id}>
+                            {plan.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
                 {createForm.formState.errors.planId ? (
                   <p className="text-[11px] text-destructive">
                     {createForm.formState.errors.planId.message}
@@ -236,14 +293,24 @@ export function SubscriptionFormDialog({
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="subscription-cadence-new">Cadence</Label>
-                <select
-                  id="subscription-cadence-new"
-                  className="h-8 border border-input bg-transparent px-2.5 text-xs outline-none focus-visible:border-ring"
-                  {...createForm.register("cadence")}
-                >
-                  <option value="monthly">monthly</option>
-                  <option value="yearly">yearly</option>
-                </select>
+                <Controller
+                  control={createForm.control}
+                  name="cadence"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value ?? "monthly"}
+                      onValueChange={(value) => field.onChange(value ?? "")}
+                    >
+                      <SelectTrigger id="subscription-cadence-new" className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="monthly">monthly</SelectItem>
+                        <SelectItem value="yearly">yearly</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="subscription-start">Start date (optional)</Label>

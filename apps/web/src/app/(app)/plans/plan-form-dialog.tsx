@@ -4,10 +4,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@ore/ui/components/button";
 import { Input } from "@ore/ui/components/input";
 import { Label } from "@ore/ui/components/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@ore/ui/components/select";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import {
@@ -127,18 +134,34 @@ export function PlanFormDialog({
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="plan-parent">Parent plan (optional)</Label>
-            <select
-              id="plan-parent"
-              className="h-8 border border-input bg-transparent px-2.5 text-xs outline-none focus-visible:border-ring"
-              {...form.register("parentId")}
-            >
-              <option value="">None</option>
-              {parentOptions.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+            <Controller
+              control={form.control}
+              name="parentId"
+              render={({ field }) => (
+                <Select
+                  items={[
+                    { value: "__none__", label: "None" },
+                    ...parentOptions.map((p) => ({ value: p.id, label: p.name })),
+                  ]}
+                  value={field.value ? field.value : "__none__"}
+                  onValueChange={(value) =>
+                    field.onChange(value === "__none__" ? "" : (value ?? ""))
+                  }
+                >
+                  <SelectTrigger id="plan-parent" className="w-full">
+                    <SelectValue placeholder="None" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">None</SelectItem>
+                    {parentOptions.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)}>

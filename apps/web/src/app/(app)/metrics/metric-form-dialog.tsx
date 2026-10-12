@@ -4,9 +4,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@ore/ui/components/button";
 import { Input } from "@ore/ui/components/input";
 import { Label } from "@ore/ui/components/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@ore/ui/components/select";
 import { Loader2 } from "lucide-react";
 import * as React from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import {
@@ -136,16 +143,26 @@ export function MetricFormDialog({
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="metric-aggregation">Aggregation</Label>
-            <select
-              id="metric-aggregation"
-              className="h-8 border border-input bg-transparent px-2.5 text-xs outline-none focus-visible:border-ring"
-              {...form.register("aggregation")}
-              disabled={isEditing}
-            >
-              <option value="sum">sum</option>
-              <option value="max">max</option>
-              <option value="count">count</option>
-            </select>
+            <Controller
+              control={form.control}
+              name="aggregation"
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onValueChange={(value) => field.onChange(value as FormValues["aggregation"])}
+                  disabled={isEditing}
+                >
+                  <SelectTrigger id="metric-aggregation" className="w-full">
+                    <SelectValue placeholder="Select aggregation" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sum">sum</SelectItem>
+                    <SelectItem value="max">max</SelectItem>
+                    <SelectItem value="count">count</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
             {isEditing ? (
               <p className="text-[11px] text-muted-foreground">
                 Aggregation cannot be changed once usage exists.

@@ -4,6 +4,13 @@ import { Button } from "@ore/ui/components/button";
 import { Card, CardContent } from "@ore/ui/components/card";
 import { Input } from "@ore/ui/components/input";
 import { Label } from "@ore/ui/components/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@ore/ui/components/select";
 import { Skeleton } from "@ore/ui/components/skeleton";
 import { Activity, Search } from "lucide-react";
 import * as React from "react";
@@ -103,49 +110,74 @@ export default function UsagePage() {
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="usage-granularity">Granularity</Label>
-                  <select
-                    id="usage-granularity"
-                    className="h-8 border border-input bg-transparent px-2.5 text-xs outline-none focus-visible:border-ring"
+                  <Select
                     value={granularity}
-                    onChange={(e) => setGranularity(e.target.value as UsageGranularity)}
+                    onValueChange={(value) => setGranularity(value as UsageGranularity)}
                   >
-                    <option value="hour">hour</option>
-                    <option value="day">day</option>
-                    <option value="week">week</option>
-                    <option value="month">month</option>
-                  </select>
+                    <SelectTrigger id="usage-granularity" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hour">hour</SelectItem>
+                      <SelectItem value="day">day</SelectItem>
+                      <SelectItem value="week">week</SelectItem>
+                      <SelectItem value="month">month</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="usage-metric">Metric</Label>
-                  <select
-                    id="usage-metric"
-                    className="h-8 border border-input bg-transparent px-2.5 text-xs outline-none focus-visible:border-ring"
-                    value={metricId}
-                    onChange={(e) => setMetricId(e.target.value)}
+                  <Select
+                    items={[
+                      { value: "__all__", label: "All metrics" },
+                      ...(metrics.data ?? []).map((metric) => ({
+                        value: metric.id,
+                        label: `${metric.name} (${metric.unit})`,
+                      })),
+                    ]}
+                    value={metricId ? metricId : "__all__"}
+                    onValueChange={(value) => setMetricId(value === "__all__" ? "" : (value ?? ""))}
                   >
-                    <option value="">All metrics</option>
-                    {(metrics.data ?? []).map((metric) => (
-                      <option key={metric.id} value={metric.id}>
-                        {metric.name} ({metric.unit})
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger id="usage-metric" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__all__">All metrics</SelectItem>
+                      {(metrics.data ?? []).map((metric) => (
+                        <SelectItem key={metric.id} value={metric.id}>
+                          {metric.name} ({metric.unit})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="usage-customer">Customer</Label>
-                  <select
-                    id="usage-customer"
-                    className="h-8 border border-input bg-transparent px-2.5 text-xs outline-none focus-visible:border-ring"
-                    value={customerId}
-                    onChange={(e) => setCustomerId(e.target.value)}
+                  <Select
+                    items={[
+                      { value: "__all__", label: "All customers" },
+                      ...(customers.data ?? []).map((customer) => ({
+                        value: customer.id,
+                        label: customer.name ?? customer.email ?? `${customer.id.slice(0, 8)}…`,
+                      })),
+                    ]}
+                    value={customerId ? customerId : "__all__"}
+                    onValueChange={(value) =>
+                      setCustomerId(value === "__all__" ? "" : (value ?? ""))
+                    }
                   >
-                    <option value="">All customers</option>
-                    {(customers.data ?? []).map((customer) => (
-                      <option key={customer.id} value={customer.id}>
-                        {customer.name ?? customer.email ?? `${customer.id.slice(0, 8)}…`}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger id="usage-customer" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__all__">All customers</SelectItem>
+                      {(customers.data ?? []).map((customer) => (
+                        <SelectItem key={customer.id} value={customer.id}>
+                          {customer.name ?? customer.email ?? `${customer.id.slice(0, 8)}…`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="flex items-end">
                   <Button type="submit" size="sm">

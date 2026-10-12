@@ -4,9 +4,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@ore/ui/components/button";
 import { Input } from "@ore/ui/components/input";
 import { Label } from "@ore/ui/components/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@ore/ui/components/select";
 import { Loader2 } from "lucide-react";
 import * as React from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import {
@@ -220,18 +227,31 @@ export function PriceFormDialog({
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="price-metric">Metric</Label>
-              <select
-                id="price-metric"
-                className="h-8 border border-input bg-transparent px-2.5 text-xs outline-none focus-visible:border-ring"
-                {...form.register("metricId")}
-              >
-                <option value="">Select a metric…</option>
-                {(metrics.data ?? []).map((metric) => (
-                  <option key={metric.id} value={metric.id}>
-                    {metric.name} ({metric.unit})
-                  </option>
-                ))}
-              </select>
+              <Controller
+                control={form.control}
+                name="metricId"
+                render={({ field }) => (
+                  <Select
+                    items={(metrics.data ?? []).map((metric) => ({
+                      value: metric.id,
+                      label: `${metric.name} (${metric.unit})`,
+                    }))}
+                    value={field.value ? field.value : null}
+                    onValueChange={(value) => field.onChange(value ?? "")}
+                  >
+                    <SelectTrigger id="price-metric" className="w-full">
+                      <SelectValue placeholder="Select a metric…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(metrics.data ?? []).map((metric) => (
+                        <SelectItem key={metric.id} value={metric.id}>
+                          {metric.name} ({metric.unit})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               {form.formState.errors.metricId ? (
                 <p className="text-[11px] text-destructive">
                   {form.formState.errors.metricId.message}
@@ -242,40 +262,76 @@ export function PriceFormDialog({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="price-model">Model</Label>
-              <select
-                id="price-model"
-                className="h-8 border border-input bg-transparent px-2.5 text-xs outline-none focus-visible:border-ring"
-                {...form.register("modelType")}
-              >
-                <option value="unit">unit</option>
-                <option value="tiered">tiered</option>
-              </select>
+              <Controller
+                control={form.control}
+                name="modelType"
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onValueChange={(value) => field.onChange(value as FormValues["modelType"])}
+                  >
+                    <SelectTrigger id="price-model" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unit">unit</SelectItem>
+                      <SelectItem value="tiered">tiered</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="price-cadence">Cadence</Label>
-              <select
-                id="price-cadence"
-                className="h-8 border border-input bg-transparent px-2.5 text-xs outline-none focus-visible:border-ring"
-                {...form.register("cadence")}
-              >
-                <option value="monthly">monthly</option>
-                <option value="yearly">yearly</option>
-              </select>
+              <Controller
+                control={form.control}
+                name="cadence"
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onValueChange={(value) => field.onChange(value as FormValues["cadence"])}
+                  >
+                    <SelectTrigger id="price-cadence" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="monthly">monthly</SelectItem>
+                      <SelectItem value="yearly">yearly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="price-currency">Currency</Label>
-              <select
-                id="price-currency"
-                className="h-8 border border-input bg-transparent px-2.5 text-xs outline-none focus-visible:border-ring"
-                {...form.register("currency")}
-              >
-                <option value="">Project default</option>
-                {CURRENCIES.map((c) => (
-                  <option key={c.value} value={c.value}>
-                    {c.value}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                control={form.control}
+                name="currency"
+                render={({ field }) => (
+                  <Select
+                    items={[
+                      { value: "__default__", label: "Project default" },
+                      ...CURRENCIES.map((c) => ({ value: c.value, label: c.value })),
+                    ]}
+                    value={field.value ? field.value : "__default__"}
+                    onValueChange={(value) =>
+                      field.onChange(value === "__default__" ? "" : (value ?? ""))
+                    }
+                  >
+                    <SelectTrigger id="price-currency" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__default__">Project default</SelectItem>
+                      {CURRENCIES.map((c) => (
+                        <SelectItem key={c.value} value={c.value}>
+                          {c.value}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
           </div>
 

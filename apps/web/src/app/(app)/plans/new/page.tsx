@@ -4,6 +4,13 @@ import { Button } from "@ore/ui/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@ore/ui/components/card";
 import { Input } from "@ore/ui/components/input";
 import { Label } from "@ore/ui/components/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@ore/ui/components/select";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -12,7 +19,6 @@ import { toast } from "sonner";
 
 import { PageBody, PageHeader } from "@/components/page-header";
 import { ProjectRequired } from "@/components/project-required";
-import { Select } from "@/components/ui/select";
 import { getErrorMessage } from "@/lib/api";
 import { useProject } from "@/lib/project-context";
 import {
@@ -268,16 +274,24 @@ export default function NewPlanPage() {
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="plan-parent">Parent plan (optional)</Label>
                 <Select
-                  id="plan-parent"
-                  value={parentId}
-                  onChange={(e) => setParentId(e.target.value)}
+                  items={[
+                    { value: "__none__", label: "None" },
+                    ...(plans.data ?? []).map((plan) => ({ value: plan.id, label: plan.name })),
+                  ]}
+                  value={parentId ? parentId : "__none__"}
+                  onValueChange={(value) => setParentId(value === "__none__" ? "" : (value ?? ""))}
                 >
-                  <option value="">None</option>
-                  {(plans.data ?? []).map((plan) => (
-                    <option key={plan.id} value={plan.id}>
-                      {plan.name}
-                    </option>
-                  ))}
+                  <SelectTrigger id="plan-parent" className="w-full">
+                    <SelectValue placeholder="None" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">None</SelectItem>
+                    {(plans.data ?? []).map((plan) => (
+                      <SelectItem key={plan.id} value={plan.id}>
+                        {plan.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
             </CardContent>
@@ -322,47 +336,70 @@ export default function NewPlanPage() {
                     <div className="flex flex-col gap-1.5">
                       <Label>Metric</Label>
                       <Select
-                        value={price.metricKind === "existing" ? price.metricId : "__new__"}
-                        onChange={(e) => {
-                          const value = e.target.value;
+                        items={[
+                          ...(metrics.data ?? []).map((metric) => ({
+                            value: metric.id,
+                            label: `${metric.name} (${metric.unit})`,
+                          })),
+                          { value: "__new__", label: "＋ New metric…" },
+                        ]}
+                        value={price.metricKind === "new" ? "__new__" : price.metricId || null}
+                        onValueChange={(value) => {
                           if (value === "__new__") {
                             updatePrice(price.id, { metricKind: "new" });
                           } else {
-                            updatePrice(price.id, { metricKind: "existing", metricId: value });
+                            updatePrice(price.id, {
+                              metricKind: "existing",
+                              metricId: value ?? "",
+                            });
                           }
                         }}
                       >
-                        <option value="">Select a metric…</option>
-                        {(metrics.data ?? []).map((metric) => (
-                          <option key={metric.id} value={metric.id}>
-                            {metric.name} ({metric.unit})
-                          </option>
-                        ))}
-                        <option value="__new__">＋ New metric…</option>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a metric…" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(metrics.data ?? []).map((metric) => (
+                            <SelectItem key={metric.id} value={metric.id}>
+                              {metric.name} ({metric.unit})
+                            </SelectItem>
+                          ))}
+                          <SelectItem value="__new__">＋ New metric…</SelectItem>
+                        </SelectContent>
                       </Select>
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <Label>Model</Label>
                       <Select
                         value={price.modelType}
-                        onChange={(e) =>
-                          updatePrice(price.id, { modelType: e.target.value as ModelType })
+                        onValueChange={(value) =>
+                          updatePrice(price.id, { modelType: value as ModelType })
                         }
                       >
-                        <option value="unit">unit</option>
-                        <option value="tiered">tiered</option>
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="unit">unit</SelectItem>
+                          <SelectItem value="tiered">tiered</SelectItem>
+                        </SelectContent>
                       </Select>
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <Label>Cadence</Label>
                       <Select
                         value={price.cadence}
-                        onChange={(e) =>
-                          updatePrice(price.id, { cadence: e.target.value as Cadence })
+                        onValueChange={(value) =>
+                          updatePrice(price.id, { cadence: value as Cadence })
                         }
                       >
-                        <option value="monthly">monthly</option>
-                        <option value="yearly">yearly</option>
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="monthly">monthly</SelectItem>
+                          <SelectItem value="yearly">yearly</SelectItem>
+                        </SelectContent>
                       </Select>
                     </div>
                   </div>
@@ -389,15 +426,18 @@ export default function NewPlanPage() {
                         <Label>Aggregation</Label>
                         <Select
                           value={price.metricAggregation}
-                          onChange={(e) =>
-                            updatePrice(price.id, {
-                              metricAggregation: e.target.value as Aggregation,
-                            })
+                          onValueChange={(value) =>
+                            updatePrice(price.id, { metricAggregation: value as Aggregation })
                           }
                         >
-                          <option value="sum">sum</option>
-                          <option value="max">max</option>
-                          <option value="count">count</option>
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="sum">sum</SelectItem>
+                            <SelectItem value="max">max</SelectItem>
+                            <SelectItem value="count">count</SelectItem>
+                          </SelectContent>
                         </Select>
                       </div>
                       <div className="flex flex-col gap-1.5 sm:col-span-3">
@@ -417,15 +457,31 @@ export default function NewPlanPage() {
                     <div className="flex flex-col gap-1.5">
                       <Label>Currency</Label>
                       <Select
-                        value={price.currency}
-                        onChange={(e) => updatePrice(price.id, { currency: e.target.value })}
+                        items={[
+                          { value: "__default__", label: "Project default" },
+                          ...CURRENCIES.map((currency) => ({
+                            value: currency.value,
+                            label: currency.value,
+                          })),
+                        ]}
+                        value={price.currency ? price.currency : "__default__"}
+                        onValueChange={(value) =>
+                          updatePrice(price.id, {
+                            currency: value === "__default__" ? "" : (value ?? ""),
+                          })
+                        }
                       >
-                        <option value="">Project default</option>
-                        {CURRENCIES.map((currency) => (
-                          <option key={currency.value} value={currency.value}>
-                            {currency.value}
-                          </option>
-                        ))}
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__default__">Project default</SelectItem>
+                          {CURRENCIES.map((currency) => (
+                            <SelectItem key={currency.value} value={currency.value}>
+                              {currency.value}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
                       </Select>
                     </div>
                     {price.modelType === "unit" ? (

@@ -4,6 +4,13 @@ import { Button } from "@ore/ui/components/button";
 import { Card, CardContent } from "@ore/ui/components/card";
 import { Input } from "@ore/ui/components/input";
 import { Label } from "@ore/ui/components/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@ore/ui/components/select";
 import { Skeleton } from "@ore/ui/components/skeleton";
 import { Search, Zap } from "lucide-react";
 import Link from "next/link";
@@ -78,35 +85,57 @@ export default function EventsPage() {
               >
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="events-metric">Metric</Label>
-                  <select
-                    id="events-metric"
-                    className="h-8 border border-input bg-transparent px-2.5 text-xs outline-none focus-visible:border-ring"
-                    value={metricId}
-                    onChange={(e) => setMetricId(e.target.value)}
+                  <Select
+                    items={[
+                      { value: "__all__", label: "All metrics" },
+                      ...(metrics.data ?? []).map((metric) => ({
+                        value: metric.id,
+                        label: `${metric.name} (${metric.unit})`,
+                      })),
+                    ]}
+                    value={metricId ? metricId : "__all__"}
+                    onValueChange={(value) => setMetricId(value === "__all__" ? "" : (value ?? ""))}
                   >
-                    <option value="">All metrics</option>
-                    {(metrics.data ?? []).map((metric) => (
-                      <option key={metric.id} value={metric.id}>
-                        {metric.name} ({metric.unit})
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger id="events-metric" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__all__">All metrics</SelectItem>
+                      {(metrics.data ?? []).map((metric) => (
+                        <SelectItem key={metric.id} value={metric.id}>
+                          {metric.name} ({metric.unit})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="events-customer">Customer</Label>
-                  <select
-                    id="events-customer"
-                    className="h-8 border border-input bg-transparent px-2.5 text-xs outline-none focus-visible:border-ring"
-                    value={customerId}
-                    onChange={(e) => setCustomerId(e.target.value)}
+                  <Select
+                    items={[
+                      { value: "__all__", label: "All customers" },
+                      ...(customers.data ?? []).map((customer) => ({
+                        value: customer.id,
+                        label: customer.name ?? customer.email ?? `${customer.id.slice(0, 8)}…`,
+                      })),
+                    ]}
+                    value={customerId ? customerId : "__all__"}
+                    onValueChange={(value) =>
+                      setCustomerId(value === "__all__" ? "" : (value ?? ""))
+                    }
                   >
-                    <option value="">All customers</option>
-                    {(customers.data ?? []).map((customer) => (
-                      <option key={customer.id} value={customer.id}>
-                        {customer.name ?? customer.email ?? `${customer.id.slice(0, 8)}…`}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger id="events-customer" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__all__">All customers</SelectItem>
+                      {(customers.data ?? []).map((customer) => (
+                        <SelectItem key={customer.id} value={customer.id}>
+                          {customer.name ?? customer.email ?? `${customer.id.slice(0, 8)}…`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="events-from">From</Label>
