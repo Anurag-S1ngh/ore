@@ -70,12 +70,7 @@ export function ProjectSwitcher() {
                   onClick={() => selectProject(project.id)}
                   className="justify-between"
                 >
-                  <span className="flex min-w-0 flex-col">
-                    <span className="truncate">{project.name}</span>
-                    <span className="data-mono truncate text-[10px] text-muted-foreground">
-                      {project.slug}
-                    </span>
-                  </span>
+                  <span className="min-w-0 truncate">{project.name}</span>
                   {project.id === selectedProject?.id ? (
                     <Check className="size-3.5 text-primary" />
                   ) : null}
