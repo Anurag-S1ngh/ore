@@ -16,6 +16,7 @@ import { toast } from "sonner";
 
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PageBody, PageHeader } from "@/components/page-header";
+import { ProjectFormDialog, type ProjectFormValues } from "@/components/project-form-dialog";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -29,8 +30,6 @@ import { getErrorMessage } from "@/lib/api";
 import { useProject } from "@/lib/project-context";
 import { useCreateProject, useDeleteProject, useUpdateProject } from "@/lib/queries";
 import type { Project } from "@/lib/types";
-
-import { ProjectFormDialog, type ProjectFormValues } from "./project-form-dialog";
 
 export default function ProjectsPage() {
   const { projects, isLoading, isError, selectedProjectId, selectProject } = useProject();
