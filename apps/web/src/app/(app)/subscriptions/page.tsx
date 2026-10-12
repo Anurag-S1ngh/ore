@@ -66,9 +66,9 @@ export default function SubscriptionsPage() {
   );
 
   const customerById = React.useMemo(() => {
-    const map = new Map<string, { name: string | null; externalId: string }>();
+    const map = new Map<string, { name: string | null; email: string | null }>();
     for (const c of customers.data ?? []) {
-      map.set(c.id, { name: c.name, externalId: c.externalId });
+      map.set(c.id, { name: c.name, email: c.email });
     }
     return map;
   }, [customers.data]);
@@ -88,7 +88,7 @@ export default function SubscriptionsPage() {
     return list.filter((sub) => {
       const customer = customerById.get(sub.customerId);
       const plan = planById.get(sub.planId);
-      return [customer?.name, customer?.externalId, plan?.name]
+      return [customer?.name, customer?.email, plan?.name]
         .filter((value): value is string => Boolean(value))
         .some((value) => value.toLowerCase().includes(q));
     });
@@ -205,7 +205,7 @@ export default function SubscriptionsPage() {
                       return (
                         <TableRow key={sub.id}>
                           <TableCell>
-                            {customer?.name ?? customer?.externalId ?? (
+                            {customer?.name ?? customer?.email ?? (
                               <span className="data-mono text-[11px] text-muted-foreground">
                                 {sub.customerId.slice(0, 8)}…
                               </span>

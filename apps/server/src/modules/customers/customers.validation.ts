@@ -13,10 +13,6 @@ export const customerListQuerySchema = z.object({
 export type CustomerListFilters = z.output<typeof customerListQuerySchema>;
 
 export const createCustomerSchema = z.object({
-  externalId: z
-    .string("invalid external id")
-    .min(1, "external id is too short")
-    .max(255, "external id is too long"),
   name: z
     .string("invalid name")
     .min(1, "name is too short")

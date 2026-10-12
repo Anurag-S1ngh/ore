@@ -120,7 +120,7 @@ export default function SubscriptionDetailPage() {
                   label="Customer"
                   value={
                     subscription.customer?.name ??
-                    subscription.customer?.externalId ?? (
+                    subscription.customer?.email ?? (
                       <span className="data-mono text-[11px]">
                         {subscription.customerId.slice(0, 8)}…
                       </span>

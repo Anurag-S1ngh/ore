@@ -109,7 +109,7 @@ export function InvoiceFormDialog({
               <option value="">Select a customer…</option>
               {(customers.data ?? []).map((customer) => (
                 <option key={customer.id} value={customer.id}>
-                  {customer.name ?? customer.externalId} ({customer.externalId})
+                  {customer.name ?? customer.email ?? `${customer.id.slice(0, 8)}…`}
                 </option>
               ))}
             </select>

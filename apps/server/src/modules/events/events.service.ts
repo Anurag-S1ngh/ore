@@ -69,7 +69,7 @@ export const eventsService = {
   async create(
     metricName: string,
     apiKey: string,
-    externalCustomerId: string,
+    customerId: string,
     idempotencyKey: string,
     quantity: number,
     timestamp: string,
@@ -101,7 +101,7 @@ export const eventsService = {
     const [customer] = await db
       .select()
       .from(customers)
-      .where(and(eq(customers.externalId, externalCustomerId), eq(customers.projectId, projectId)));
+      .where(and(eq(customers.id, customerId), eq(customers.projectId, projectId)));
     if (!customer) {
       throw new AppError("invalid customer", 400);
     }

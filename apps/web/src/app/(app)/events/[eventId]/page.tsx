@@ -77,9 +77,7 @@ export default function EventDetailPage() {
                 label="Customer"
                 value={
                   event.customer?.name ??
-                  event.customer?.externalId ?? (
-                    <span className="data-mono">{event.customerId}</span>
-                  )
+                  event.customer?.email ?? <span className="data-mono">{event.customerId}</span>
                 }
               />
               <InfoRow

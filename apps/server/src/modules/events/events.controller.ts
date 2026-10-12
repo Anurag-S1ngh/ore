@@ -52,13 +52,13 @@ export const eventsController = {
     if (!validatedData.success) {
       return res.status(400).json({ error: validatedData.error.issues[0]?.message });
     }
-    const { metricName, apiKey, externalCustomerId, idempotencyKey, quantity, timestamp } =
+    const { metricName, apiKey, customerId, idempotencyKey, quantity, timestamp } =
       validatedData.data;
     try {
       const { event, duplicate } = await eventsService.create(
         metricName,
         apiKey,
-        externalCustomerId,
+        customerId,
         idempotencyKey,
         quantity,
         timestamp,

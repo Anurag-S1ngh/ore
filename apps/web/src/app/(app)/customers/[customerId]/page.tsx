@@ -44,7 +44,7 @@ export default function CustomerDetailPage() {
     <div className="flex min-h-full flex-col">
       <PageHeader
         title={customer?.name ?? "Customer"}
-        description={customer?.externalId ?? "Customer details"}
+        description={customer?.email ?? "Customer details"}
       >
         <Button
           variant="outline"
@@ -74,10 +74,6 @@ export default function CustomerDetailPage() {
                 <CardTitle>Details</CardTitle>
               </CardHeader>
               <CardContent className="divide-y">
-                <InfoRow
-                  label="External ID"
-                  value={<span className="data-mono">{customer.externalId}</span>}
-                />
                 <InfoRow label="Name" value={customer.name ?? "—"} />
                 <InfoRow label="Email" value={customer.email ?? "—"} />
                 <InfoRow

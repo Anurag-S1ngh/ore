@@ -77,17 +77,13 @@ export const customers = pgTable(
     projectId: uuid("project_id")
       .references(() => projects.id)
       .notNull(),
-    externalId: text("external_id").notNull(), // customer id from your own db
     name: text("name"),
     email: text("email"),
     phone: text("phone"),
 
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [
-    unique().on(t.projectId, t.externalId),
-    index("customers_project_email_idx").on(t.projectId, t.email),
-  ],
+  (t) => [index("customers_project_email_idx").on(t.projectId, t.email)],
 );
 
 export const metrics = pgTable(

@@ -3,7 +3,6 @@ import { and, desc, eq, lt, or } from "drizzle-orm";
 import { db } from "@/services";
 import { AppError } from "@/types/error";
 import { decodeKeysetCursor, paginate } from "@/util/cursor";
-import { isUniqueViolation } from "@/util/db-error";
 import type { CustomerListFilters } from "./customers.validation";
 
 export const customersService = {
@@ -33,34 +32,20 @@ export const customersService = {
     return { customers: page, nextCursor };
   },
 
-  async create(
-    projectId: string,
-    externalId: string,
-    name?: string,
-    email?: string,
-    phone?: string,
-  ) {
-    try {
-      const [created] = await db
-        .insert(customers)
-        .values({
-          projectId,
-          externalId,
-          name: name ?? null,
-          email: email ?? null,
-          phone: phone ?? null,
-        })
-        .returning();
-      if (!created) {
-        throw new AppError("error while creating customer", 500);
-      }
-      return created;
-    } catch (err) {
-      if (isUniqueViolation(err)) {
-        throw new AppError("customer already exists", 409);
-      }
-      throw err;
+  async create(projectId: string, name?: string, email?: string, phone?: string) {
+    const [created] = await db
+      .insert(customers)
+      .values({
+        projectId,
+        name: name ?? null,
+        email: email ?? null,
+        phone: phone ?? null,
+      })
+      .returning();
+    if (!created) {
+      throw new AppError("error while creating customer", 500);
     }
+    return created;
   },
 
   async update(

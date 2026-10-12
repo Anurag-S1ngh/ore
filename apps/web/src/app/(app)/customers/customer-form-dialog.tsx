@@ -22,7 +22,6 @@ import type { Customer } from "@/lib/types";
 const optionalEmail = z.union([z.email("Enter a valid email"), z.literal("")]).optional();
 
 const schema = z.object({
-  externalId: z.string().min(1, "External ID is required").max(255, "External ID is too long"),
   name: z.string().max(255, "Name is too long").optional(),
   email: optionalEmail,
   phone: z.string().max(20, "Phone is too long").optional(),
@@ -40,7 +39,7 @@ export function CustomerFormDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   customer?: Customer | null;
-  onSubmit: (values: { externalId: string; name?: string; email?: string; phone?: string }) => void;
+  onSubmit: (values: { name?: string; email?: string; phone?: string }) => void;
   pending?: boolean;
 }) {
   const editing = Boolean(customer);
@@ -48,7 +47,6 @@ export function CustomerFormDialog({
   const form = useForm<CustomerFormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      externalId: customer?.externalId ?? "",
       name: customer?.name ?? "",
       email: customer?.email ?? "",
       phone: customer?.phone ?? "",
@@ -58,7 +56,6 @@ export function CustomerFormDialog({
   React.useEffect(() => {
     if (open) {
       form.reset({
-        externalId: customer?.externalId ?? "",
         name: customer?.name ?? "",
         email: customer?.email ?? "",
         phone: customer?.phone ?? "",
@@ -68,7 +65,6 @@ export function CustomerFormDialog({
 
   function submit(values: CustomerFormValues) {
     onSubmit({
-      externalId: values.externalId,
       name: values.name?.trim() || undefined,
       email: values.email?.trim() || undefined,
       phone: values.phone?.trim() || undefined,
@@ -85,24 +81,6 @@ export function CustomerFormDialog({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(submit)} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="customer-external-id">External ID</Label>
-            <Input
-              id="customer-external-id"
-              placeholder="cus_12345"
-              disabled={editing}
-              className="data-mono"
-              {...form.register("externalId")}
-            />
-            <p className="text-[11px] text-muted-foreground">
-              The identifier for this customer in your own database.
-            </p>
-            {form.formState.errors.externalId ? (
-              <p className="text-[11px] text-destructive">
-                {form.formState.errors.externalId.message}
-              </p>
-            ) : null}
-          </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="customer-name">Name</Label>
             <Input id="customer-name" placeholder="Ada Lovelace" {...form.register("name")} />

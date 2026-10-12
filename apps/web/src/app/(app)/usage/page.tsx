@@ -142,7 +142,7 @@ export default function UsagePage() {
                     <option value="">All customers</option>
                     {(customers.data ?? []).map((customer) => (
                       <option key={customer.id} value={customer.id}>
-                        {customer.name ?? customer.externalId} ({customer.externalId})
+                        {customer.name ?? customer.email ?? `${customer.id.slice(0, 8)}…`}
                       </option>
                     ))}
                   </select>
@@ -200,7 +200,7 @@ export default function UsagePage() {
                             {new Date(row.periodStart).toLocaleString()}
                           </TableCell>
                           <TableCell>
-                            {row.customer?.name ?? row.customer?.externalId ?? (
+                            {row.customer?.name ?? row.customer?.email ?? (
                               <span className="data-mono text-[11px] text-muted-foreground">
                                 {row.customerId.slice(0, 8)}…
                               </span>

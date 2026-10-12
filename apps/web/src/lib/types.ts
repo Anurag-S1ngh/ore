@@ -13,7 +13,6 @@ export type Project = {
 export type Customer = {
   id: string;
   projectId: string;
-  externalId: string;
   name: string | null;
   email: string | null;
   phone: string | null;

@@ -170,7 +170,7 @@ export function useCustomers(projectId: string | undefined) {
 export function useCreateCustomer(projectId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: { externalId: string; name?: string; email?: string; phone?: string }) =>
+    mutationFn: (input: { name?: string; email?: string; phone?: string }) =>
       apiFetch<{ customer: Customer }>(`/customers/${projectId}/`, {
         method: "POST",
         body: input,

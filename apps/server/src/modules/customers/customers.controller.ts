@@ -42,9 +42,9 @@ export const customersController = {
     if (!validatedData.success) {
       return res.status(400).json({ error: validatedData.error.issues[0]?.message });
     }
-    const { externalId, name, email, phone } = validatedData.data;
+    const { name, email, phone } = validatedData.data;
     try {
-      const customer = await customersService.create(projectId, externalId, name, email, phone);
+      const customer = await customersService.create(projectId, name, email, phone);
       return res.status(201).json({ customer });
     } catch (err) {
       return handleControllerError(req, res, err, {

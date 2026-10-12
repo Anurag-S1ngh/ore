@@ -10,10 +10,7 @@ export const eventsValidationSchema = z.object({
     .string("invalid api key")
     .min(1, "api key is too short")
     .max(255, "api key is too long"),
-  externalCustomerId: z
-    .string("invalid external customer id")
-    .min(1, "external customer id is too short")
-    .max(255, "external customer id is too long"),
+  customerId: z.uuid("invalid customer id"),
   idempotencyKey: z
     .string("invalid idempotency key")
     .min(1, "idempotency key is too short")

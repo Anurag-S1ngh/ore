@@ -176,7 +176,6 @@ async function seed() {
     .values([
       {
         projectId,
-        externalId: "cus_acme",
         name: "Acme Corp",
         email: "billing@acme.test",
         phone: "+1-555-0100",
@@ -184,7 +183,6 @@ async function seed() {
       },
       {
         projectId,
-        externalId: "cus_globex",
         name: "Globex",
         email: "finance@globex.test",
         phone: "+1-555-0111",
@@ -192,14 +190,12 @@ async function seed() {
       },
       {
         projectId,
-        externalId: "cus_initech",
         name: "Initech",
         email: "ap@initech.test",
         createdAt: days(-10),
       },
       {
         projectId,
-        externalId: "cus_umbrella",
         name: "Umbrella Labs",
         email: "billing@umbrella.test",
         phone: "+1-555-0133",
@@ -207,11 +203,11 @@ async function seed() {
       },
     ])
     .returning();
-  const customerByExternalId = new Map(customerRows.map((row) => [row.externalId, row]));
-  const acme = customerByExternalId.get("cus_acme");
-  const globex = customerByExternalId.get("cus_globex");
-  const initech = customerByExternalId.get("cus_initech");
-  const umbrella = customerByExternalId.get("cus_umbrella");
+  const customerByName = new Map(customerRows.map((row) => [row.name, row]));
+  const acme = customerByName.get("Acme Corp");
+  const globex = customerByName.get("Globex");
+  const initech = customerByName.get("Initech");
+  const umbrella = customerByName.get("Umbrella Labs");
 
   const metricRows = await db
     .insert(metrics)

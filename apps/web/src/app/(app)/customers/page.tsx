@@ -58,13 +58,13 @@ export default function CustomersPage() {
     const q = query.trim().toLowerCase();
     if (!q) return list;
     return list.filter((customer) =>
-      [customer.externalId, customer.name, customer.email, customer.phone]
+      [customer.name, customer.email, customer.phone]
         .filter((value): value is string => Boolean(value))
         .some((value) => value.toLowerCase().includes(q)),
     );
   }, [customers.data, query]);
 
-  function onSubmit(values: { externalId: string; name?: string; email?: string; phone?: string }) {
+  function onSubmit(values: { name?: string; email?: string; phone?: string }) {
     if (editing) {
       updateCustomer.mutate(
         { customerId: editing.id, name: values.name, email: values.email, phone: values.phone },
@@ -173,7 +173,6 @@ export default function CustomersPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>External ID</TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Phone</TableHead>
@@ -184,15 +183,14 @@ export default function CustomersPage() {
                   <TableBody>
                     {filtered.map((customer) => (
                       <TableRow key={customer.id}>
-                        <TableCell className="data-mono">
+                        <TableCell className="font-medium">
                           <Link
                             href={`/customers/${customer.id}`}
                             className="text-primary hover:underline"
                           >
-                            {customer.externalId}
+                            {customer.name ?? "Unnamed customer"}
                           </Link>
                         </TableCell>
-                        <TableCell>{customer.name ?? "—"}</TableCell>
                         <TableCell className="text-muted-foreground">
                           {customer.email ?? "—"}
                         </TableCell>
@@ -266,7 +264,7 @@ export default function CustomersPage() {
           if (!open) setDeleting(null);
         }}
         title="Delete customer"
-        description={`This deletes "${deleting?.name ?? deleting?.externalId}" from the project. This cannot be undone.`}
+        description={`This deletes "${deleting?.name ?? deleting?.email ?? "this customer"}" from the project. This cannot be undone.`}
         confirmLabel="Delete customer"
         onConfirm={onDelete}
         pending={deleteCustomer.isPending}
