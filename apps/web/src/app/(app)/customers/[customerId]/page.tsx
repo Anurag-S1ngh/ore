@@ -46,7 +46,12 @@ export default function CustomerDetailPage() {
         title={customer?.name ?? "Customer"}
         description={customer?.externalId ?? "Customer details"}
       >
-        <Button variant="outline" size="sm" render={<Link href="/customers" />}>
+        <Button
+          variant="outline"
+          size="sm"
+          nativeButton={false}
+          render={<Link href="/customers" />}
+        >
           <ArrowLeft />
           Back
         </Button>

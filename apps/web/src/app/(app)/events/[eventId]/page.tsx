@@ -31,7 +31,7 @@ export default function EventDetailPage() {
   return (
     <div className="flex min-h-full flex-col">
       <PageHeader title="Event" description={event ? event.idempotencyKey : "Usage event details"}>
-        <Button variant="outline" size="sm" render={<Link href="/events" />}>
+        <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/events" />}>
           <ArrowLeft />
           Back
         </Button>

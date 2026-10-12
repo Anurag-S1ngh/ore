@@ -79,7 +79,12 @@ export default function SubscriptionDetailPage() {
             : "Subscription details"
         }
       >
-        <Button variant="outline" size="sm" render={<Link href="/subscriptions" />}>
+        <Button
+          variant="outline"
+          size="sm"
+          nativeButton={false}
+          render={<Link href="/subscriptions" />}
+        >
           <ArrowLeft />
           Back
         </Button>

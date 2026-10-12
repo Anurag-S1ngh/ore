@@ -81,7 +81,7 @@ export default function PlanDetailPage() {
   return (
     <div className="flex min-h-full flex-col">
       <PageHeader title={plan?.name ?? "Plan"} description={plan?.externalPlanId ?? "Plan details"}>
-        <Button variant="outline" size="sm" render={<Link href="/plans" />}>
+        <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/plans" />}>
           <ArrowLeft />
           Back
         </Button>

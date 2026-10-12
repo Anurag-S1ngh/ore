@@ -56,7 +56,7 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button render={<Link href="/projects" />} size="sm">
+              <Button nativeButton={false} render={<Link href="/projects" />} size="sm">
                 Go to projects
                 <ArrowRight />
               </Button>

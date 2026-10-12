@@ -25,7 +25,7 @@ export function ProjectRequired({ resource }: { resource: string }) {
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button size="sm" render={<Link href="/projects" />}>
+        <Button size="sm" nativeButton={false} render={<Link href="/projects" />}>
           <Plus />
           Manage projects
         </Button>

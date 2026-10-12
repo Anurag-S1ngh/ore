@@ -86,7 +86,7 @@ export default function InvoiceDetailPage() {
             : "Invoice details"
         }
       >
-        <Button variant="outline" size="sm" render={<Link href="/invoices" />}>
+        <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/invoices" />}>
           <ArrowLeft />
           Back
         </Button>
