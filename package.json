@@ -36,6 +36,8 @@
     "db:studio": "turbo run db:studio -F @ore/db --",
     "db:generate": "turbo run db:generate -F @ore/db --",
     "db:migrate": "turbo run db:migrate -F @ore/db --",
+    "db:seed": "turbo run db:seed -F @ore/db --",
+    "db:reset": "turbo run db:reset -F @ore/db --",
     "env:generate": "varlock codegen --path ./apps/web/ && varlock codegen --path ./apps/server/ && varlock codegen --path ./packages/db/ && varlock codegen --path ./apps/worker/ && varlock codegen --path ./packages/queue/ && varlock codegen --path ./packages/redis-client/",
     "postinstall": "varlock codegen --path ./apps/web/ && varlock codegen --path ./apps/server/ && varlock codegen --path ./packages/db/ && varlock codegen --path ./apps/worker/ && varlock codegen --path ./packages/queue/ && varlock codegen --path ./packages/redis-client/"
   },
