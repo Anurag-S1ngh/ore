@@ -2,10 +2,8 @@ import {
   invoiceItems,
   metrics,
   plans,
-  type priceModelTypeEnum,
   prices,
   priceTiers,
-  projects,
   subscriptionPriceIntervals,
 } from "@ore/db/schema/index";
 import { and, eq } from "drizzle-orm";
@@ -13,79 +11,13 @@ import { db } from "@/services";
 import { AppError } from "@/types/error";
 import { decodeKeysetCursor, paginate } from "@/util/cursor";
 import { isForeignKeyViolation, isUniqueViolation } from "@/util/db-error";
-import type {
-  CreatePriceInput,
-  PriceListFilters,
-  TierInput,
-  UpdatePriceInput,
-} from "./prices.validation";
-
-type ModelType = (typeof priceModelTypeEnum.enumValues)[number];
-
-const toDecimal = (value: number | null) => (value === null ? null : value.toFixed(6));
-
-const getProjectCurrency = async (projectId: string) => {
-  const [project] = await db
-    .select({ defaultCurrency: projects.defaultCurrency })
-    .from(projects)
-    .where(eq(projects.id, projectId));
-  if (!project) {
-    throw new AppError("project not found", 404);
-  }
-  return project.defaultCurrency;
-};
-
-const assertPriceConsistency = (input: {
-  modelType: ModelType;
-  metricId: string | null;
-  unitAmount: number | null;
-  tiers: TierInput[] | null;
-}) => {
-  const { modelType, metricId, unitAmount, tiers } = input;
-
-  if (metricId === null) {
-    throw new AppError("usage-based prices require a metric", 400);
-  }
-
-  if (modelType === "unit") {
-    if (unitAmount === null) {
-      throw new AppError("unit prices require a unit amount", 400);
-    }
-    if (tiers && tiers.length > 0) {
-      throw new AppError("unit prices cannot have tiers", 400);
-    }
-    return;
-  }
-
-  if (unitAmount !== null) {
-    throw new AppError("tiered prices cannot have a unit amount", 400);
-  }
-  if (!tiers || tiers.length === 0) {
-    throw new AppError("tiered prices require at least one tier", 400);
-  }
-
-  const sorted = [...tiers].sort((a, b) => a.firstUnit - b.firstUnit);
-  const seen = new Set<number>();
-  for (let i = 0; i < sorted.length; i++) {
-    const tier = sorted[i];
-    if (!tier) {
-      continue;
-    }
-    if (seen.has(tier.firstUnit)) {
-      throw new AppError("tier first units must be unique", 400);
-    }
-    seen.add(tier.firstUnit);
-
-    if (tier.lastUnit != null && tier.lastUnit < tier.firstUnit) {
-      throw new AppError("tier last unit must be greater than its first unit", 400);
-    }
-
-    const next = sorted[i + 1];
-    if (next && (tier.lastUnit == null || tier.lastUnit >= next.firstUnit)) {
-      throw new AppError("tiers must not overlap and only the last tier may be open-ended", 400);
-    }
-  }
-};
+import {
+  assertPriceConsistency,
+  getProjectCurrency,
+  type TierInput,
+  toDecimal,
+} from "./prices.shared";
+import type { CreatePriceInput, PriceListFilters, UpdatePriceInput } from "./prices.validation";
 
 export const pricesService = {
   async list(projectId: string, planId: string, filters: PriceListFilters) {

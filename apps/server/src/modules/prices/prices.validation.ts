@@ -1,17 +1,7 @@
 import { cadenceEnum, currencyEnum, priceModelTypeEnum } from "@ore/db/schema/index";
 import { z } from "zod";
 import { paginationSchema } from "@/util/cursor";
-
-const decimalAmount = z
-  .number("should be a number")
-  .nonnegative("should be zero or greater")
-  .refine((v) => Number(v.toFixed(6)) === v, "supports at most 6 decimal places");
-
-const tierSchema = z.object({
-  firstUnit: decimalAmount,
-  lastUnit: decimalAmount.nullable().optional(),
-  unitAmount: decimalAmount,
-});
+import { decimalAmount, tierSchema } from "./prices.shared";
 
 export const priceParamSchema = z.object({
   projectId: z.uuid("invalid project id"),
@@ -53,6 +43,5 @@ export const updatePriceSchema = z.object({
   tiers: z.array(tierSchema).nullable().optional(),
 });
 
-export type TierInput = z.output<typeof tierSchema>;
 export type CreatePriceInput = z.output<typeof createPriceSchema>;
 export type UpdatePriceInput = z.output<typeof updatePriceSchema>;
