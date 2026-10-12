@@ -72,7 +72,7 @@ export default function SubscriptionDetailPage() {
   return (
     <div className="flex min-h-full flex-col">
       <PageHeader
-        title={subscription?.externalSubscriptionId ?? "Subscription"}
+        title="Subscription"
         description={
           subscription
             ? `${subscription.plan?.name ?? "Plan"} · ${subscription.cadence} · ${subscription.status}`
@@ -117,10 +117,6 @@ export default function SubscriptionDetailPage() {
               </CardHeader>
               <CardContent className="divide-y">
                 <InfoRow
-                  label="External ID"
-                  value={<span className="data-mono">{subscription.externalSubscriptionId}</span>}
-                />
-                <InfoRow
                   label="Customer"
                   value={
                     subscription.customer?.name ??
@@ -134,8 +130,7 @@ export default function SubscriptionDetailPage() {
                 <InfoRow
                   label="Plan"
                   value={
-                    subscription.plan?.name ??
-                    subscription.plan?.externalPlanId ?? (
+                    subscription.plan?.name ?? (
                       <span className="data-mono text-[11px]">
                         {subscription.planId.slice(0, 8)}…
                       </span>
@@ -249,7 +244,11 @@ export default function SubscriptionDetailPage() {
         open={confirmCancel}
         onOpenChange={setConfirmCancel}
         title="Cancel subscription"
-        description={`This cancels "${subscription?.externalSubscriptionId}" and closes its active price intervals. This cannot be undone.`}
+        description={
+          subscription
+            ? `This cancels the subscription for ${subscription.customer?.name ?? "this customer"} and closes its active price intervals. This cannot be undone.`
+            : "This cancels the subscription and closes its active price intervals. This cannot be undone."
+        }
         confirmLabel="Cancel subscription"
         onConfirm={onCancel}
         pending={cancelSubscription.isPending}

@@ -141,7 +141,7 @@ export const pricesService = {
   },
 
   async create(projectId: string, planId: string, input: CreatePriceInput) {
-    const { metricId, modelType, cadence, externalPriceId, unitAmount, tiers } = input;
+    const { metricId, modelType, cadence, unitAmount, tiers } = input;
 
     const [plan] = await db
       .select({ id: plans.id })
@@ -181,7 +181,6 @@ export const pricesService = {
             currency,
             modelType,
             cadence,
-            externalPriceId,
             unitAmount: toDecimal(resolvedUnitAmount),
           })
           .returning();
@@ -204,7 +203,7 @@ export const pricesService = {
       });
     } catch (err) {
       if (isUniqueViolation(err)) {
-        throw new AppError("a price with the same external price id or tier already exists", 409);
+        throw new AppError("a price with the same tier already exists", 409);
       }
       throw err;
     }
@@ -268,7 +267,6 @@ export const pricesService = {
             currency,
             modelType,
             cadence: input.cadence ?? existing.cadence,
-            externalPriceId: input.externalPriceId ?? existing.externalPriceId,
             unitAmount: toDecimal(unitAmount),
           })
           .where(and(eq(prices.id, priceId), eq(prices.projectId, projectId)))
@@ -295,7 +293,7 @@ export const pricesService = {
       });
     } catch (err) {
       if (isUniqueViolation(err)) {
-        throw new AppError("a price with the same external price id or tier already exists", 409);
+        throw new AppError("a price with the same tier already exists", 409);
       }
       throw err;
     }

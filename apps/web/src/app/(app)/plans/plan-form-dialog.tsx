@@ -27,7 +27,6 @@ import type { Plan } from "@/lib/types";
 const schema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name is too long"),
   description: z.string().max(500, "Description is too long").optional(),
-  externalPlanId: z.string().min(1, "External ID is required"),
   parentId: z.string().optional(),
 });
 
@@ -56,7 +55,6 @@ export function PlanFormDialog({
     defaultValues: {
       name: plan?.name ?? "",
       description: plan?.description ?? "",
-      externalPlanId: plan?.externalPlanId ?? "",
       parentId: plan?.parentId ?? "",
     },
   });
@@ -66,7 +64,6 @@ export function PlanFormDialog({
       form.reset({
         name: plan?.name ?? "",
         description: plan?.description ?? "",
-        externalPlanId: plan?.externalPlanId ?? "",
         parentId: plan?.parentId ?? "",
       });
     }
@@ -76,7 +73,6 @@ export function PlanFormDialog({
     const payload = {
       name: values.name.trim(),
       ...(values.description?.trim() ? { description: values.description.trim() } : {}),
-      externalPlanId: values.externalPlanId.trim(),
       ...(values.parentId ? { parentId: values.parentId } : {}),
     };
     if (editing && plan) {
@@ -122,21 +118,6 @@ export function PlanFormDialog({
             ) : null}
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="plan-external-id">External plan ID</Label>
-            <Input
-              id="plan-external-id"
-              placeholder="plan_pro"
-              className="data-mono"
-              disabled={editing}
-              {...form.register("externalPlanId")}
-            />
-            {form.formState.errors.externalPlanId ? (
-              <p className="text-[11px] text-destructive">
-                {form.formState.errors.externalPlanId.message}
-              </p>
-            ) : null}
-          </div>
-          <div className="flex flex-col gap-1.5">
             <Label htmlFor="plan-description">Description (optional)</Label>
             <Input
               id="plan-description"
@@ -154,7 +135,7 @@ export function PlanFormDialog({
               <option value="">None</option>
               {parentOptions.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.name} ({p.externalPlanId})
+                  {p.name}
                 </option>
               ))}
             </select>

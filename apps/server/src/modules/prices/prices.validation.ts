@@ -40,10 +40,6 @@ export const createPriceSchema = z.object({
   currency: z.enum(currencyEnum.enumValues, "invalid currency").optional(),
   modelType: z.enum(priceModelTypeEnum.enumValues, "invalid model type"),
   cadence: z.enum(cadenceEnum.enumValues, "invalid cadence"),
-  externalPriceId: z
-    .string("should be a string")
-    .min(1, "should be at least 1 char")
-    .max(255, "should be less than 255 chars"),
   unitAmount: decimalAmount.nullable().optional(),
   tiers: z.array(tierSchema).optional(),
 });
@@ -53,11 +49,6 @@ export const updatePriceSchema = z.object({
   currency: z.enum(currencyEnum.enumValues, "invalid currency").optional(),
   modelType: z.enum(priceModelTypeEnum.enumValues, "invalid model type").optional(),
   cadence: z.enum(cadenceEnum.enumValues, "invalid cadence").optional(),
-  externalPriceId: z
-    .string("should be a string")
-    .min(1, "should be at least 1 char")
-    .max(255, "should be less than 255 chars")
-    .optional(),
   unitAmount: decimalAmount.nullable().optional(),
   tiers: z.array(tierSchema).nullable().optional(),
 });

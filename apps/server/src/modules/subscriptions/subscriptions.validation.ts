@@ -17,10 +17,6 @@ export const subscriptionListQuerySchema = z.object({
 export const createSubscriptionSchema = z.object({
   customerId: z.uuid("invalid customer id"),
   planId: z.uuid("invalid plan id"),
-  externalSubscriptionId: z
-    .string("should be a string")
-    .min(1, "should be at least 1 char")
-    .max(255, "should be less than 255 chars"),
   cadence: z.enum(cadenceEnum.enumValues, "invalid cadence"),
   startDate: z.iso.datetime("invalid start date").optional(),
 });

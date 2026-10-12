@@ -3,7 +3,7 @@ import { and, desc, eq, lt, or } from "drizzle-orm";
 import { db } from "@/services";
 import { AppError } from "@/types/error";
 import { decodeKeysetCursor, paginate } from "@/util/cursor";
-import { isForeignKeyViolation, isUniqueViolation } from "@/util/db-error";
+import { isForeignKeyViolation } from "@/util/db-error";
 import type { PlanListFilters } from "./plans.validation";
 
 export const plansService = {
@@ -33,13 +33,7 @@ export const plansService = {
     return { plans: page, nextCursor };
   },
 
-  async create(
-    name: string,
-    projectId: string,
-    externalPlanId: string,
-    description?: string,
-    parentId?: string,
-  ) {
+  async create(name: string, projectId: string, description?: string, parentId?: string) {
     if (parentId) {
       const [parent] = await db.select().from(plans).where(eq(plans.id, parentId));
       if (!parent) {
@@ -49,43 +43,29 @@ export const plansService = {
         throw new AppError("invalid parent plan id", 400);
       }
     }
-    try {
-      const [created] = await db
-        .insert(plans)
-        .values({
-          projectId,
-          name,
-          description,
-          externalPlanId,
-          parentId,
-        })
-        .returning();
-      if (!created) {
-        throw new AppError("failed to create plan", 500);
-      }
-      return created;
-    } catch (err) {
-      if (isUniqueViolation(err)) {
-        throw new AppError("a plan with same external plan id already exists", 409);
-      }
-      throw err;
+    const [created] = await db
+      .insert(plans)
+      .values({
+        projectId,
+        name,
+        description,
+        parentId,
+      })
+      .returning();
+    if (!created) {
+      throw new AppError("failed to create plan", 500);
     }
+    return created;
   },
 
   async update(
     planId: string,
     projectId: string,
     name?: string,
-    externalPlanId?: string,
     description?: string | null,
     parentId?: string | null,
   ) {
-    if (
-      name === undefined &&
-      externalPlanId === undefined &&
-      description === undefined &&
-      parentId === undefined
-    ) {
+    if (name === undefined && description === undefined && parentId === undefined) {
       throw new AppError("no plan data provided", 400);
     }
     if (parentId && parentId === planId) {
@@ -100,27 +80,19 @@ export const plansService = {
         throw new AppError("invalid parent plan id", 400);
       }
     }
-    try {
-      const [updated] = await db
-        .update(plans)
-        .set({
-          name,
-          externalPlanId,
-          description,
-          parentId,
-        })
-        .where(and(eq(plans.projectId, projectId), eq(plans.id, planId)))
-        .returning();
-      if (!updated) {
-        throw new AppError("failed to update plan", 404);
-      }
-      return updated;
-    } catch (err) {
-      if (isUniqueViolation(err)) {
-        throw new AppError("a plan with same external plan id already exists", 409);
-      }
-      throw err;
+    const [updated] = await db
+      .update(plans)
+      .set({
+        name,
+        description,
+        parentId,
+      })
+      .where(and(eq(plans.projectId, projectId), eq(plans.id, planId)))
+      .returning();
+    if (!updated) {
+      throw new AppError("failed to update plan", 404);
     }
+    return updated;
   },
 
   async delete(planId: string, projectId: string) {

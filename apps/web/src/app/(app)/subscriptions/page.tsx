@@ -74,9 +74,9 @@ export default function SubscriptionsPage() {
   }, [customers.data]);
 
   const planById = React.useMemo(() => {
-    const map = new Map<string, { name: string; externalPlanId: string }>();
+    const map = new Map<string, { name: string }>();
     for (const p of plans.data ?? []) {
-      map.set(p.id, { name: p.name, externalPlanId: p.externalPlanId });
+      map.set(p.id, { name: p.name });
     }
     return map;
   }, [plans.data]);
@@ -88,13 +88,7 @@ export default function SubscriptionsPage() {
     return list.filter((sub) => {
       const customer = customerById.get(sub.customerId);
       const plan = planById.get(sub.planId);
-      return [
-        sub.externalSubscriptionId,
-        customer?.name,
-        customer?.externalId,
-        plan?.name,
-        plan?.externalPlanId,
-      ]
+      return [customer?.name, customer?.externalId, plan?.name]
         .filter((value): value is string => Boolean(value))
         .some((value) => value.toLowerCase().includes(q));
     });
@@ -142,7 +136,7 @@ export default function SubscriptionsPage() {
             <CardContent className="flex flex-col gap-3 px-0">
               <div className="flex flex-wrap items-center gap-2 px-4">
                 <Input
-                  placeholder="Search by ID, customer, or plan…"
+                  placeholder="Search by customer or plan…"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   className="h-8 max-w-xs"
@@ -196,7 +190,6 @@ export default function SubscriptionsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>External ID</TableHead>
                       <TableHead>Customer</TableHead>
                       <TableHead>Plan</TableHead>
                       <TableHead>Cadence</TableHead>
@@ -211,14 +204,6 @@ export default function SubscriptionsPage() {
                       const plan = planById.get(sub.planId);
                       return (
                         <TableRow key={sub.id}>
-                          <TableCell className="data-mono">
-                            <Link
-                              href={`/subscriptions/${sub.id}`}
-                              className="text-primary hover:underline"
-                            >
-                              {sub.externalSubscriptionId}
-                            </Link>
-                          </TableCell>
                           <TableCell>
                             {customer?.name ?? customer?.externalId ?? (
                               <span className="data-mono text-[11px] text-muted-foreground">
@@ -316,7 +301,11 @@ export default function SubscriptionsPage() {
           if (!open) setCanceling(null);
         }}
         title="Cancel subscription"
-        description={`This cancels "${canceling?.externalSubscriptionId}" and closes its active price intervals. This cannot be undone.`}
+        description={
+          canceling
+            ? `This cancels the subscription for ${customerById.get(canceling.customerId)?.name ?? "this customer"} and closes its active price intervals. This cannot be undone.`
+            : "This cancels the subscription and closes its active price intervals. This cannot be undone."
+        }
         confirmLabel="Cancel subscription"
         onConfirm={onCancel}
         pending={cancelSubscription.isPending}

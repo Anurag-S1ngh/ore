@@ -41,7 +41,6 @@ const schema = z
     metricId: z.string().min(1, "Metric is required"),
     modelType: z.enum(["unit", "tiered"]),
     cadence: z.enum(["monthly", "yearly"]),
-    externalPriceId: z.string().min(1, "External ID is required").max(255),
     currency: z.string().optional(),
     unitAmount: z.string().optional(),
     tiers: z.array(tierSchema).optional(),
@@ -91,7 +90,6 @@ export function PriceFormDialog({
       metricId: price?.metricId ?? "",
       modelType: price?.modelType ?? "unit",
       cadence: price?.cadence ?? "monthly",
-      externalPriceId: price?.externalPriceId ?? "",
       currency: price?.currency ?? "",
       unitAmount: price?.unitAmount ?? "",
       tiers:
@@ -111,7 +109,6 @@ export function PriceFormDialog({
         metricId: price?.metricId ?? "",
         modelType: price?.modelType ?? "unit",
         cadence: price?.cadence ?? "monthly",
-        externalPriceId: price?.externalPriceId ?? "",
         currency: price?.currency ?? "",
         unitAmount: price?.unitAmount ?? "",
         tiers:
@@ -171,7 +168,6 @@ export function PriceFormDialog({
           metricId: values.metricId,
           modelType: values.modelType,
           cadence: values.cadence,
-          externalPriceId: values.externalPriceId.trim(),
           ...(values.currency ? { currency: values.currency as Currency } : {}),
           ...(values.modelType === "unit"
             ? { unitAmount: values.unitAmount !== "" ? Number(values.unitAmount) : null, tiers: [] }
@@ -195,7 +191,6 @@ export function PriceFormDialog({
         metricId: values.metricId,
         modelType: values.modelType,
         cadence: values.cadence,
-        externalPriceId: values.externalPriceId.trim(),
         ...(values.currency ? { currency: values.currency as Currency } : {}),
         ...(values.modelType === "unit"
           ? { unitAmount: values.unitAmount !== "" ? Number(values.unitAmount) : null }
@@ -221,7 +216,7 @@ export function PriceFormDialog({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(submit)} className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="price-metric">Metric</Label>
               <select
@@ -239,20 +234,6 @@ export function PriceFormDialog({
               {form.formState.errors.metricId ? (
                 <p className="text-[11px] text-destructive">
                   {form.formState.errors.metricId.message}
-                </p>
-              ) : null}
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="price-external-id">External price ID</Label>
-              <Input
-                id="price-external-id"
-                placeholder="price_pro_month"
-                className="data-mono"
-                {...form.register("externalPriceId")}
-              />
-              {form.formState.errors.externalPriceId ? (
-                <p className="text-[11px] text-destructive">
-                  {form.formState.errors.externalPriceId.message}
                 </p>
               ) : null}
             </div>

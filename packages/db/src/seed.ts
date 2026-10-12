@@ -251,26 +251,23 @@ async function seed() {
         projectId,
         name: "Starter",
         description: "For small teams getting started.",
-        externalPlanId: "starter",
       },
       {
         projectId,
         name: "Pro",
         description: "Growing teams with higher usage.",
-        externalPlanId: "pro",
       },
       {
         projectId,
         name: "Enterprise",
         description: "Custom limits and dedicated support.",
-        externalPlanId: "enterprise",
       },
     ])
     .returning();
-  const planByExternalId = new Map(planRows.map((row) => [row.externalPlanId, row]));
-  const starter = planByExternalId.get("starter");
-  const pro = planByExternalId.get("pro");
-  const enterprise = planByExternalId.get("enterprise");
+  const planByName = new Map(planRows.map((row) => [row.name, row]));
+  const starter = planByName.get("Starter");
+  const pro = planByName.get("Pro");
+  const enterprise = planByName.get("Enterprise");
 
   if (
     !acme ||
@@ -298,7 +295,6 @@ async function seed() {
         currency: "USD",
         modelType: "unit",
         cadence: "monthly",
-        externalPriceId: "starter_api_calls",
       },
       {
         projectId,
@@ -308,7 +304,6 @@ async function seed() {
         currency: "USD",
         modelType: "unit",
         cadence: "monthly",
-        externalPriceId: "starter_seats",
       },
       {
         projectId,
@@ -318,7 +313,6 @@ async function seed() {
         currency: "USD",
         modelType: "tiered",
         cadence: "monthly",
-        externalPriceId: "pro_api_calls",
       },
       {
         projectId,
@@ -328,7 +322,6 @@ async function seed() {
         currency: "USD",
         modelType: "unit",
         cadence: "monthly",
-        externalPriceId: "pro_storage",
       },
       {
         projectId,
@@ -338,16 +331,15 @@ async function seed() {
         currency: "USD",
         modelType: "unit",
         cadence: "monthly",
-        externalPriceId: "enterprise_api_calls",
       },
     ])
     .returning();
-  const priceByExternalId = new Map(priceRows.map((row) => [row.externalPriceId, row]));
-  const starterApiCalls = priceByExternalId.get("starter_api_calls");
-  const starterSeats = priceByExternalId.get("starter_seats");
-  const proApiCalls = priceByExternalId.get("pro_api_calls");
-  const proStorage = priceByExternalId.get("pro_storage");
-  const enterpriseApiCalls = priceByExternalId.get("enterprise_api_calls");
+  const priceByKey = new Map(priceRows.map((row) => [`${row.planId}:${row.metricId}`, row]));
+  const starterApiCalls = priceByKey.get(`${starter.id}:${apiCalls.id}`);
+  const starterSeats = priceByKey.get(`${starter.id}:${seats.id}`);
+  const proApiCalls = priceByKey.get(`${pro.id}:${apiCalls.id}`);
+  const proStorage = priceByKey.get(`${pro.id}:${storage.id}`);
+  const enterpriseApiCalls = priceByKey.get(`${enterprise.id}:${apiCalls.id}`);
 
   if (!starterApiCalls || !starterSeats || !proApiCalls || !proStorage || !enterpriseApiCalls) {
     throw new Error("failed to build seed price rows");
@@ -367,7 +359,6 @@ async function seed() {
         planId: pro.id,
         customerId: acme.id,
         status: "active",
-        externalSubscriptionId: "sub_acme_pro",
         cadence: "monthly",
         startDate: days(-60),
         currentPeriodStart: days(-5),
@@ -379,7 +370,6 @@ async function seed() {
         planId: starter.id,
         customerId: globex.id,
         status: "active",
-        externalSubscriptionId: "sub_globex_starter",
         cadence: "monthly",
         startDate: days(-18),
         currentPeriodStart: days(-18),
@@ -391,7 +381,6 @@ async function seed() {
         planId: starter.id,
         customerId: initech.id,
         status: "canceled",
-        externalSubscriptionId: "sub_initech_starter",
         cadence: "monthly",
         startDate: days(-40),
         endDate: days(-4),
@@ -403,7 +392,6 @@ async function seed() {
         planId: enterprise.id,
         customerId: umbrella.id,
         status: "upcoming",
-        externalSubscriptionId: "sub_umbrella_enterprise",
         cadence: "yearly",
         startDate: days(7),
         currentPeriodStart: days(7),
@@ -412,13 +400,11 @@ async function seed() {
       },
     ])
     .returning();
-  const subscriptionByExternalId = new Map(
-    subscriptionRows.map((row) => [row.externalSubscriptionId, row]),
-  );
-  const acmeSub = subscriptionByExternalId.get("sub_acme_pro");
-  const globexSub = subscriptionByExternalId.get("sub_globex_starter");
-  const initechSub = subscriptionByExternalId.get("sub_initech_starter");
-  const umbrellaSub = subscriptionByExternalId.get("sub_umbrella_enterprise");
+  const subscriptionByCustomerId = new Map(subscriptionRows.map((row) => [row.customerId, row]));
+  const acmeSub = subscriptionByCustomerId.get(acme.id);
+  const globexSub = subscriptionByCustomerId.get(globex.id);
+  const initechSub = subscriptionByCustomerId.get(initech.id);
+  const umbrellaSub = subscriptionByCustomerId.get(umbrella.id);
 
   if (!acmeSub || !globexSub || !initechSub || !umbrellaSub) {
     throw new Error("failed to build seed subscription rows");

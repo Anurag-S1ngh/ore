@@ -43,7 +43,6 @@ export type Plan = {
   projectId: string;
   name: string;
   description: string | null;
-  externalPlanId: string;
   parentId: string | null;
   createdAt: string;
 };
@@ -102,7 +101,6 @@ export type Price = {
   currency: Currency;
   modelType: "unit" | "tiered";
   cadence: Cadence;
-  externalPriceId: string;
   createdAt: string;
   priceTiers?: PriceTier[];
   metric?: Metric | null;
@@ -130,7 +128,6 @@ export type Subscription = {
   planId: string;
   customerId: string;
   status: SubscriptionStatus;
-  externalSubscriptionId: string;
   cadence: Cadence;
   startDate: string;
   endDate: string | null;
@@ -191,7 +188,6 @@ export type InvoiceItem = {
   } | null;
   subscription?: {
     id: string;
-    externalSubscriptionId: string;
   } | null;
 };
 

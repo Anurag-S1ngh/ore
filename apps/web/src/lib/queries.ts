@@ -261,12 +261,7 @@ export function usePlans(projectId: string | undefined) {
 export function useCreatePlan(projectId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: {
-      name: string;
-      description?: string;
-      externalPlanId: string;
-      parentId?: string;
-    }) =>
+    mutationFn: (input: { name: string; description?: string; parentId?: string }) =>
       apiFetch<{ plan: Plan }>(`/plans/${projectId}`, {
         method: "POST",
         body: input,
@@ -286,7 +281,6 @@ export function useUpdatePlan(projectId: string | undefined) {
       planId: string;
       name?: string;
       description?: string | null;
-      externalPlanId?: string;
       parentId?: string | null;
     }) =>
       apiFetch<{ plan: Plan }>(`/plans/${projectId}/${planId}`, {
@@ -333,7 +327,6 @@ export function useCreatePrice(projectId: string | undefined, planId: string | u
       metricId: string;
       modelType: "unit" | "tiered";
       cadence: Cadence;
-      externalPriceId: string;
       currency?: Currency;
       unitAmount?: number | null;
       tiers?: PriceTierInput[];
@@ -360,7 +353,6 @@ export function useUpdatePrice(projectId: string | undefined, planId: string | u
       metricId?: string;
       modelType?: "unit" | "tiered";
       cadence?: Cadence;
-      externalPriceId?: string;
       currency?: Currency;
       unitAmount?: number | null;
       tiers?: PriceTierInput[] | null;
@@ -599,7 +591,6 @@ export function useCreateSubscription(projectId: string | undefined) {
     mutationFn: (input: {
       customerId: string;
       planId: string;
-      externalSubscriptionId: string;
       cadence: Cadence;
       startDate?: string;
     }) =>

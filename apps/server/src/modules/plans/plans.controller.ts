@@ -43,15 +43,9 @@ export const plansController = {
         error: validatedData.error.issues[0]?.message ?? "invalid data",
       });
     }
-    const { name, description, externalPlanId, parentId } = validatedData.data;
+    const { name, description, parentId } = validatedData.data;
     try {
-      const plan = await plansService.create(
-        name,
-        projectId,
-        externalPlanId,
-        description,
-        parentId,
-      );
+      const plan = await plansService.create(name, projectId, description, parentId);
       return res.status(201).json({ plan });
     } catch (err) {
       return handleControllerError(req, res, err, {
@@ -73,16 +67,9 @@ export const plansController = {
         error: validatedData.error.issues[0]?.message ?? "invalid data",
       });
     }
-    const { name, description, externalPlanId, parentId } = validatedData.data;
+    const { name, description, parentId } = validatedData.data;
     try {
-      const plan = await plansService.update(
-        planId,
-        projectId,
-        name,
-        externalPlanId,
-        description,
-        parentId,
-      );
+      const plan = await plansService.update(planId, projectId, name, description, parentId);
       return res.status(200).json({ plan });
     } catch (err) {
       return handleControllerError(req, res, err, {

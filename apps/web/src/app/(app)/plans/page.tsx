@@ -51,7 +51,7 @@ export default function PlansPage() {
     const q = query.trim().toLowerCase();
     if (!q) return list;
     return list.filter((plan) =>
-      [plan.name, plan.externalPlanId, plan.description]
+      [plan.name, plan.description]
         .filter((value): value is string => Boolean(value))
         .some((value) => value.toLowerCase().includes(q)),
     );
@@ -145,7 +145,6 @@ export default function PlansPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Name</TableHead>
-                      <TableHead>External ID</TableHead>
                       <TableHead>Description</TableHead>
                       <TableHead>Created</TableHead>
                       <TableHead className="w-10" />
@@ -158,9 +157,6 @@ export default function PlansPage() {
                           <Link href={`/plans/${plan.id}`} className="text-primary hover:underline">
                             {plan.name}
                           </Link>
-                        </TableCell>
-                        <TableCell className="data-mono text-muted-foreground">
-                          {plan.externalPlanId}
                         </TableCell>
                         <TableCell className="max-w-xs truncate text-muted-foreground">
                           {plan.description ?? "—"}

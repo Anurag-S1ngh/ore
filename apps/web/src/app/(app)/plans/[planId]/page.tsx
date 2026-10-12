@@ -80,7 +80,7 @@ export default function PlanDetailPage() {
 
   return (
     <div className="flex min-h-full flex-col">
-      <PageHeader title={plan?.name ?? "Plan"} description={plan?.externalPlanId ?? "Plan details"}>
+      <PageHeader title={plan?.name ?? "Plan"} description={plan?.description ?? "Plan details"}>
         <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/plans" />}>
           <ArrowLeft />
           Back
@@ -104,10 +104,6 @@ export default function PlanDetailPage() {
                 <CardTitle>Details</CardTitle>
               </CardHeader>
               <CardContent className="divide-y">
-                <InfoRow
-                  label="External ID"
-                  value={<span className="data-mono">{plan.externalPlanId}</span>}
-                />
                 <InfoRow label="Description" value={plan.description ?? "—"} />
                 <InfoRow
                   label="Created"
@@ -157,7 +153,6 @@ export default function PlanDetailPage() {
                         <TableHead>Model</TableHead>
                         <TableHead className="text-right">Amount</TableHead>
                         <TableHead>Cadence</TableHead>
-                        <TableHead>External ID</TableHead>
                         <TableHead className="w-10" />
                       </TableRow>
                     </TableHeader>
@@ -182,9 +177,6 @@ export default function PlanDetailPage() {
                                 : `${price.priceTiers?.length ?? 0} tiers`}
                             </TableCell>
                             <TableCell className="text-muted-foreground">{price.cadence}</TableCell>
-                            <TableCell className="data-mono text-[11px] text-muted-foreground">
-                              {price.externalPriceId}
-                            </TableCell>
                             <TableCell>
                               <DropdownMenu>
                                 <DropdownMenuTrigger
@@ -244,7 +236,11 @@ export default function PlanDetailPage() {
           if (!open) setDeletingPrice(null);
         }}
         title="Delete price"
-        description={`This deletes "${deletingPrice?.externalPriceId}". Prices used by subscriptions or invoices cannot be deleted.`}
+        description={
+          deletingPrice
+            ? `This deletes the ${metricById.get(deletingPrice.metricId)?.name ?? deletingPrice.modelType} price. Prices used by subscriptions or invoices cannot be deleted.`
+            : "Prices used by subscriptions or invoices cannot be deleted."
+        }
         confirmLabel="Delete price"
         onConfirm={onDeletePrice}
         pending={deletePrice.isPending}

@@ -10,7 +10,6 @@ import { and, eq, isNull } from "drizzle-orm";
 import { db } from "@/services";
 import { AppError } from "@/types/error";
 import { decodeKeysetCursor, paginate } from "@/util/cursor";
-import { isUniqueViolation } from "@/util/db-error";
 import type {
   CreateSubscriptionInput,
   SubscriptionListFilters,
@@ -83,7 +82,7 @@ export const subscriptionsService = {
   },
 
   async create(projectId: string, input: CreateSubscriptionInput) {
-    const { customerId, planId, externalSubscriptionId, cadence } = input;
+    const { customerId, planId, cadence } = input;
 
     const [customer] = await db
       .select({ id: customers.id })
@@ -112,43 +111,35 @@ export const subscriptionsService = {
     const startDate = input.startDate ? new Date(input.startDate) : new Date();
     const periodEnd = addCadence(startDate, cadence);
 
-    try {
-      return await db.transaction(async (tx) => {
-        const [created] = await tx
-          .insert(subscriptions)
-          .values({
-            projectId,
-            planId,
-            customerId,
-            status: "active",
-            externalSubscriptionId,
-            cadence,
-            startDate,
-            currentPeriodStart: startDate,
-            currentPeriodEnd: periodEnd,
-          })
-          .returning();
-        if (!created) {
-          throw new AppError("failed to create subscription", 500);
-        }
-
-        await tx.insert(subscriptionPriceIntervals).values(
-          planPrices.map((price) => ({
-            subscriptionId: created.id,
-            priceId: price.id,
-            startDate,
-            endDate: null,
-          })),
-        );
-
-        return created;
-      });
-    } catch (err) {
-      if (isUniqueViolation(err)) {
-        throw new AppError("a subscription with the same external id already exists", 409);
+    return await db.transaction(async (tx) => {
+      const [created] = await tx
+        .insert(subscriptions)
+        .values({
+          projectId,
+          planId,
+          customerId,
+          status: "active",
+          cadence,
+          startDate,
+          currentPeriodStart: startDate,
+          currentPeriodEnd: periodEnd,
+        })
+        .returning();
+      if (!created) {
+        throw new AppError("failed to create subscription", 500);
       }
-      throw err;
-    }
+
+      await tx.insert(subscriptionPriceIntervals).values(
+        planPrices.map((price) => ({
+          subscriptionId: created.id,
+          priceId: price.id,
+          startDate,
+          endDate: null,
+        })),
+      );
+
+      return created;
+    });
   },
 
   async update(projectId: string, subscriptionId: string, input: UpdateSubscriptionInput) {
@@ -203,48 +194,41 @@ export const subscriptionsService = {
 
     const cadence = input.cadence ?? existing.cadence;
 
-    try {
-      return await db.transaction(async (tx) => {
-        if (targetPriceIds) {
-          const now = new Date();
-          await tx
-            .update(subscriptionPriceIntervals)
-            .set({ endDate: now })
-            .where(
-              and(
-                eq(subscriptionPriceIntervals.subscriptionId, subscriptionId),
-                isNull(subscriptionPriceIntervals.endDate),
-              ),
-            );
-          await tx.insert(subscriptionPriceIntervals).values(
-            targetPriceIds.map((priceId) => ({
-              subscriptionId,
-              priceId,
-              startDate: now,
-              endDate: null,
-            })),
+    return await db.transaction(async (tx) => {
+      if (targetPriceIds) {
+        const now = new Date();
+        await tx
+          .update(subscriptionPriceIntervals)
+          .set({ endDate: now })
+          .where(
+            and(
+              eq(subscriptionPriceIntervals.subscriptionId, subscriptionId),
+              isNull(subscriptionPriceIntervals.endDate),
+            ),
           );
-        }
-
-        const [updated] = await tx
-          .update(subscriptions)
-          .set({
-            planId: targetPlanId,
-            cadence,
-          })
-          .where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.projectId, projectId)))
-          .returning();
-        if (!updated) {
-          throw new AppError("subscription not found", 404);
-        }
-        return updated;
-      });
-    } catch (err) {
-      if (isUniqueViolation(err)) {
-        throw new AppError("a subscription with the same external id already exists", 409);
+        await tx.insert(subscriptionPriceIntervals).values(
+          targetPriceIds.map((priceId) => ({
+            subscriptionId,
+            priceId,
+            startDate: now,
+            endDate: null,
+          })),
+        );
       }
-      throw err;
-    }
+
+      const [updated] = await tx
+        .update(subscriptions)
+        .set({
+          planId: targetPlanId,
+          cadence,
+        })
+        .where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.projectId, projectId)))
+        .returning();
+      if (!updated) {
+        throw new AppError("subscription not found", 404);
+      }
+      return updated;
+    });
   },
 
   async cancel(projectId: string, subscriptionId: string) {

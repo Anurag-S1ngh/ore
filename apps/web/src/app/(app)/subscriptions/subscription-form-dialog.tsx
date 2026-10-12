@@ -32,10 +32,6 @@ import type { Cadence, Subscription } from "@/lib/types";
 const createSchema = z.object({
   customerId: z.string().min(1, "Customer is required"),
   planId: z.string().min(1, "Plan is required"),
-  externalSubscriptionId: z
-    .string()
-    .min(1, "External ID is required")
-    .max(255, "External ID is too long"),
   cadence: z.enum(["monthly", "yearly"]),
   startDate: z.string().optional(),
 });
@@ -72,7 +68,6 @@ export function SubscriptionFormDialog({
     defaultValues: {
       customerId: "",
       planId: "",
-      externalSubscriptionId: "",
       cadence: "monthly",
       startDate: "",
     },
@@ -91,7 +86,6 @@ export function SubscriptionFormDialog({
       createForm.reset({
         customerId: "",
         planId: "",
-        externalSubscriptionId: "",
         cadence: "monthly",
         startDate: "",
       });
@@ -107,7 +101,6 @@ export function SubscriptionFormDialog({
       {
         customerId: values.customerId,
         planId: values.planId,
-        externalSubscriptionId: values.externalSubscriptionId.trim(),
         cadence: values.cadence as Cadence,
         ...(values.startDate ? { startDate: new Date(values.startDate).toISOString() } : {}),
       },
@@ -170,7 +163,7 @@ export function SubscriptionFormDialog({
               >
                 {(plans.data ?? []).map((plan) => (
                   <option key={plan.id} value={plan.id}>
-                    {plan.name} ({plan.externalPlanId})
+                    {plan.name}
                   </option>
                 ))}
               </select>
@@ -229,7 +222,7 @@ export function SubscriptionFormDialog({
                   <option value="">Select a plan…</option>
                   {(plans.data ?? []).map((plan) => (
                     <option key={plan.id} value={plan.id}>
-                      {plan.name} ({plan.externalPlanId})
+                      {plan.name}
                     </option>
                   ))}
                 </select>
@@ -239,20 +232,6 @@ export function SubscriptionFormDialog({
                   </p>
                 ) : null}
               </div>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="subscription-external-id">External subscription ID</Label>
-              <Input
-                id="subscription-external-id"
-                placeholder="sub_12345"
-                className="data-mono"
-                {...createForm.register("externalSubscriptionId")}
-              />
-              {createForm.formState.errors.externalSubscriptionId ? (
-                <p className="text-[11px] text-destructive">
-                  {createForm.formState.errors.externalSubscriptionId.message}
-                </p>
-              ) : null}
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">

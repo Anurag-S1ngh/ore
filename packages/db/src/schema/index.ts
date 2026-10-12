@@ -160,22 +160,17 @@ export const usageAggregates = pgTable(
   ],
 );
 
-export const plans = pgTable(
-  "plans",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    projectId: uuid("project_id")
-      .references(() => projects.id)
-      .notNull(),
-    name: text("name").notNull(),
-    description: text("description"),
-    externalPlanId: text("external_plan_id").notNull(),
-    parentId: uuid("parent_id").references((): AnyPgColumn => plans.id),
+export const plans = pgTable("plans", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  projectId: uuid("project_id")
+    .references(() => projects.id)
+    .notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  parentId: uuid("parent_id").references((): AnyPgColumn => plans.id),
 
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  },
-  (t) => [unique().on(t.projectId, t.externalPlanId)],
-);
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
 
 export const prices = pgTable(
   "prices",
@@ -194,12 +189,10 @@ export const prices = pgTable(
     currency: currencyEnum("currency").notNull(),
     modelType: priceModelTypeEnum("model_type").notNull(),
     cadence: cadenceEnum("cadence").notNull(),
-    externalPriceId: text("external_price_id").notNull(),
 
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
-    unique().on(t.projectId, t.externalPriceId),
     index("prices_plan_idx").on(t.planId),
     index("prices_project_metric_idx").on(t.projectId, t.metricId),
   ],
@@ -235,7 +228,6 @@ export const subscriptions = pgTable(
       .references(() => customers.id)
       .notNull(),
     status: subscriptionStatusEnum("status").notNull(),
-    externalSubscriptionId: text("external_subscription_id").notNull(),
     cadence: cadenceEnum("cadence").notNull(),
     startDate: timestamp("start_date", { withTimezone: true }).notNull(),
     endDate: timestamp("end_date", { withTimezone: true }), // null while ongoing
@@ -248,7 +240,6 @@ export const subscriptions = pgTable(
     canceledAt: timestamp("canceled_at", { withTimezone: true }),
   },
   (t) => [
-    unique().on(t.projectId, t.externalSubscriptionId),
     index("subscriptions_project_customer_idx").on(t.projectId, t.customerId),
     index("subscriptions_project_status_idx").on(t.projectId, t.status),
   ],
