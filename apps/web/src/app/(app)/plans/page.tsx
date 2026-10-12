@@ -13,6 +13,7 @@ import { Input } from "@ore/ui/components/input";
 import { Skeleton } from "@ore/ui/components/skeleton";
 import { Eye, Layers, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -37,6 +38,7 @@ import { PlanFormDialog } from "./plan-form-dialog";
 export default function PlansPage() {
   const { selectedProject } = useProject();
   const projectId = selectedProject?.id;
+  const router = useRouter();
 
   const [query, setQuery] = React.useState("");
   const [formOpen, setFormOpen] = React.useState(false);
@@ -79,13 +81,7 @@ export default function PlansPage() {
         }
       >
         {projectId ? (
-          <Button
-            size="sm"
-            onClick={() => {
-              setEditing(null);
-              setFormOpen(true);
-            }}
-          >
+          <Button size="sm" onClick={() => router.push("/plans/new")}>
             <Plus />
             New plan
           </Button>
@@ -128,13 +124,7 @@ export default function PlansPage() {
                       : "No plans match your search."}
                   </p>
                   {plans.data?.length === 0 ? (
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        setEditing(null);
-                        setFormOpen(true);
-                      }}
-                    >
+                    <Button size="sm" onClick={() => router.push("/plans/new")}>
                       <Plus />
                       New plan
                     </Button>

@@ -271,6 +271,43 @@ export function useCreatePlan(projectId: string | undefined) {
   });
 }
 
+export type PlanBundlePriceInput = {
+  metric:
+    | { kind: "existing"; metricId: string }
+    | {
+        kind: "new";
+        name: string;
+        unit: string;
+        aggregation: "sum" | "max" | "count";
+        description?: string;
+      };
+  modelType: "unit" | "tiered";
+  cadence: Cadence;
+  currency?: Currency;
+  unitAmount?: number | null;
+  tiers?: PriceTierInput[] | null;
+};
+
+export function useCreatePlanBundle(projectId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: {
+      name: string;
+      description?: string;
+      parentId?: string;
+      prices: PlanBundlePriceInput[];
+    }) =>
+      apiFetch<{ plan: Plan }>(`/plans/${projectId}/bundle`, {
+        method: "POST",
+        body: input,
+      }).then((r) => r.plan),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.plans(projectId ?? "none") });
+      queryClient.invalidateQueries({ queryKey: queryKeys.metrics(projectId ?? "none") });
+    },
+  });
+}
+
 export function useUpdatePlan(projectId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
