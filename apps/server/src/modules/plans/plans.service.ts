@@ -1,10 +1,16 @@
-import { plans, prices, subscriptions } from "@ore/db/schema/index";
-import { and, desc, eq, lt, or } from "drizzle-orm";
+import { metrics, plans, prices, priceTiers, subscriptions } from "@ore/db/schema/index";
+import { and, desc, eq, inArray, lt, or } from "drizzle-orm";
 import { db } from "@/services";
 import { AppError } from "@/types/error";
 import { decodeKeysetCursor, paginate } from "@/util/cursor";
-import { isForeignKeyViolation } from "@/util/db-error";
-import type { PlanListFilters } from "./plans.validation";
+import { isForeignKeyViolation, isUniqueViolation } from "@/util/db-error";
+import {
+  assertPriceConsistency,
+  getProjectCurrency,
+  type TierInput,
+  toDecimal,
+} from "../prices/prices.shared";
+import type { CreatePlanBundleInput, PlanListFilters } from "./plans.validation";
 
 export const plansService = {
   async list(projectId: string, filters: PlanListFilters) {
@@ -56,6 +62,124 @@ export const plansService = {
       throw new AppError("failed to create plan", 500);
     }
     return created;
+  },
+
+  async createBundle(projectId: string, input: CreatePlanBundleInput) {
+    const { name, description, parentId, prices: priceInputs } = input;
+
+    if (parentId) {
+      const [parent] = await db.select().from(plans).where(eq(plans.id, parentId));
+      if (!parent || parent.projectId !== projectId) {
+        throw new AppError("invalid parent plan id", 400);
+      }
+    }
+
+    const defaultCurrency = await getProjectCurrency(projectId);
+
+    try {
+      return await db.transaction(async (tx) => {
+        const resolved: {
+          metricId: string;
+          modelType: (typeof priceInputs)[number]["modelType"];
+          cadence: (typeof priceInputs)[number]["cadence"];
+          currency: NonNullable<(typeof priceInputs)[number]["currency"]>;
+          unitAmount: number | null;
+          tiers: TierInput[] | null;
+        }[] = [];
+        const existingMetricIds = new Set<string>();
+
+        for (const price of priceInputs) {
+          let metricId: string;
+          if (price.metric.kind === "existing") {
+            metricId = price.metric.metricId;
+            existingMetricIds.add(metricId);
+          } else {
+            const [metric] = await tx
+              .insert(metrics)
+              .values({
+                projectId,
+                name: price.metric.name,
+                unit: price.metric.unit,
+                aggregation: price.metric.aggregation,
+                description: price.metric.description ?? null,
+              })
+              .returning();
+            if (!metric) {
+              throw new AppError("failed to create metric", 500);
+            }
+            metricId = metric.id;
+          }
+          resolved.push({
+            metricId,
+            modelType: price.modelType,
+            cadence: price.cadence,
+            currency: price.currency ?? defaultCurrency,
+            unitAmount: price.unitAmount ?? null,
+            tiers: price.tiers ?? null,
+          });
+        }
+
+        if (existingMetricIds.size > 0) {
+          const ids = [...existingMetricIds];
+          const found = await tx
+            .select({ id: metrics.id })
+            .from(metrics)
+            .where(and(eq(metrics.projectId, projectId), inArray(metrics.id, ids)));
+          if (found.length !== ids.length) {
+            throw new AppError("invalid metric id", 400);
+          }
+        }
+
+        const [plan] = await tx
+          .insert(plans)
+          .values({ projectId, name, description, parentId })
+          .returning();
+        if (!plan) {
+          throw new AppError("failed to create plan", 500);
+        }
+
+        for (const price of resolved) {
+          assertPriceConsistency({
+            modelType: price.modelType,
+            metricId: price.metricId,
+            unitAmount: price.unitAmount,
+            tiers: price.tiers,
+          });
+          const [created] = await tx
+            .insert(prices)
+            .values({
+              projectId,
+              planId: plan.id,
+              metricId: price.metricId,
+              currency: price.currency,
+              modelType: price.modelType,
+              cadence: price.cadence,
+              unitAmount: toDecimal(price.unitAmount),
+            })
+            .returning();
+          if (!created) {
+            throw new AppError("failed to create price", 500);
+          }
+          if (price.tiers && price.tiers.length > 0) {
+            await tx.insert(priceTiers).values(
+              price.tiers.map((tier) => ({
+                priceId: created.id,
+                firstUnit: tier.firstUnit.toFixed(6),
+                lastUnit: toDecimal(tier.lastUnit ?? null),
+                unitAmount: tier.unitAmount.toFixed(6),
+              })),
+            );
+          }
+        }
+
+        return plan;
+      });
+    } catch (err) {
+      if (isUniqueViolation(err)) {
+        throw new AppError("a metric with the same name already exists, or tiers conflict", 409);
+      }
+      throw err;
+    }
   },
 
   async update(

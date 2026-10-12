@@ -9,5 +9,6 @@ plansRouter.use(userAuthMiddleware);
 
 plansRouter.get("/:projectId", projectOwnedByUser, plansController.list);
 plansRouter.post("/:projectId", projectOwnedByUser, plansController.create);
+plansRouter.post("/:projectId/bundle", projectOwnedByUser, plansController.createBundle);
 plansRouter.patch("/:projectId/:planId", projectOwnedByUser, plansController.update);
 plansRouter.delete("/:projectId/:planId", projectOwnedByUser, plansController.delete);

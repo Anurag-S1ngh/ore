@@ -3,6 +3,7 @@ import { handleControllerError } from "@/middleware/error";
 import { projectIdParamSchema } from "@/modules/project/project.validation";
 import { plansService } from "./plans.service";
 import {
+  createPlanBundleSchema,
   createPlanSchema,
   planListQuerySchema,
   planParamSchema,
@@ -51,6 +52,29 @@ export const plansController = {
       return handleControllerError(req, res, err, {
         module: "plans",
         action: "create",
+        fallback: "error while creating plan",
+      });
+    }
+  },
+  async createBundle(req: Request, res: Response) {
+    const validParam = projectIdParamSchema.safeParse(req.params);
+    if (!validParam.success) {
+      return res.status(400).json({ error: validParam.error.issues[0]?.message });
+    }
+    const { projectId } = validParam.data;
+    const validatedData = createPlanBundleSchema.safeParse(req.body);
+    if (!validatedData.success) {
+      return res.status(400).json({
+        error: validatedData.error.issues[0]?.message ?? "invalid data",
+      });
+    }
+    try {
+      const plan = await plansService.createBundle(projectId, validatedData.data);
+      return res.status(201).json({ plan });
+    } catch (err) {
+      return handleControllerError(req, res, err, {
+        module: "plans",
+        action: "createBundle",
         fallback: "error while creating plan",
       });
     }
