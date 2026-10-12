@@ -15,7 +15,9 @@ export const createProjectSchema = z.object({
   description: z
     .string("invalid description")
     .min(1, "description is too short")
-    .max(255, "description is too long"),
+    .max(255, "description is too long")
+    .nullable()
+    .optional(),
   defaultCurrency: currency,
 });
 
@@ -25,6 +27,7 @@ export const updateProjectSchema = z.object({
     .string("invalid description")
     .min(1, "description is too short")
     .max(255, "description is too long")
+    .nullable()
     .optional(),
   defaultCurrency: currency.optional(),
 });

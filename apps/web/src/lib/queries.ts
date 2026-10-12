@@ -120,7 +120,7 @@ export function useProjects() {
 export function useCreateProject() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: { name: string; description: string; defaultCurrency: Currency }) =>
+    mutationFn: (input: { name: string; description?: string | null; defaultCurrency: Currency }) =>
       apiFetch<{ project: Project }>("/projects", { method: "POST", body: input }).then(
         (r) => r.project,
       ),
@@ -137,7 +137,7 @@ export function useUpdateProject() {
     }: {
       projectId: string;
       name?: string;
-      description?: string;
+      description?: string | null;
       defaultCurrency?: Currency;
     }) =>
       apiFetch<{ project: Project }>(`/projects/${projectId}`, {

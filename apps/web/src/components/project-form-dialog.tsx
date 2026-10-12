@@ -22,11 +22,17 @@ import { CURRENCIES, type Project } from "@/lib/types";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name is too long"),
-  description: z.string().min(1, "Description is required").max(255, "Description is too long"),
+  description: z.string().max(255, "Description is too long").optional(),
   defaultCurrency: z.enum(["USD", "JPY", "INR"]),
 });
 
-export type ProjectFormValues = z.infer<typeof schema>;
+type ProjectFormSchema = z.infer<typeof schema>;
+
+export type ProjectFormValues = {
+  name: string;
+  description: string | null;
+  defaultCurrency: ProjectFormSchema["defaultCurrency"];
+};
 
 export function ProjectFormDialog({
   open,
@@ -41,7 +47,7 @@ export function ProjectFormDialog({
   onSubmit: (values: ProjectFormValues) => void;
   pending?: boolean;
 }) {
-  const form = useForm<ProjectFormValues>({
+  const form = useForm<ProjectFormSchema>({
     resolver: zodResolver(schema),
     defaultValues: {
       name: project?.name ?? "",
@@ -62,6 +68,14 @@ export function ProjectFormDialog({
 
   const editing = Boolean(project);
 
+  function submit(values: ProjectFormSchema) {
+    onSubmit({
+      name: values.name.trim(),
+      description: values.description?.trim() ? values.description.trim() : null,
+      defaultCurrency: values.defaultCurrency,
+    });
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -73,7 +87,7 @@ export function ProjectFormDialog({
               : "Projects isolate metrics, customers, prices, and invoices for one product."}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <form onSubmit={form.handleSubmit(submit)} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="project-name">Name</Label>
             <Input id="project-name" placeholder="Acme Cloud" {...form.register("name")} />
@@ -82,7 +96,7 @@ export function ProjectFormDialog({
             ) : null}
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="project-description">Description</Label>
+            <Label htmlFor="project-description">Description (optional)</Label>
             <Input
               id="project-description"
               placeholder="Usage-based platform for Acme Cloud"

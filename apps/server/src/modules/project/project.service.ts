@@ -37,7 +37,7 @@ export const projectService = {
     userId: string,
     projectName: string,
     defaultCurrency: Currency,
-    projectDescription?: string,
+    projectDescription?: string | null,
   ) {
     const slug = generateSlug(projectName);
     const [newProject] = await db
@@ -60,7 +60,7 @@ export const projectService = {
     userId: string,
     projectId: string,
     projectName?: string,
-    description?: string,
+    description?: string | null,
     defaultCurrency?: Currency,
   ) {
     if (!projectName && !description && !defaultCurrency) {
