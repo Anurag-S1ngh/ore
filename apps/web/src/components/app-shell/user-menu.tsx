@@ -4,6 +4,7 @@ import { Button } from "@ore/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -49,22 +50,24 @@ export function UserMenu() {
         </span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" side="top" className="w-56">
-        <DropdownMenuLabel>
-          <span className="flex flex-col gap-0.5">
-            <span className="text-xs font-medium text-foreground">{label}</span>
-            <span className="truncate text-[10px]">{identity?.email ?? "—"}</span>
-          </span>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem disabled>
-          <UserRound className="size-3.5" />
-          Profile
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive" onClick={onLogout}>
-          <LogOut className="size-3.5" />
-          Sign out
-        </DropdownMenuItem>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>
+            <span className="flex flex-col gap-0.5">
+              <span className="text-xs font-medium text-foreground">{label}</span>
+              <span className="truncate text-[10px]">{identity?.email ?? "—"}</span>
+            </span>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem disabled>
+            <UserRound className="size-3.5" />
+            Profile
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive" onClick={onLogout}>
+            <LogOut className="size-3.5" />
+            Sign out
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );
