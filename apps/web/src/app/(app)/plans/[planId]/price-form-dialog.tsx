@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@ore/ui/components/button";
 import { Input } from "@ore/ui/components/input";
 import { Label } from "@ore/ui/components/label";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -22,6 +22,7 @@ import { getErrorMessage } from "@/lib/api";
 import { useProject } from "@/lib/project-context";
 import { type PriceTierInput, useCreatePrice, useMetrics, useUpdatePrice } from "@/lib/queries";
 import { CURRENCIES, type Currency, type Price } from "@/lib/types";
+import { TierFields } from "../tier-fields";
 
 const amountString = z
   .string()
@@ -297,61 +298,15 @@ export function PriceFormDialog({
             </div>
           ) : (
             <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <Label>Tiers</Label>
-                <Button type="button" variant="outline" size="sm" onClick={addTier}>
-                  <Plus />
-                  Add tier
-                </Button>
-              </div>
-              {tiers.map((tier, index) => (
-                <div key={index} className="grid grid-cols-[1fr_1fr_1fr_auto] items-end gap-2">
-                  <div className="flex flex-col gap-1">
-                    <Label>First unit</Label>
-                    <Input
-                      type="number"
-                      step="0.000001"
-                      min="0"
-                      value={tier.firstUnit}
-                      onChange={(e) => setTier(index, { firstUnit: e.target.value })}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <Label>Last unit (empty = ∞)</Label>
-                    <Input
-                      placeholder="∞"
-                      value={tier.lastUnit ?? ""}
-                      onChange={(e) => setTier(index, { lastUnit: e.target.value })}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <Label>Unit amount</Label>
-                    <Input
-                      type="number"
-                      step="0.000001"
-                      min="0"
-                      value={tier.unitAmount}
-                      onChange={(e) => setTier(index, { unitAmount: e.target.value })}
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label="Remove tier"
-                    onClick={() => removeTier(index)}
-                    disabled={tiers.length <= 1}
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
-                </div>
-              ))}
+              <TierFields
+                tiers={tiers}
+                onSetTier={setTier}
+                onAddTier={addTier}
+                onRemoveTier={removeTier}
+              />
               {form.formState.errors.tiers ? (
                 <p className="text-[11px] text-destructive">At least one tier is required</p>
               ) : null}
-              <p className="text-[11px] text-muted-foreground">
-                Only the last tier may be open-ended. Tiers must not overlap.
-              </p>
             </div>
           )}
 
