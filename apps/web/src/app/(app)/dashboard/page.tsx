@@ -64,7 +64,7 @@ export default function DashboardPage() {
           </Card>
         ) : null}
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">
           <StatCard
             label="Customers"
             value={customers.isLoading ? "—" : (customers.data?.length ?? 0)}
@@ -85,7 +85,7 @@ export default function DashboardPage() {
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-[2fr_1fr]">
+        <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-[2fr_1fr]">
           <Card size="sm">
             <CardHeader>
               <CardTitle>Recent customers</CardTitle>
@@ -138,25 +138,25 @@ export default function DashboardPage() {
               <CardTitle>Getting started</CardTitle>
               <CardDescription>Set up usage-based billing end to end.</CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col gap-1">
+            <CardContent className="flex flex-col gap-2">
               {STEPS.map((step, index) => {
                 const Icon = step.icon;
                 return (
                   <Link
                     key={step.href}
                     href={step.href}
-                    className="flex items-center gap-2 px-1 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                    className="flex items-center gap-2.5 rounded-md px-2 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
                     <span className="data-mono flex size-5 items-center justify-center border text-[10px]">
                       {index + 1}
                     </span>
-                    <Icon className="size-3.5" />
+                    <Icon className="size-4" />
                     {step.label}
                     <ArrowRight className="ml-auto size-3.5" />
                   </Link>
                 );
               })}
-              <div className="mt-2 flex items-center gap-2 px-1">
+              <div className="mt-2 flex items-center gap-2 px-2">
                 <Badge variant="warning">Metering API</Badge>
                 <span className="text-[10px] text-muted-foreground">coming soon</span>
               </div>
