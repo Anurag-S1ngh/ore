@@ -64,7 +64,7 @@ export default function DashboardPage() {
           </Card>
         ) : null}
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <StatCard
             label="Customers"
             value={customers.isLoading ? "—" : (customers.data?.length ?? 0)}
@@ -82,12 +82,6 @@ export default function DashboardPage() {
             value={selectedProject?.defaultCurrency ?? "—"}
             hint="Project default"
             icon={Gauge}
-          />
-          <StatCard
-            label="Slug"
-            value={<span className="text-sm">{selectedProject?.slug ?? "—"}</span>}
-            hint="Used in API calls"
-            icon={FolderKanban}
           />
         </div>
 
@@ -116,7 +110,6 @@ export default function DashboardPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>External ID</TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead className="text-right">Created</TableHead>
@@ -125,7 +118,6 @@ export default function DashboardPage() {
                   <TableBody>
                     {customers.data?.slice(0, 5).map((customer) => (
                       <TableRow key={customer.id}>
-                        <TableCell className="data-mono">{customer.externalId}</TableCell>
                         <TableCell>{customer.name ?? "—"}</TableCell>
                         <TableCell className="text-muted-foreground">
                           {customer.email ?? "—"}
