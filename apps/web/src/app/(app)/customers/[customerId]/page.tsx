@@ -68,7 +68,7 @@ export default function CustomerDetailPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.4fr_1fr]">
+          <div className="grid grid-cols-1 items-start gap-3 lg:grid-cols-[1.4fr_1fr]">
             <Card size="sm">
               <CardHeader>
                 <CardTitle>Details</CardTitle>
@@ -87,10 +87,6 @@ export default function CustomerDetailPage() {
                       {new Date(customer.createdAt).toLocaleString()}
                     </span>
                   }
-                />
-                <InfoRow
-                  label="Internal ID"
-                  value={<span className="data-mono text-[10px]">{customer.id}</span>}
                 />
               </CardContent>
             </Card>
