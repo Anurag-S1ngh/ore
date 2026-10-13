@@ -76,6 +76,13 @@ function shortId(id: string) {
   return `${id.slice(0, 8)}…`;
 }
 
+function formatDecimal(value: string) {
+  if (value === "") return value;
+  const n = Number(value);
+  if (!Number.isFinite(n)) return value;
+  return String(n);
+}
+
 export default function UsagePage() {
   const { selectedProject } = useProject();
   const projectId = selectedProject?.id;
@@ -455,7 +462,7 @@ export default function UsagePage() {
                                 ) : null}
                               </TableCell>
                               <TableCell className="data-mono text-right font-medium">
-                                {row.value}
+                                {formatDecimal(row.value)}
                               </TableCell>
                             </TableRow>
                           ))}

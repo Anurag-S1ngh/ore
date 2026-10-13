@@ -58,6 +58,13 @@ function shortId(id: string) {
   return `${id.slice(0, 8)}…`;
 }
 
+function formatDecimal(value: string) {
+  if (value === "") return value;
+  const n = Number(value);
+  if (!Number.isFinite(n)) return value;
+  return String(n);
+}
+
 function displayName(name?: string | null, email?: string | null, fallback?: string) {
   return name ?? email ?? fallback ?? "—";
 }
@@ -389,7 +396,7 @@ function EventsContent() {
                                 </Badge>
                               </TableCell>
                               <TableCell className="data-mono text-right font-medium">
-                                {event.quantity}
+                                {formatDecimal(event.quantity)}
                               </TableCell>
                               <TableCell className="data-mono max-w-44 truncate text-[11px] text-muted-foreground">
                                 <Tooltip>
