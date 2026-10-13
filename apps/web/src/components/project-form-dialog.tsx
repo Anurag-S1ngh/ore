@@ -121,6 +121,7 @@ export function ProjectFormDialog({
               name="defaultCurrency"
               render={({ field }) => (
                 <Select
+                  items={CURRENCIES}
                   value={field.value}
                   onValueChange={(value) =>
                     field.onChange(value as ProjectFormSchema["defaultCurrency"])
