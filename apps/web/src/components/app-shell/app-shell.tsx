@@ -68,11 +68,11 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
 
 function Brand() {
   return (
-    <Link href="/dashboard" className="flex items-center gap-2 px-2 py-1">
-      <span className="flex size-6 items-center justify-center bg-primary text-primary-foreground font-mono text-xs font-bold">
+    <Link href="/dashboard" className="flex items-center gap-2 px-2 py-4">
+      <span className="flex size-7 items-center justify-center bg-primary text-primary-foreground font-mono text-sm font-bold">
         o
       </span>
-      <span className="font-mono text-sm font-semibold tracking-tight">ore</span>
+      <span className="font-mono text-lg font-semibold tracking-tight">Ore</span>
     </Link>
   );
 }
@@ -127,10 +127,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <ProjectProvider>
       <div className="grid min-h-svh grid-cols-1 lg:grid-cols-[236px_1fr]">
         <aside className="sticky top-0 hidden h-svh flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:flex">
-          <div className="flex h-12 items-center border-b border-sidebar-border px-2">
+          <div className="flex h-16 items-center border-b border-sidebar-border px-2">
             <Brand />
           </div>
-          <div className="border-b border-sidebar-border p-2">
+          <div className="border-b border-sidebar-border px-2 py-3">
             <ProjectSwitcher />
           </div>
           <SidebarNav />
@@ -148,7 +148,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               aria-hidden
             />
             <aside className="relative z-10 flex h-full w-72 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
-              <div className="flex h-12 items-center justify-between border-b border-sidebar-border px-2">
+              <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-2">
                 <Brand />
                 <Button
                   variant="ghost"
@@ -159,7 +159,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <X className="size-4" />
                 </Button>
               </div>
-              <div className="border-b border-sidebar-border p-2">
+              <div className="border-b border-sidebar-border px-2 py-3">
                 <ProjectSwitcher />
               </div>
               <SidebarNav onNavigate={() => setMobileOpen(false)} />

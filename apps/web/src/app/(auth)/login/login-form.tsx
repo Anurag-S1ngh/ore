@@ -86,7 +86,7 @@ export function LoginForm() {
           <span className="flex size-7 items-center justify-center bg-primary font-mono text-sm font-bold text-primary-foreground">
             o
           </span>
-          <span className="font-mono text-sm font-semibold tracking-tight">ore</span>
+          <span className="font-mono text-lg font-semibold tracking-tight">Ore</span>
         </div>
         <div className="flex flex-col gap-1">
           <CardTitle className="text-lg">

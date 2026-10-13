@@ -14,7 +14,7 @@ export function PageHeader({
   return (
     <div className={cn("border-b bg-background", className)}>
       <div className="flex w-full flex-col gap-4 px-4 py-7 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-8 lg:px-8">
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
             {title}
           </h1>
