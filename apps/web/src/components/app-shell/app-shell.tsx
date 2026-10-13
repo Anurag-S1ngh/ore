@@ -12,7 +12,6 @@ import {
   LayoutDashboard,
   Menu,
   Repeat,
-  Settings,
   Users,
   X,
   Zap,
@@ -61,7 +60,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { href: "/projects", label: "Projects", icon: FolderKanban },
       { href: "/api-keys", label: "API Keys", icon: KeyRound },
-      { href: "/settings", label: "Settings", icon: Settings },
     ],
   },
 ];
