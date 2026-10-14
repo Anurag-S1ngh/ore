@@ -48,9 +48,6 @@ export const queryKeys = {
     ["subscription", projectId, subscriptionId] as const,
 };
 
-// Pages through a cursor-paginated list endpoint and returns every item.
-// Used for list endpoints that also feed selectors/dropdowns, so the UI keeps
-// seeing the full set until real frontend pagination lands.
 async function fetchAllPages<T>(path: string, key: string): Promise<T[]> {
   const items: T[] = [];
   let cursor: string | undefined;
@@ -72,7 +69,6 @@ async function fetchAllPages<T>(path: string, key: string): Promise<T[]> {
   return items;
 }
 
-/* ---------------------------------- auth --------------------------------- */
 export function useSendOtp() {
   return useMutation({
     mutationFn: (input: { email: string; username: string }) =>
@@ -107,8 +103,6 @@ export function useLogout() {
 export function rememberIdentity(email: string, username: string) {
   setIdentity({ email, username });
 }
-
-/* -------------------------------- projects ------------------------------- */
 
 export function useProjects() {
   return useQuery({
@@ -156,8 +150,6 @@ export function useDeleteProject() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.projects }),
   });
 }
-
-/* -------------------------------- customers ------------------------------ */
 
 export function useCustomers(projectId: string | undefined) {
   return useQuery({
@@ -213,8 +205,6 @@ export function useDeleteCustomer(projectId: string | undefined) {
   });
 }
 
-/* --------------------------------- api keys ------------------------------ */
-
 export function useApiKeys(projectId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.apiKeys(projectId ?? "none"),
@@ -247,8 +237,6 @@ export function useRevokeApiKey(projectId: string | undefined) {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys(projectId ?? "none") }),
   });
 }
-
-/* --------------------------------- plans --------------------------------- */
 
 export function usePlans(projectId: string | undefined) {
   return useQuery({
@@ -341,8 +329,6 @@ export function useDeletePlan(projectId: string | undefined) {
   });
 }
 
-/* --------------------------------- prices -------------------------------- */
-
 export type PriceTierInput = {
   firstUnit: number;
   lastUnit?: number | null;
@@ -419,8 +405,6 @@ export function useDeletePrice(projectId: string | undefined, planId: string | u
   });
 }
 
-/* -------------------------------- metrics -------------------------------- */
-
 export function useMetrics(projectId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.metrics(projectId ?? "none"),
@@ -489,8 +473,6 @@ export function useDeleteMetric(projectId: string | undefined) {
   });
 }
 
-/* --------------------------------- usage --------------------------------- */
-
 export type UsageFilters = {
   period: string;
   granularity?: UsageGranularity;
@@ -529,8 +511,6 @@ export function useUsage(projectId: string | undefined, filters: UsageFilters | 
     getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
 }
-
-/* --------------------------------- events -------------------------------- */
 
 export type EventFilters = {
   metricId?: string;
@@ -580,8 +560,6 @@ export function useEvent(projectId: string | undefined, eventId: string | undefi
       apiFetch<{ event: UsageEvent }>(`/events/${projectId}/${eventId}`).then((r) => r.event),
   });
 }
-
-/* ------------------------------ subscriptions ---------------------------- */
 
 export type SubscriptionFilters = {
   customerId?: string;
@@ -686,8 +664,6 @@ export function useCancelSubscription(projectId: string | undefined) {
     },
   });
 }
-
-/* -------------------------------- invoices ------------------------------- */
 
 export type InvoiceFilters = { customerId?: string; status?: InvoiceStatus };
 

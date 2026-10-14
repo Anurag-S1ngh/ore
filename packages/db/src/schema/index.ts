@@ -202,7 +202,7 @@ export const priceTiers = pgTable(
       .references(() => prices.id)
       .notNull(),
     firstUnit: decimal("first_unit", { precision: 20, scale: 6 }).notNull(),
-    lastUnit: decimal("last_unit", { precision: 20, scale: 6 }), // null = open-ended top tier
+    lastUnit: decimal("last_unit", { precision: 20, scale: 6 }),
     unitAmount: decimal("unit_amount", { precision: 20, scale: 6 }).notNull(),
 
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -226,7 +226,7 @@ export const subscriptions = pgTable(
     status: subscriptionStatusEnum("status").notNull(),
     cadence: cadenceEnum("cadence").notNull(),
     startDate: timestamp("start_date", { withTimezone: true }).notNull(),
-    endDate: timestamp("end_date", { withTimezone: true }), // null while ongoing
+    endDate: timestamp("end_date", { withTimezone: true }),
     currentPeriodStart: timestamp("current_period_start", {
       withTimezone: true,
     }),
@@ -252,7 +252,7 @@ export const subscriptionPriceIntervals = pgTable(
       .references(() => prices.id)
       .notNull(),
     startDate: timestamp("start_date", { withTimezone: true }).notNull(),
-    endDate: timestamp("end_date", { withTimezone: true }), // null = currently active interval
+    endDate: timestamp("end_date", { withTimezone: true }),
 
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },

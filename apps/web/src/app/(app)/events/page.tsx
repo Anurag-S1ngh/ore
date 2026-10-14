@@ -90,8 +90,6 @@ function EventsContent() {
   const [toInput, setToInput] = React.useState("");
   const [copied, setCopied] = React.useState<string | null>(null);
 
-  // Auto-load: applied defaults to linked filters (or {}) so the stream renders on mount.
-  // The form edits draft state, Explore commits it.
   const [applied, setApplied] = React.useState<{
     metricId?: string;
     customerId?: string;

@@ -49,7 +49,6 @@ describe("fromMicros", () => {
 
 describe("multiplyRounded", () => {
   test("multiplies two micros values exactly", () => {
-    // 200 units @ $0.05 = $10.00
     expect(multiplyRounded(200_000_000n, 50_000n)).toBe(10_000_000n);
   });
 
@@ -59,7 +58,6 @@ describe("multiplyRounded", () => {
   });
 
   test("rounds negatives away from zero", () => {
-    // -1.5 units @ $0.01 = -$0.015
     expect(multiplyRounded(-1_500_000n, 10_000n)).toBe(-15_000n);
   });
 
@@ -83,7 +81,6 @@ const graduatedTiers = (): TierBand[] => [
 
 describe("rateGraduated", () => {
   test("rates each band at its own rate", () => {
-    // 100 x $0.10 + 50 x $0.05 = $12.50
     const rated = rateGraduated(150_000_000n, graduatedTiers());
     expect(rated.quantityMicros).toBe(150_000_000n);
     expect(rated.amountMicros).toBe(12_500_000n);
@@ -117,7 +114,6 @@ describe("effectiveRate", () => {
   });
 
   test("computes the blended rate for tiered amounts", () => {
-    // $12.50 / 150 units = $0.083333
     expect(effectiveRate(12_500_000n, 150_000_000n)).toBe(83_333n);
   });
 
@@ -188,8 +184,6 @@ describe("overlaps", () => {
   });
 
   test("mid-period subscription start overlaps its own period", () => {
-    // Regression shape for the partial-bucket billing fix: the interval
-    // starts mid-window, so overlap must hold for rating to include it.
     expect(
       overlaps(
         utc("2026-10-07T17:54:07.097Z"),
