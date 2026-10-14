@@ -103,3 +103,6 @@ ore/
 - `bun run db:generate`: Generate database client/types
 - `bun run db:migrate`: Run database migrations
 - `bun run db:studio`: Open database studio UI
+- `bun run db:seed`: Seed a demo user and sample data
+- `bun run db:reset`: **Wipes all data, including users.** Any signed-in session keeps
+  a valid `auth_cookie` but points at a deleted user, so you must log in again

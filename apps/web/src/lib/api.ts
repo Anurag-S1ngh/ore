@@ -1,3 +1,5 @@
+"use client";
+
 import { ENV } from "@/env";
 
 export class ApiError extends Error {

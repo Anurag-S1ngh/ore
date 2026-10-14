@@ -55,12 +55,6 @@ const GRANULARITY_OPTIONS: { value: UsageGranularity; label: string }[] = [
   { value: "month", label: "Monthly" },
 ];
 
-const PRESETS = [
-  { label: "24H", granularity: "hour" },
-  { label: "7D", granularity: "day" },
-  { label: "30D", granularity: "day" },
-] as const;
-
 function toLocalInputValue(date: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
@@ -91,9 +85,7 @@ export default function UsagePage() {
   const [granularity, setGranularity] = React.useState<UsageGranularity>("hour");
   const [metricId, setMetricId] = React.useState("");
   const [customerId, setCustomerId] = React.useState("");
-  const [activePreset, setActivePreset] = React.useState<string | null>(null);
 
-  // Auto-load: default to "now" so rollups render on mount.
   const [appliedPeriod, setAppliedPeriod] = React.useState<string | null>(() =>
     new Date().toISOString(),
   );
@@ -115,23 +107,13 @@ export default function UsagePage() {
   function onExplore(event: React.FormEvent) {
     event.preventDefault();
     if (!periodInput) return;
-    setActivePreset(null);
     setAppliedPeriod(new Date(periodInput).toISOString());
-  }
-
-  function onPreset(label: string, presetGranularity: UsageGranularity) {
-    const now = new Date();
-    setPeriodInput(toLocalInputValue(now));
-    setGranularity(presetGranularity);
-    setActivePreset(label);
-    setAppliedPeriod(now.toISOString());
   }
 
   function onReset() {
     setMetricId("");
     setCustomerId("");
     setGranularity("hour");
-    setActivePreset(null);
     const now = new Date();
     setPeriodInput(toLocalInputValue(now));
     setAppliedPeriod(now.toISOString());
@@ -209,22 +191,6 @@ export default function UsagePage() {
                 </CardHeader>
                 <CardContent className="flex flex-col gap-4 px-0">
                   <form onSubmit={onExplore} className="flex flex-col gap-3 px-4">
-                    <div className="flex flex-wrap items-center gap-1">
-                      {PRESETS.map((preset) => (
-                        <Button
-                          key={preset.label}
-                          type="button"
-                          size="sm"
-                          variant={activePreset === preset.label ? "default" : "ghost"}
-                          onClick={() => onPreset(preset.label, preset.granularity)}
-                        >
-                          {preset.label}
-                        </Button>
-                      ))}
-                      <span className="data-mono ml-2 text-[11px] text-muted-foreground">
-                        {GRANULARITY_OPTIONS.find((g) => g.value === granularity)?.label} rollups
-                      </span>
-                    </div>
                     <div className="grid flex-1 grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
                       <div className="flex flex-col gap-1.5">
                         <Label htmlFor="usage-period">Period</Label>
@@ -234,7 +200,6 @@ export default function UsagePage() {
                           value={periodInput}
                           onChange={(e) => {
                             setPeriodInput(e.target.value);
-                            setActivePreset(null);
                           }}
                         />
                       </div>
@@ -248,7 +213,6 @@ export default function UsagePage() {
                           value={granularity}
                           onValueChange={(value) => {
                             setGranularity(value as UsageGranularity);
-                            setActivePreset(null);
                           }}
                         >
                           <SelectTrigger id="usage-granularity" className="w-full">

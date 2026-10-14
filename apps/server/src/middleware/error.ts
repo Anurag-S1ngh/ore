@@ -17,6 +17,8 @@ export const handleControllerError = (
 ) => {
   const log = req.log ?? logger;
 
+  res.err = err instanceof Error ? err : new Error(String(err));
+
   if (err instanceof AppError) {
     log.warn(
       { err, module: ctx.module, action: ctx.action, statusCode: err.statusCode },

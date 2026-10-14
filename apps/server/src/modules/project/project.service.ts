@@ -4,6 +4,7 @@ import { db } from "@/services";
 import { AppError } from "@/types/error";
 import type { Currency } from "@/types/projects";
 import { decodeKeysetCursor, paginate } from "@/util/cursor";
+import { isForeignKeyViolation } from "@/util/db-error";
 import { generateSlug } from "@/util/generateSlug";
 import type { ProjectListFilters } from "./project.validation";
 
@@ -40,16 +41,26 @@ export const projectService = {
     projectDescription?: string | null,
   ) {
     const slug = generateSlug(projectName);
-    const [newProject] = await db
-      .insert(projects)
-      .values({
-        name: projectName,
-        description: projectDescription,
-        slug,
-        defaultCurrency,
-        userId,
-      })
-      .returning();
+
+    let newProject: typeof projects.$inferSelect | undefined;
+    try {
+      [newProject] = await db
+        .insert(projects)
+        .values({
+          name: projectName,
+          description: projectDescription,
+          slug,
+          defaultCurrency,
+          userId,
+        })
+        .returning();
+    } catch (err) {
+      if (isForeignKeyViolation(err)) {
+        throw new AppError("session expired, please log in again", 401);
+      }
+      throw err;
+    }
+
     if (!newProject) {
       throw new AppError("error while creating project", 500);
     }
